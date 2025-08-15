@@ -46,6 +46,7 @@ export async function searchMeetings(
   query: string,
   options?: {
     house?: string
+    session?: string
     dateFrom?: string
     dateTo?: string
     speaker?: string
@@ -54,11 +55,12 @@ export async function searchMeetings(
   }
 ) {
   try {
-    const { house, dateFrom, dateTo, speaker, limit = PAGINATION.SEARCH_PAGE_SIZE, page = PAGINATION.DEFAULT_PAGE } = options || {}
+    const { house, session, dateFrom, dateTo, speaker, limit = PAGINATION.SEARCH_PAGE_SIZE, page = PAGINATION.DEFAULT_PAGE } = options || {}
 
     const result = await searchMeetingsInDB({
       keyword: query?.trim() || undefined,
       nameOfHouse: house || undefined,
+      session: session ? parseInt(session, 10) : undefined,
       speaker: speaker || undefined,
       from: dateFrom || undefined,
       until: dateTo || undefined,

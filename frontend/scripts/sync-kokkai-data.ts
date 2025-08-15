@@ -5,9 +5,9 @@ import type { MeetingRecord, SpeechRecord } from '../src/lib/types/api'
 import {
   normalizeSpeakerName,
   generateDisplayName,
-  generateSpeakerKey,
   isSystemSpeaker,
 } from '../src/lib/utils/speaker-normalizer'
+import * as readline from 'readline'
 
 const prisma = new PrismaClient()
 
@@ -374,13 +374,13 @@ async function main() {
         console.log('⚠️ この処理には時間がかかる可能性があります')
         console.log('続行しますか? (y/n): ')
 
-        const readline = require('readline').createInterface({
+        const rl = readline.createInterface({
           input: process.stdin,
           output: process.stdout,
         })
 
-        readline.question('', async (answer: string) => {
-          readline.close()
+        rl.question('', async (answer: string) => {
+          rl.close()
           if (answer.toLowerCase() === 'y') {
             await syncLastYear()
             await showStats()

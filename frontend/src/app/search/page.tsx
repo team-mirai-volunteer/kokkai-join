@@ -9,6 +9,7 @@ interface SearchPageProps {
     q?: string
     house?: string
     speaker?: string
+    session?: string
     from?: string
     until?: string
     page?: string
@@ -23,11 +24,15 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   let searchResult = null
   let error = null
 
-  if (query) {
+  // キーワードがなくても、他の検索条件がある場合は検索を実行
+  const hasSearchParams = query || params.house || params.speaker || params.session || params.from || params.until
+  
+  if (hasSearchParams) {
     try {
       searchResult = await searchMeetings(query, {
         house: params.house,
         speaker: params.speaker,
+        session: params.session,
         dateFrom: params.from,
         dateTo: params.until,
         page,
@@ -35,6 +40,16 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       })
     } catch (err) {
       error = err instanceof Error ? err.message : '検索中にエラーが発生しました'
+    }
+  } else {
+    // 検索条件がない場合は最新の会議録を表示
+    try {
+      searchResult = await searchMeetings('', {
+        page,
+        limit: 20,
+      })
+    } catch (err) {
+      error = err instanceof Error ? err.message : '会議録の取得に失敗しました'
     }
   }
 
@@ -55,7 +70,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       {searchResult && (
         <Box sx={{ mt: 4 }}>
           <Typography variant="h5" gutterBottom>
-            検索結果: {searchResult.totalCount.toLocaleString()}件
+            {hasSearchParams ? '検索結果' : '最新の会議録'}: {searchResult.totalCount.toLocaleString()}件
           </Typography>
 
           <Suspense fallback={<div>読み込み中...</div>}>
@@ -68,12 +83,6 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             />
           </Suspense>
         </Box>
-      )}
-
-      {!query && !error && (
-        <Alert severity="info" sx={{ mt: 3 }}>
-          キーワードを入力して検索してください。
-        </Alert>
       )}
     </Container>
   )

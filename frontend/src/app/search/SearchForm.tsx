@@ -6,9 +6,6 @@ import {
   Box,
   TextField,
   Button,
-  FormControl,
-  InputLabel,
-  Select,
   MenuItem,
   Paper,
   Grid,
@@ -22,6 +19,7 @@ interface SearchFormProps {
     q?: string
     house?: string
     speaker?: string
+    session?: string
     from?: string
     until?: string
   }
@@ -32,6 +30,7 @@ export function SearchForm({ initialValues }: SearchFormProps) {
   const [keyword, setKeyword] = useState(initialValues.q || '')
   const [house, setHouse] = useState(initialValues.house || '')
   const [speaker, setSpeaker] = useState(initialValues.speaker || '')
+  const [session, setSession] = useState(initialValues.session || '')
   const [dateFrom, setDateFrom] = useState(initialValues.from || '')
   const [dateUntil, setDateUntil] = useState(initialValues.until || '')
 
@@ -42,6 +41,7 @@ export function SearchForm({ initialValues }: SearchFormProps) {
       q: keyword,
       house,
       speaker,
+      session,
       from: dateFrom,
       until: dateUntil,
     })
@@ -61,20 +61,34 @@ export function SearchForm({ initialValues }: SearchFormProps) {
               onChange={(e) => setKeyword(e.target.value)}
               placeholder="検索したいキーワードを入力"
               variant="outlined"
+              slotProps={{
+                inputLabel: {
+                  shrink: true,
+                },
+              }}
             />
           </Grid>
 
           <Grid size={{ xs: 12, md: 6 }}>
-            <FormControl fullWidth>
-              <InputLabel>院</InputLabel>
-              <Select value={house} label="院" onChange={(e) => setHouse(e.target.value)}>
-                {HOUSE_TYPES.map((type) => (
-                  <MenuItem key={type.value} value={type.value}>
-                    {type.label}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <TextField
+              fullWidth
+              select
+              label="院"
+              value={house}
+              onChange={(e) => setHouse(e.target.value)}
+              variant="outlined"
+              slotProps={{
+                inputLabel: {
+                  shrink: true,
+                },
+              }}
+            >
+              {HOUSE_TYPES.map((type) => (
+                <MenuItem key={type.value} value={type.value}>
+                  {type.label}
+                </MenuItem>
+              ))}
+            </TextField>
           </Grid>
 
           <Grid size={{ xs: 12, md: 6 }}>
@@ -84,6 +98,29 @@ export function SearchForm({ initialValues }: SearchFormProps) {
               value={speaker}
               onChange={(e) => setSpeaker(e.target.value)}
               placeholder="発言者名で絞り込み"
+              variant="outlined"
+              slotProps={{
+                inputLabel: {
+                  shrink: true,
+                },
+              }}
+            />
+          </Grid>
+
+          <Grid size={{ xs: 12, md: 6 }}>
+            <TextField
+              fullWidth
+              label="国会回次"
+              value={session}
+              onChange={(e) => setSession(e.target.value)}
+              placeholder="例: 213"
+              variant="outlined"
+              type="number"
+              slotProps={{
+                inputLabel: {
+                  shrink: true,
+                },
+              }}
             />
           </Grid>
 
@@ -94,7 +131,12 @@ export function SearchForm({ initialValues }: SearchFormProps) {
               type="date"
               value={dateFrom}
               onChange={(e) => setDateFrom(e.target.value)}
-              InputLabelProps={{ shrink: true }}
+              variant="outlined"
+              slotProps={{
+                inputLabel: {
+                  shrink: true,
+                },
+              }}
             />
           </Grid>
 
@@ -105,7 +147,12 @@ export function SearchForm({ initialValues }: SearchFormProps) {
               type="date"
               value={dateUntil}
               onChange={(e) => setDateUntil(e.target.value)}
-              InputLabelProps={{ shrink: true }}
+              variant="outlined"
+              slotProps={{
+                inputLabel: {
+                  shrink: true,
+                },
+              }}
             />
           </Grid>
 
@@ -123,6 +170,7 @@ export function SearchForm({ initialValues }: SearchFormProps) {
                   setKeyword('')
                   setHouse('')
                   setSpeaker('')
+                  setSession('')
                   setDateFrom('')
                   setDateUntil('')
                   router.push('/search')

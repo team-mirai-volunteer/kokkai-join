@@ -76,6 +76,7 @@ export async function searchMeetingsInDB(params: {
   keyword?: string
   nameOfHouse?: string
   nameOfMeeting?: string
+  session?: number
   speaker?: string
   from?: string
   until?: string
@@ -95,6 +96,11 @@ export async function searchMeetingsInDB(params: {
       where.nameOfMeeting = {
         contains: params.nameOfMeeting,
       }
+    }
+
+    // 国会回次の絞り込み
+    if (params.session) {
+      where.session = params.session
     }
 
     // 日付範囲の絞り込み
@@ -174,8 +180,7 @@ export async function searchMeetingsInDB(params: {
       total,
       hasMore: (params.skip || 0) + meetings.length < total,
     }
-  } catch (error) {
-    console.error('Failed to search meetings in DB:', error)
+  } catch {
     return {
       meetings: [],
       total: 0,
