@@ -22,22 +22,15 @@ export default function MeetingNotFound() {
           • 会議録IDが正しくない
           <br />
           • 会議録が削除または移動された
-          <br />
-          • 一時的なシステムエラー
+          <br />• 一時的なシステムエラー
         </Typography>
       </Alert>
 
       <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
-        <Button
-          component={Link}
-          href="/"
-          variant="contained"
-          startIcon={<Home />}
-          size="large"
-        >
+        <Button component={Link} href="/" variant="contained" startIcon={<Home />} size="large">
           トップページに戻る
         </Button>
-        
+
         <Button
           component={Link}
           href="/search"

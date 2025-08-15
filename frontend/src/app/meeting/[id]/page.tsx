@@ -1,22 +1,22 @@
-import { 
-  Container, 
-  Typography, 
-  Box, 
-  Paper, 
-  Chip, 
+import {
+  Container,
+  Typography,
+  Box,
+  Paper,
+  Chip,
   Button,
   Divider,
   Alert,
   Breadcrumbs,
-  Link
+  Link,
 } from '@mui/material'
-import { 
-  ArrowBack, 
-  CalendarToday, 
-  Person, 
+import {
+  ArrowBack,
+  CalendarToday,
+  Person,
   Home,
   PictureAsPdf,
-  OpenInNew
+  OpenInNew,
 } from '@mui/icons-material'
 import NextLink from 'next/link'
 import { notFound } from 'next/navigation'
@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: MeetingDetailPageProps): Prom
   try {
     const { id } = await params
     const meeting = await getMeetingDetail(id)
-    
+
     if (!meeting) {
       return {
         title: '会議録が見つかりません | 国会ジョイン',
@@ -44,7 +44,7 @@ export async function generateMetadata({ params }: MeetingDetailPageProps): Prom
 
     return {
       title: `${meeting.nameOfMeeting} - 第${meeting.session}回国会 | 国会ジョイン`,
-      description: `${meeting.nameOfHouse}の${meeting.nameOfMeeting}（${formatMeetingDate(meeting.date)}開催）の会議録詳細ページです。`,
+      description: `${meeting.nameOfHouse}の${meeting.nameOfMeeting}（${formatMeetingDate(meeting.date.toString())}開催）の会議録詳細ページです。`,
       openGraph: {
         title: meeting.nameOfMeeting,
         description: `第${meeting.session}回国会 ${meeting.nameOfHouse}`,
@@ -63,7 +63,7 @@ export default async function MeetingDetailPage({ params }: MeetingDetailPagePro
   try {
     const { id } = await params
     const meeting = await getMeetingDetail(id)
-    
+
     if (!meeting) {
       notFound()
     }
@@ -72,7 +72,12 @@ export default async function MeetingDetailPage({ params }: MeetingDetailPagePro
       <Container maxWidth="lg" sx={{ py: 4 }}>
         {/* パンくずリスト */}
         <Breadcrumbs sx={{ mb: 3 }}>
-          <Link component={NextLink} href="/" color="inherit" sx={{ display: 'flex', alignItems: 'center' }}>
+          <Link
+            component={NextLink}
+            href="/"
+            color="inherit"
+            sx={{ display: 'flex', alignItems: 'center' }}
+          >
             <Home sx={{ mr: 0.5, fontSize: 16 }} />
             ホーム
           </Link>
@@ -95,9 +100,7 @@ export default async function MeetingDetailPage({ params }: MeetingDetailPagePro
           <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
             <Chip label={meeting.nameOfHouse} color="primary" />
             <Chip label={`第${meeting.session}回国会`} variant="outlined" />
-            {meeting.issue && (
-              <Chip label={meeting.issue} variant="outlined" />
-            )}
+            {meeting.issue && <Chip label={meeting.issue} variant="outlined" />}
           </Box>
 
           <Typography variant="h3" component="h1" gutterBottom sx={{ fontWeight: 'bold', mb: 2 }}>
@@ -108,27 +111,28 @@ export default async function MeetingDetailPage({ params }: MeetingDetailPagePro
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <CalendarToday sx={{ fontSize: 20, mr: 1, color: 'text.secondary' }} />
               <Typography variant="h6" color="text.secondary">
-                {formatMeetingDate(meeting.date)}
+                {formatMeetingDate(meeting.date.toString())}
               </Typography>
             </Box>
-            
-            {meeting.speechRecord && meeting.speechRecord.length > 0 && (
+
+            {meeting.speeches && meeting.speeches.length > 0 && (
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <Person sx={{ fontSize: 20, mr: 1, color: 'text.secondary' }} />
                 <Typography variant="h6" color="text.secondary">
                   {(() => {
-                    const speakers = meeting.speechRecord.map(speech => speech.speaker)
+                    const speakers = meeting.speeches.map((speech) => speech.rawSpeaker)
                     // システム情報を除外して実際の発言者のみをカウント
-                    const actualSpeakers = speakers.filter(speaker => 
-                      speaker && 
-                      speaker.trim() !== '' && 
-                      speaker !== '会議録情報' &&
-                      !speaker.includes('情報')
+                    const actualSpeakers = speakers.filter(
+                      (speaker) =>
+                        speaker &&
+                        speaker.trim() !== '' &&
+                        speaker !== '会議録情報' &&
+                        !speaker.includes('情報')
                     )
                     const uniqueSpeakers = new Set(actualSpeakers)
                     const speakerCount = uniqueSpeakers.size
-                    const speechCount = meeting.speechRecord.length
-                    
+                    const speechCount = meeting.speeches.length
+
                     return `${speakerCount}人で${speechCount}発言`
                   })()}
                 </Typography>
@@ -138,16 +142,18 @@ export default async function MeetingDetailPage({ params }: MeetingDetailPagePro
 
           {/* 外部リンク */}
           <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-            <Button
-              variant="contained"
-              startIcon={<OpenInNew />}
-              href={meeting.meetingURL}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              元の会議録を開く
-            </Button>
-            
+            {meeting.meetingURL && (
+              <Button
+                variant="contained"
+                startIcon={<OpenInNew />}
+                href={meeting.meetingURL}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                元の会議録を開く
+              </Button>
+            )}
+
             {meeting.pdfURL && (
               <Button
                 variant="outlined"
@@ -163,32 +169,41 @@ export default async function MeetingDetailPage({ params }: MeetingDetailPagePro
         </Paper>
 
         {/* 発言一覧 */}
-        {meeting.speechRecord && meeting.speechRecord.length > 0 ? (
+        {meeting.speeches && meeting.speeches.length > 0 ? (
           <Box>
             <Typography variant="h4" component="h2" gutterBottom sx={{ mb: 3 }}>
               発言一覧
             </Typography>
-            
+
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-              {meeting.speechRecord.map((speech) => (
+              {meeting.speeches.map((speech) => (
                 <Paper key={speech.speechID} sx={{ p: 3 }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2, flexWrap: 'wrap', gap: 1 }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'flex-start',
+                      mb: 2,
+                      flexWrap: 'wrap',
+                      gap: 1,
+                    }}
+                  >
                     <Box>
                       <Typography variant="h6" component="h3" sx={{ fontWeight: 'bold' }}>
-                        {speech.speaker}
+                        {speech.speaker ? speech.speaker.displayName : speech.rawSpeaker}
                       </Typography>
-                      {speech.speakerPosition && (
+                      {speech.rawSpeakerPosition && (
                         <Typography variant="body2" color="text.secondary">
-                          {speech.speakerPosition}
+                          {speech.rawSpeakerPosition}
                         </Typography>
                       )}
-                      {speech.speakerGroup && (
+                      {speech.rawSpeakerGroup && (
                         <Typography variant="body2" color="text.secondary">
-                          {speech.speakerGroup}
+                          {speech.rawSpeakerGroup}
                         </Typography>
                       )}
                     </Box>
-                    
+
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       <Typography variant="caption" color="text.secondary">
                         発言{speech.speechOrder}
@@ -204,12 +219,12 @@ export default async function MeetingDetailPage({ params }: MeetingDetailPagePro
                   {speech.speech && (
                     <>
                       <Divider sx={{ my: 2 }} />
-                      <Typography 
-                        variant="body1" 
-                        sx={{ 
+                      <Typography
+                        variant="body1"
+                        sx={{
                           lineHeight: 1.8,
                           whiteSpace: 'pre-wrap',
-                          wordBreak: 'break-word'
+                          wordBreak: 'break-word',
                         }}
                       >
                         {speech.speech}
@@ -218,16 +233,18 @@ export default async function MeetingDetailPage({ params }: MeetingDetailPagePro
                   )}
 
                   <Box sx={{ mt: 2, textAlign: 'right' }}>
-                    <Button
-                      size="small"
-                      variant="text"
-                      endIcon={<OpenInNew />}
-                      href={speech.speechURL}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      この発言の詳細
-                    </Button>
+                    {speech.speechURL && (
+                      <Button
+                        size="small"
+                        variant="text"
+                        endIcon={<OpenInNew />}
+                        href={speech.speechURL}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        この発言の詳細
+                      </Button>
+                    )}
                   </Box>
                 </Paper>
               ))}
@@ -236,15 +253,17 @@ export default async function MeetingDetailPage({ params }: MeetingDetailPagePro
         ) : (
           <Alert severity="info" sx={{ mt: 4 }}>
             この会議録には発言データが含まれていません。
-            <Button
-              variant="text"
-              href={meeting.meetingURL}
-              target="_blank"
-              rel="noopener noreferrer"
-              sx={{ ml: 2 }}
-            >
-              元の会議録で確認する
-            </Button>
+            {meeting.meetingURL && (
+              <Button
+                variant="text"
+                href={meeting.meetingURL}
+                target="_blank"
+                rel="noopener noreferrer"
+                sx={{ ml: 2 }}
+              >
+                元の会議録で確認する
+              </Button>
+            )}
           </Alert>
         )}
       </Container>

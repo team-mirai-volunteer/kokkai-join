@@ -1,32 +1,37 @@
 'use server'
 
-import { kokkaiiAPI } from '../api/kokkaii-client'
-import type { RecentMeeting, MeetingRecord } from '../types/api'
+import {
+  getRecentMeetingsFromDB,
+  searchMeetingsInDB,
+  getMeetingByIssueID,
+  getDBStats,
+} from '@/lib/db/meeting-db'
+import { PAGINATION } from '@/lib/constants'
+import type { RecentMeeting } from '@/lib/types/api'
 
 /**
- * 最近の会議録を取得するServer Action
+ * 最近の会議録を取得するServer Action（DBから）
  */
 export async function getRecentMeetings(limit: number = 10): Promise<RecentMeeting[]> {
   try {
-    const meetings = await kokkaiiAPI.getRecentMeetings(limit)
+    const meetings = await getRecentMeetingsFromDB(limit)
     return meetings
   } catch (error) {
     console.error('Server Action: getRecentMeetings failed:', error)
-    // エラーの場合は空配列を返す（フォールバック）
     return []
   }
 }
 
 /**
- * 特定の会議録詳細を取得するServer Action
+ * 特定の会議録詳細を取得するServer Action（DBから）
  */
-export async function getMeetingDetail(issueId: string): Promise<MeetingRecord | null> {
+export async function getMeetingDetail(issueId: string) {
   try {
     if (!issueId || typeof issueId !== 'string') {
       throw new Error('Invalid issueId provided')
     }
 
-    const meeting = await kokkaiiAPI.getMeetingDetail(issueId)
+    const meeting = await getMeetingByIssueID(issueId)
     return meeting
   } catch (error) {
     console.error('Server Action: getMeetingDetail failed:', error)
@@ -35,38 +40,62 @@ export async function getMeetingDetail(issueId: string): Promise<MeetingRecord |
 }
 
 /**
- * 会議録を検索するServer Action
+ * 会議録を検索するServer Action（DBから）
  */
-export async function searchMeetings(query: string, options?: {
-  house?: string
-  dateFrom?: string
-  dateTo?: string
-  limit?: number
-}) {
+export async function searchMeetings(
+  query: string,
+  options?: {
+    house?: string
+    dateFrom?: string
+    dateTo?: string
+    speaker?: string
+    limit?: number
+    page?: number
+  }
+) {
   try {
-    if (!query || typeof query !== 'string' || query.trim().length === 0) {
-      throw new Error('検索キーワードを入力してください')
-    }
+    const { house, dateFrom, dateTo, speaker, limit = PAGINATION.SEARCH_PAGE_SIZE, page = PAGINATION.DEFAULT_PAGE } = options || {}
 
-    const { house, dateFrom, dateTo, limit = 30 } = options || {}
-
-    const response = await kokkaiiAPI.searchMeetings({
-      any: query.trim(),
+    const result = await searchMeetingsInDB({
+      keyword: query?.trim() || undefined,
       nameOfHouse: house || undefined,
+      speaker: speaker || undefined,
       from: dateFrom || undefined,
       until: dateTo || undefined,
-      maximumRecords: limit,
+      skip: (page - 1) * limit,
+      take: limit,
     })
 
     return {
-      meetings: response.meetingRecord || [],
-      totalCount: response.numberOfRecords,
-      hasMore: response.nextRecordPosition !== undefined,
-      nextStartRecord: response.nextRecordPosition,
+      meetings: result.meetings.map((m) => ({
+        issueID: m.id,
+        nameOfMeeting: m.title,
+        nameOfHouse: m.house,
+        date: m.date,
+        session: m.session,
+        issue: m.issue,
+        meetingURL: m.url,
+        pdfURL: m.pdfUrl,
+        speechCount: m.speechCount,
+      })),
+      totalCount: result.total,
+      hasMore: result.hasMore,
+      currentPage: page,
     }
   } catch (error) {
-    console.error('Server Action: searchMeetings failed:', error)
     throw new Error(error instanceof Error ? error.message : '検索に失敗しました')
   }
 }
 
+/**
+ * データベース統計を取得
+ */
+export async function getDatabaseStats() {
+  try {
+    const stats = await getDBStats()
+    return stats
+  } catch (error) {
+    console.error('Server Action: getDatabaseStats failed:', error)
+    return null
+  }
+}

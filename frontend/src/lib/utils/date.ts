@@ -11,7 +11,7 @@ export function formatMeetingDate(dateString: string): string {
     return date.toLocaleDateString('ja-JP', {
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
     })
   } catch {
     return dateString
@@ -27,7 +27,7 @@ export function formatDateShort(dateString: string): string {
     return date.toLocaleDateString('ja-JP', {
       year: 'numeric',
       month: 'numeric',
-      day: 'numeric'
+      day: 'numeric',
     })
   } catch {
     return dateString
@@ -62,5 +62,25 @@ export function formatRelativeTime(dateString: string): string {
     }
   } catch {
     return dateString
+  }
+}
+
+/**
+ * 検索用の日付文字列をYYYY-MM-DD形式に変換
+ */
+export function parseSearchDate(dateInput: string | undefined): string {
+  if (!dateInput) return ''
+  
+  try {
+    const date = new Date(dateInput)
+    if (isNaN(date.getTime())) return ''
+    
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    
+    return `${year}-${month}-${day}`
+  } catch {
+    return ''
   }
 }

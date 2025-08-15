@@ -1,15 +1,15 @@
-'use client';
+'use client'
 
-import { useRouter } from 'next/navigation';
-import { Button } from '@mui/material';
-import { Search } from '@mui/icons-material';
+import { useRouter } from 'next/navigation'
+import { Button } from '@mui/material'
+import { Search } from '@mui/icons-material'
 
 export default function SearchButton() {
-  const router = useRouter();
+  const router = useRouter()
 
   const handleSearchClick = () => {
-    router.push('/search');
-  };
+    router.push('/search')
+  }
 
   return (
     <Button
@@ -21,5 +21,5 @@ export default function SearchButton() {
     >
       会議録を検索
     </Button>
-  );
+  )
 }

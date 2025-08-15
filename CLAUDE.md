@@ -79,3 +79,33 @@ This appears to be a fresh Next.js project created with `create-next-app`. The b
 ## Architecture Considerations
 
 Since this is a monorepo structure with separate frontend and backend directories, future development should maintain clear separation between client and server code. The empty backend directory suggests plans for a Node.js/Express API or similar backend implementation.
+
+## Coding Best Practices
+
+### TypeScript and Prisma Type Inference
+
+このプロジェクトでは、Prismaの自動生成型とTypeScriptの型推論を最大限活用して、型定義の重複を避けています：
+
+1. **Prismaの型推論を使用**
+   ```typescript
+   // includeオプションから型を自動生成
+   export type MeetingWithSpeeches = Prisma.MeetingGetPayload<{
+     include: {
+       speeches: {
+         include: { speaker: true }
+       }
+     }
+   }>
+   ```
+
+2. **関数の戻り値から型を推論**
+   ```typescript
+   // 関数の戻り値から型を推論
+   export type MeetingListItem = Awaited<ReturnType<typeof getRecentMeetingsFromDB>>[number]
+   ```
+
+3. **型アノテーションを最小限に**
+   - Prismaクエリの戻り値は自動的に型が付くため、明示的な型アノテーションは不要
+   - エラーハンドリング時のみ必要に応じて型を指定
+
+この方式により、型定義の重複を避け、Prismaスキーマが更新されても自動的に型が同期されます。

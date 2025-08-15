@@ -1,13 +1,13 @@
-'use client';
+'use client'
 
-import { createTheme } from '@mui/material/styles';
+import { createTheme } from '@mui/material/styles'
 
 // モダンなカラーパレット
 const colors = {
   primary: {
     50: '#f0f7ff',
     100: '#c7e1ff',
-    200: '#9ec8ff', 
+    200: '#9ec8ff',
     300: '#75abff',
     400: '#4c8eff',
     500: '#0969da', // メインプライマリー
@@ -89,7 +89,7 @@ export const theme = createTheme({
   typography: {
     fontFamily: [
       '-apple-system',
-      'BlinkMacSystemFont', 
+      'BlinkMacSystemFont',
       '"Segoe UI"',
       '"Noto Sans"',
       'Helvetica',
@@ -99,7 +99,7 @@ export const theme = createTheme({
       '"Segoe UI Emoji"',
       'var(--font-geist-sans)',
     ].join(','),
-    
+
     // 見出しのスタイル
     h1: {
       fontSize: '32px',
@@ -110,7 +110,7 @@ export const theme = createTheme({
     },
     h2: {
       fontSize: '24px',
-      fontWeight: 600, 
+      fontWeight: 600,
       lineHeight: 1.25,
       letterSpacing: '-0.01em',
       color: colors.gray[900],
@@ -128,7 +128,7 @@ export const theme = createTheme({
       color: colors.gray[900],
     },
     h5: {
-      fontSize: '14px', 
+      fontSize: '14px',
       fontWeight: 600,
       lineHeight: 1.25,
       color: colors.gray[900],
@@ -141,7 +141,7 @@ export const theme = createTheme({
       letterSpacing: '0.05em',
       color: colors.gray[700],
     },
-    
+
     // 本文テキスト
     body1: {
       fontSize: '14px',
@@ -153,7 +153,7 @@ export const theme = createTheme({
       lineHeight: 1.4,
       color: colors.gray[700],
     },
-    
+
     subtitle1: {
       fontSize: '16px',
       fontWeight: 400,
@@ -163,17 +163,17 @@ export const theme = createTheme({
     subtitle2: {
       fontSize: '14px',
       fontWeight: 500,
-      lineHeight: 1.4, 
+      lineHeight: 1.4,
       color: colors.gray[700],
     },
-    
+
     caption: {
       fontSize: '11px',
       lineHeight: 1.4,
       letterSpacing: '0.01em',
       color: colors.gray[600],
     },
-    
+
     overline: {
       fontSize: '10px',
       fontWeight: 600,
@@ -182,7 +182,7 @@ export const theme = createTheme({
       textTransform: 'uppercase',
       color: colors.gray[600],
     },
-    
+
     button: {
       fontSize: '14px',
       fontWeight: 500,
@@ -366,4 +366,4 @@ export const theme = createTheme({
       },
     },
   },
-});
+})

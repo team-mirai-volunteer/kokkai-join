@@ -1,25 +1,21 @@
-import { 
-  Box, 
-  Typography, 
-  Card, 
-  CardContent, 
-  Chip, 
-  Stack
-} from '@mui/material'
-import { 
-  CalendarToday, 
-  Description,
-  RecordVoiceOver 
-} from '@mui/icons-material'
+import { Box, Typography, Card, CardContent, Chip, Stack, CircularProgress } from '@mui/material'
+import { CalendarToday, Description, RecordVoiceOver } from '@mui/icons-material'
 import NextLink from 'next/link'
 import type { RecentMeeting } from '@/lib/types/api'
 
 interface RecentMeetingsListProps {
-  meetings: RecentMeeting[]
+  meetings?: RecentMeeting[]
 }
 
 export function RecentMeetingsList({ meetings }: RecentMeetingsListProps) {
-
+  if (!meetings) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+        <CircularProgress />
+      </Box>
+    )
+  }
+  
   if (meetings.length === 0) {
     return (
       <Box sx={{ textAlign: 'center', py: 4 }}>
@@ -35,14 +31,8 @@ export function RecentMeetingsList({ meetings }: RecentMeetingsListProps) {
       <Typography variant="h4" component="h2" gutterBottom sx={{ mb: 4 }}>
         最近の会議録
       </Typography>
-      
-      <Stack 
-        direction="row" 
-        flexWrap="wrap" 
-        spacing={3} 
-        justifyContent="flex-start"
-        useFlexGap
-      >
+
+      <Stack direction="row" flexWrap="wrap" spacing={3} justifyContent="flex-start" useFlexGap>
         {meetings.map((meeting) => (
           <MeetingCard key={meeting.id} meeting={meeting} />
         ))}
@@ -58,7 +48,7 @@ function MeetingCard({ meeting }: { meeting: RecentMeeting }) {
       return date.toLocaleDateString('ja-JP', {
         year: 'numeric',
         month: 'long',
-        day: 'numeric'
+        day: 'numeric',
       })
     } catch {
       return dateString
@@ -66,10 +56,10 @@ function MeetingCard({ meeting }: { meeting: RecentMeeting }) {
   }
 
   return (
-    <Card 
+    <Card
       component={NextLink}
       href={`/meeting/${meeting.id}`}
-      sx={{ 
+      sx={{
         display: 'flex',
         flexDirection: 'column',
         transition: 'all 0.2s ease-in-out',
@@ -79,30 +69,23 @@ function MeetingCard({ meeting }: { meeting: RecentMeeting }) {
         '&:hover': {
           transform: 'translateY(-2px)',
           boxShadow: '0 8px 16px rgba(0, 0, 0, 0.15)',
-        }
+        },
       }}
     >
       <CardContent sx={{ flexGrow: 1, textAlign: 'left' }}>
         {/* ヘッダー */}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Chip 
-            label={meeting.house} 
-            size="small" 
-            color="primary"
-            variant="outlined"
-          />
+          <Chip label={meeting.house} size="small" color="primary" variant="outlined" />
           <Box sx={{ display: 'flex', alignItems: 'center', color: 'text.secondary' }}>
             <CalendarToday sx={{ fontSize: 16, mr: 0.5 }} />
-            <Typography variant="caption">
-              {formatDate(meeting.date)}
-            </Typography>
+            <Typography variant="caption">{formatDate(meeting.date)}</Typography>
           </Box>
         </Box>
 
         {/* タイトル */}
-        <Typography 
-          variant="h6" 
-          component="h3" 
+        <Typography
+          variant="h6"
+          component="h3"
           gutterBottom
           sx={{
             fontWeight: 600,
@@ -148,4 +131,3 @@ function MeetingCard({ meeting }: { meeting: RecentMeeting }) {
     </Card>
   )
 }
-
