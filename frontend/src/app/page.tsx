@@ -80,9 +80,9 @@ export default function Home() {
         </div>
 
         {/* トピック一覧 */}
-        <div className="space-y-6">
+        <div className="space-y-8">
           {filteredTopics.map((topic) => (
-            <Link key={topic.id} href={`/topics/${topic.id}`}>
+            <Link key={topic.id} href={`/topics/${topic.id}`} className="block">
               <div className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer">
                 {/* トピックヘッダー */}
                 <div className="flex items-center justify-between mb-4">

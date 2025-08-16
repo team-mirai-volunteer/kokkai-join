@@ -1,13 +1,15 @@
 "use client";
 
-import React from "react";
+import Link from "next/link";
 import { notFound } from "next/navigation";
+import React from "react";
+import Header from "@/components/Header";
+import SummaryCard from "@/components/SummaryCard";
 import {
   getMemberById,
   getStanceDistributionCounts,
   getTopicById,
 } from "@/data/mock_data";
-import Header from "@/components/Header";
 
 interface TopicDetailPageProps {
   params: Promise<{
@@ -66,6 +68,9 @@ export default function TopicDetailPage({ params }: TopicDetailPageProps) {
               {stanceCounts.unclassified}
             </span>
           </div>
+
+          {/* 要約セクション */}
+          <SummaryCard content={topic.summary} />
         </div>
 
         {/* 議論の結果・決定事項 */}
@@ -217,12 +222,14 @@ export default function TopicDetailPage({ params }: TopicDetailPageProps) {
               </div>
             )}
 
-            <button
-              type="button"
-              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
-            >
-              詳細
-            </button>
+            <Link href={`/topics/${id}/stance/support`}>
+              <button
+                type="button"
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
+              >
+                詳細
+              </button>
+            </Link>
           </div>
 
           {/* 反対系 */}
@@ -267,12 +274,14 @@ export default function TopicDetailPage({ params }: TopicDetailPageProps) {
               </div>
             )}
 
-            <button
-              type="button"
-              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
-            >
-              詳細
-            </button>
+            <Link href={`/topics/${id}/stance/oppose`}>
+              <button
+                type="button"
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
+              >
+                詳細
+              </button>
+            </Link>
           </div>
         </div>
 
@@ -294,12 +303,14 @@ export default function TopicDetailPage({ params }: TopicDetailPageProps) {
                   );
                 })}
               </ul>
-              <button
-                type="button"
-                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
-              >
-                詳細
-              </button>
+              <Link href={`/topics/${id}/stance/unclassified`}>
+                <button
+                  type="button"
+                  className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
+                >
+                  詳細
+                </button>
+              </Link>
             </div>
           </div>
         )}

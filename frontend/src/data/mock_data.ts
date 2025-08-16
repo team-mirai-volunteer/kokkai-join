@@ -403,3 +403,93 @@ export const getStatementsByStance = (
   const statements = getStatementsByTopicId(topicId);
   return statements.filter((s) => s.stance === stance);
 };
+
+export const getStatementsByStanceDetail = (
+  topicId: string,
+  stance: "support" | "oppose" | "unclassified",
+  stanceDetail?: string
+): Statement[] => {
+  const statements = getStatementsByStance(topicId, stance);
+  if (!stanceDetail) return statements;
+  return statements.filter((s) => s.stanceDetail === stanceDetail);
+};
+
+// スタンス別詳細画面用のデータ取得
+export const getStanceDetailData = (
+  topicId: string,
+  stance: "support" | "oppose" | "unclassified"
+) => {
+  const topic = getTopicById(topicId);
+  if (!topic) return null;
+
+  const statements = getStatementsByStance(topicId, stance);
+  const stanceCounts = getStanceDistributionCounts(topicId);
+
+  // スタンス別の詳細分類
+  let categories: { label: string; statements: Statement[] }[] = [];
+
+  if (stance === "support") {
+    categories = [
+      {
+        label: "明確な賛成",
+        statements: statements.filter(
+          (s) => s.stanceDetail === "clear_support"
+        ),
+      },
+      {
+        label: "条件付き賛成",
+        statements: statements.filter(
+          (s) => s.stanceDetail === "conditional_support"
+        ),
+      },
+    ];
+  } else if (stance === "oppose") {
+    categories = [
+      {
+        label: "明確な反対",
+        statements: statements.filter((s) => s.stanceDetail === "clear_oppose"),
+      },
+      {
+        label: "懸念表明",
+        statements: statements.filter(
+          (s) => s.stanceDetail === "concern_expression"
+        ),
+      },
+    ];
+  } else {
+    categories = [
+      {
+        label: "質問のみ",
+        statements: statements.filter(
+          (s) => s.stanceDetail === "question_only"
+        ),
+      },
+      {
+        label: "態度保留",
+        statements: statements.filter((s) => s.stanceDetail === "reserved"),
+      },
+    ];
+  }
+
+  // 発言の要約
+  let summary = "";
+  if (stance === "support") {
+    summary =
+      "社会保障制度の持続可能性確保を最重要視し、段階的な実施により経済への影響を緩和しながら進める方針で合意。軽減税率の拡充を条件とする意見も多く、低所得世帯への配慮が重視されている。";
+  } else if (stance === "oppose") {
+    summary =
+      "現在の経済状況下での増税は家計や中小企業への負担が重すぎるとして反対。代替的な財源確保策の検討不足や、十分な影響調査なしでの性急な実施への懸念が表明されている。";
+  } else {
+    summary =
+      "実施スケジュールや具体的な制度設計について質問が集中。段階的実施の詳細な工程表や評価方法について、より明確な説明を求める声が多い。";
+  }
+
+  return {
+    topic,
+    stance,
+    stanceCounts,
+    categories: categories.filter((cat) => cat.statements.length > 0),
+    summary,
+    totalCount: statements.length,
+  };
+};
