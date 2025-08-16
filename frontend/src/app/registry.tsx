@@ -7,6 +7,7 @@ import { ThemeProvider } from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
 import createCache from '@emotion/cache';
 import { theme } from './theme';
+import { Navigation } from './components/Navigation';
 
 function createEmotionCache() {
   return createCache({
@@ -60,6 +61,7 @@ export default function Registry({ children }: { children: React.ReactNode }) {
     <CacheProvider value={cache}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
+        <Navigation />
         {children}
       </ThemeProvider>
     </CacheProvider>

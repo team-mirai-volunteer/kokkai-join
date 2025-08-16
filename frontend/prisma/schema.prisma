@@ -49,7 +49,6 @@ model Speaker {
   nameYomi        String?   // よみがな（任意）
   
   // 統計情報（キャッシュ用）
-  speechCount     Int       @default(0) // 総発言数
   firstSpeechDate DateTime? // 最初の発言日
   lastSpeechDate  DateTime? // 最後の発言日
   
@@ -91,9 +90,6 @@ model House {
   name            String    @unique // 院名（衆議院、参議院、両院、その他）
   code            String?   // 院コード
   displayOrder    Int       @default(0) // 表示順
-  
-  // リレーション
-  affiliations    SpeakerAffiliation[]
   
   // メタデータ
   createdAt       DateTime  @default(now())
@@ -157,16 +153,13 @@ model SpeakerRole {
   @@index([name])
 }
 
-// 発言者の所属履歴（院と会派のみ）
+// 発言者の所属履歴（会派のみ）
 model SpeakerAffiliation {
   id              String    @id @default(cuid())
   speakerId       String
   speaker         Speaker   @relation(fields: [speakerId], references: [id], onDelete: Cascade)
   
-  // 所属情報（院と会派のみ）
-  houseId         String?
-  house           House?    @relation(fields: [houseId], references: [id])
-  
+  // 所属情報（会派のみ）
   partyGroupId    String?
   partyGroup      PartyGroup? @relation(fields: [partyGroupId], references: [id])
   
@@ -183,7 +176,6 @@ model SpeakerAffiliation {
   
   // インデックス
   @@index([speakerId])
-  @@index([houseId])
   @@index([partyGroupId])
   @@index([startDate])
   @@index([endDate])

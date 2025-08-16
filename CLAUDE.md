@@ -194,15 +194,32 @@ bun scripts/cleanup-duplicate-speakers.ts # 重複Speakerの削除
    }>
    ```
 
-2. **関数の戻り値から型を推論**
+2. **コンポーネントでのPrisma型の使用**
+   ```typescript
+   // データベースオブジェクトの型はPrismaから取得
+   import type { Prisma } from '@prisma/client';
+   
+   type SpeakerWithDetails = Prisma.SpeakerGetPayload<{
+     include: {
+       aliases: true;
+       affiliations: {
+         include: { house: true; partyGroup: true; }
+       };
+     };
+   }>;
+   ```
+
+3. **関数の戻り値から型を推論**
    ```typescript
    // 関数の戻り値から型を推論
    export type MeetingListItem = Awaited<ReturnType<typeof getRecentMeetingsFromDB>>[number]
    ```
 
-3. **型アノテーションを最小限に**
+4. **型アノテーションのガイドライン**
    - Prismaクエリの戻り値は自動的に型が付くため、明示的な型アノテーションは不要
-   - エラーハンドリング時のみ必要に応じて型を指定
+   - データベースに関連するオブジェクトの型定義はPrismaから取得する
+   - UIコンポーネント固有の型のみ個別に定義する
+   - `any`型の使用を避け、必ず適切な型を定義する
 
 この方式により、型定義の重複を避け、Prismaスキーマが更新されても自動的に型が同期されます。
 

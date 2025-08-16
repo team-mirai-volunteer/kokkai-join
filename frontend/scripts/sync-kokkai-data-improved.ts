@@ -18,7 +18,7 @@ const CACHE_DIR = path.join(process.cwd(), '.cache', 'kokkai');
 const CONFIG = {
   BATCH_SIZE: 10, // 並列で詳細取得する会議録数
   MAX_CONCURRENT_SAVE: 5, // 並列でDBに保存する会議録数
-  API_DELAY_MS: 500, // API呼び出し間のディレイ（ミリ秒）
+  API_DELAY_MS: 100, // API呼び出し間のディレイ（ミリ秒）
   RETRY_COUNT: 3, // リトライ回数
   RETRY_DELAY_MS: 2000, // リトライ前の待機時間
   CACHE_EXPIRES_DAYS: 7, // キャッシュ有効期限（日）
@@ -195,6 +195,7 @@ class ImprovedKokkaiClient {
     // バッチ処理
     for (let i = 0; i < meetings.length; i += CONFIG.BATCH_SIZE) {
       const batch = meetings.slice(i, Math.min(i + CONFIG.BATCH_SIZE, meetings.length));
+      let apiCallCount = 0; // このバッチでAPIを呼んだ回数
 
       // 並列で詳細を取得
       const promises = batch.map(async (meeting) => {
@@ -208,7 +209,8 @@ class ImprovedKokkaiClient {
           return cached;
         }
 
-        // APIから取得
+        // APIから取得（キャッシュになかった場合）
+        apiCallCount++;
         const url = `${this.baseURL}/meeting?issueID=${encodeURIComponent(meeting.issueID)}&recordPacking=json`;
         const data = await this.fetchWithRetry<DetailedMeetingResponse>(url);
 
@@ -229,8 +231,8 @@ class ImprovedKokkaiClient {
         onProgress(detailedMeetings.length, meetings.length);
       }
 
-      // APIレート制限を考慮
-      if (i + CONFIG.BATCH_SIZE < meetings.length) {
+      // APIレート制限を考慮（実際にAPIを呼んだ場合のみ）
+      if (i + CONFIG.BATCH_SIZE < meetings.length && apiCallCount > 0) {
         await this.sleep(CONFIG.API_DELAY_MS * 2);
       }
     }
@@ -245,7 +247,6 @@ class SpeakerManager {
   private pendingCreations = new Map<string, Promise<{ id: string }>>();
 
   // マスターデータのキャッシュ
-  private houseCache = new Map<string, string>(); // name -> id
   private partyGroupCache = new Map<string, string>(); // name -> id
   private positionCache = new Map<string, string>(); // name -> id
   private roleCache = new Map<string, string>(); // name -> id
@@ -253,31 +254,6 @@ class SpeakerManager {
   // 同姓同名は同一人物なので、nameのみをキーとする
   private getCacheKey(name: string): string {
     return name;
-  }
-
-  // 院マスターの取得または作成
-  private async findOrCreateHouse(houseName: string | null): Promise<string | null> {
-    if (!houseName) return null;
-
-    if (this.houseCache.has(houseName)) {
-      return this.houseCache.get(houseName)!;
-    }
-
-    let house = await prisma.house.findUnique({ where: { name: houseName } });
-    if (!house) {
-      try {
-        house = await prisma.house.create({
-          data: { name: houseName },
-        });
-      } catch (error) {
-        // 競合した場合は再度検索
-        house = await prisma.house.findUnique({ where: { name: houseName } });
-        if (!house) throw error;
-      }
-    }
-
-    this.houseCache.set(houseName, house.id);
-    return house.id;
   }
 
   // 会派マスターの取得または作成
@@ -364,8 +340,7 @@ class SpeakerManager {
 
   async findOrCreateSpeaker(
     speech: SpeechRecord,
-    meetingDate: Date,
-    meetingHouse: string | null = null
+    meetingDate: Date
   ): Promise<{ speakerId: string | null; affiliationId: string | null }> {
     if (isSystemSpeaker(speech.speaker)) {
       return { speakerId: null, affiliationId: null };
@@ -407,12 +382,7 @@ class SpeakerManager {
     }
 
     // 所属情報の作成または取得
-    const affiliationId = await this.findOrCreateAffiliation(
-      speaker.id,
-      speech,
-      meetingDate,
-      meetingHouse
-    );
+    const affiliationId = await this.findOrCreateAffiliation(speaker.id, speech, meetingDate);
 
     return { speakerId: speaker.id, affiliationId };
   }
@@ -435,7 +405,6 @@ class SpeakerManager {
             normalizedName,
             displayName,
             nameYomi: speech.speakerYomi || null,
-            speechCount: 1,
             firstSpeechDate: meetingDate,
             lastSpeechDate: meetingDate,
           },
@@ -448,14 +417,28 @@ class SpeakerManager {
         if (!speaker) throw error;
       }
     } else {
-      // 既存の場合は統計更新
-      await prisma.speaker.update({
-        where: { id: speaker.id },
-        data: {
-          speechCount: { increment: 1 },
-          lastSpeechDate: meetingDate,
-        },
-      });
+      // 既存の場合は発言日を更新
+      const updateData: {
+        firstSpeechDate?: Date;
+        lastSpeechDate?: Date;
+      } = {};
+      
+      // より古い発言の場合は初回発言日を更新
+      if (!speaker.firstSpeechDate || meetingDate < speaker.firstSpeechDate) {
+        updateData.firstSpeechDate = meetingDate;
+      }
+      
+      // より新しい発言の場合は最終発言日を更新
+      if (!speaker.lastSpeechDate || meetingDate > speaker.lastSpeechDate) {
+        updateData.lastSpeechDate = meetingDate;
+      }
+      
+      if (Object.keys(updateData).length > 0) {
+        await prisma.speaker.update({
+          where: { id: speaker.id },
+          data: updateData,
+        });
+      }
     }
 
     // 別名登録
@@ -476,52 +459,104 @@ class SpeakerManager {
     return speaker;
   }
 
+  // 所属情報のキャッシュ（speakerId-partyGroupId をキーとする）
+  private affiliationCache = new Map<string, string>();
+  private pendingAffiliations = new Map<string, Promise<string | null>>();
+
   // 所属情報の取得または作成
   private async findOrCreateAffiliation(
     speakerId: string,
     speech: SpeechRecord,
-    meetingDate: Date,
-    meetingHouse: string | null
+    meetingDate: Date
   ): Promise<string | null> {
-    // 院を推定（meetingHouseを優先、なければspeakerGroupから推定）
-    let houseId: string | null = null;
-    if (meetingHouse) {
-      houseId = await this.findOrCreateHouse(meetingHouse);
-    } else if (
-      speech.speakerGroup &&
-      (speech.speakerGroup.includes('衆議院') || speech.speakerGroup.includes('参議院'))
-    ) {
-      const houseName = speech.speakerGroup.includes('衆議院') ? '衆議院' : '参議院';
-      houseId = await this.findOrCreateHouse(houseName);
-    }
-
     // 会派を取得または作成
     const partyGroupId = await this.findOrCreatePartyGroup(speech.speakerGroup || null);
 
-    // 両方nullの場合は所属情報なし
-    if (!houseId && !partyGroupId) {
+    // nullの場合は所属情報なし
+    if (!partyGroupId) {
       return null;
     }
 
-    // 既存の所属情報を検索
+    // キャッシュキー
+    const cacheKey = `${speakerId}-${partyGroupId}`;
+    
+    // メモリキャッシュチェック
+    if (this.affiliationCache.has(cacheKey)) {
+      return this.affiliationCache.get(cacheKey)!;
+    }
+    
+    // 既に作成中の場合は待機
+    if (this.pendingAffiliations.has(cacheKey)) {
+      return await this.pendingAffiliations.get(cacheKey)!;
+    }
+
+    // 作成処理を開始
+    const creationPromise = this.doCreateAffiliation(speakerId, partyGroupId, meetingDate);
+    this.pendingAffiliations.set(cacheKey, creationPromise);
+    
+    try {
+      const result = await creationPromise;
+      if (result) {
+        this.affiliationCache.set(cacheKey, result);
+      }
+      return result;
+    } finally {
+      this.pendingAffiliations.delete(cacheKey);
+    }
+  }
+
+  private async doCreateAffiliation(
+    speakerId: string,
+    partyGroupId: string,
+    meetingDate: Date
+  ): Promise<string | null> {
+    // 既存の所属情報を検索（同じ会派で有効期間内のもの）
     const existingAffiliation = await prisma.speakerAffiliation.findFirst({
       where: {
         speakerId,
-        houseId,
         partyGroupId,
-        OR: [{ endDate: null }, { endDate: { gte: meetingDate } }],
+        OR: [
+          { endDate: null }, // 現在も継続中
+          {
+            AND: [{ startDate: { lte: meetingDate } }, { endDate: { gte: meetingDate } }],
+          }, // 発言日が期間内
+        ],
       },
+      orderBy: { startDate: 'desc' },
     });
 
     if (existingAffiliation) {
+      // より古い日時の場合は開始日を更新
+      if (meetingDate < existingAffiliation.startDate) {
+        await prisma.speakerAffiliation.update({
+          where: { id: existingAffiliation.id },
+          data: { startDate: meetingDate },
+        });
+      }
       return existingAffiliation.id;
     }
 
-    // 新規作成
+    // 最新の所属情報を確認（会派が変わった場合）
+    const latestAffiliation = await prisma.speakerAffiliation.findFirst({
+      where: {
+        speakerId,
+        endDate: null, // 現在有効なもの
+      },
+      orderBy: { startDate: 'desc' },
+    });
+
+    // 別の会派に所属している場合は、その所属を終了させる
+    if (latestAffiliation && latestAffiliation.partyGroupId !== partyGroupId) {
+      await prisma.speakerAffiliation.update({
+        where: { id: latestAffiliation.id },
+        data: { endDate: meetingDate },
+      });
+    }
+
+    // 新規作成または再所属
     const affiliation = await prisma.speakerAffiliation.create({
       data: {
         speakerId,
-        houseId,
         partyGroupId,
         startDate: meetingDate,
       },
@@ -573,8 +608,7 @@ async function saveMeetingsBatch(
                   meeting.speechRecord.map(async (speech) => {
                     const { speakerId, affiliationId } = await speakerManager.findOrCreateSpeaker(
                       speech,
-                      new Date(meeting.date),
-                      meeting.nameOfHouse
+                      new Date(meeting.date)
                     );
 
                     // 役職と役割のIDを取得
@@ -636,8 +670,7 @@ async function saveMeetingsBatch(
                   meeting.speechRecord.map(async (speech) => {
                     const { speakerId, affiliationId } = await speakerManager.findOrCreateSpeaker(
                       speech,
-                      new Date(meeting.date),
-                      meeting.nameOfHouse
+                      new Date(meeting.date)
                     );
 
                     // 役職と役割のIDを取得
@@ -875,6 +908,27 @@ async function main() {
         await showStats();
         break;
 
+      case 'reset-and-sync-10years':
+        const reset10 = await resetDatabase();
+        if (!reset10) {
+          await prisma.$disconnect();
+          return;
+        }
+
+        console.log('\n🚀 過去10年分のデータ同期を開始します');
+        const endDate10 = new Date();
+        const startDate10 = new Date();
+        startDate10.setFullYear(startDate10.getFullYear() - 10);
+
+        await syncDateRange({
+          startDate: startDate10.toISOString().split('T')[0],
+          endDate: endDate10.toISOString().split('T')[0],
+          useCache: true,
+        });
+
+        await showStats();
+        break;
+
       case 'sync':
         const start = args[1];
         const end = args[2];
@@ -909,10 +963,11 @@ async function main() {
 
       default:
         console.log('使用方法:');
-        console.log('  bun run script reset-and-sync-year  # DBリセット & 1年分同期');
+        console.log('  bun run script reset-and-sync-year    # DBリセット & 1年分同期');
+        console.log('  bun run script reset-and-sync-10years # DBリセット & 10年分同期');
         console.log('  bun run script sync <開始日> <終了日> [院] [会議名] [--use-cache]');
-        console.log('  bun run script clear-cache           # キャッシュクリア');
-        console.log('  bun run script stats                 # 統計表示');
+        console.log('  bun run script clear-cache             # キャッシュクリア');
+        console.log('  bun run script stats                   # 統計表示');
         break;
     }
   } catch (error) {

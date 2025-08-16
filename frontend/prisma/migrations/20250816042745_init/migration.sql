@@ -25,7 +25,6 @@ CREATE TABLE "public"."Speaker" (
     "normalizedName" TEXT NOT NULL,
     "displayName" TEXT NOT NULL,
     "nameYomi" TEXT,
-    "speechCount" INTEGER NOT NULL DEFAULT 0,
     "firstSpeechDate" TIMESTAMP(3),
     "lastSpeechDate" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -46,11 +45,74 @@ CREATE TABLE "public"."SpeakerAlias" (
 );
 
 -- CreateTable
+CREATE TABLE "public"."House" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "code" TEXT,
+    "displayOrder" INTEGER NOT NULL DEFAULT 0,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "House_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."PartyGroup" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "shortName" TEXT,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "PartyGroup_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."Position" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "category" TEXT,
+    "level" INTEGER NOT NULL DEFAULT 0,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Position_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."SpeakerRole" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "description" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "SpeakerRole_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."SpeakerAffiliation" (
+    "id" TEXT NOT NULL,
+    "speakerId" TEXT NOT NULL,
+    "partyGroupId" TEXT,
+    "startDate" TIMESTAMP(3) NOT NULL,
+    "endDate" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "SpeakerAffiliation_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "public"."Speech" (
     "id" TEXT NOT NULL,
     "speechID" TEXT NOT NULL,
     "meetingId" TEXT NOT NULL,
     "speakerId" TEXT,
+    "affiliationId" TEXT,
+    "positionId" TEXT,
+    "roleId" TEXT,
     "rawSpeaker" TEXT NOT NULL,
     "rawSpeakerYomi" TEXT,
     "rawSpeakerGroup" TEXT,
@@ -121,7 +183,7 @@ CREATE INDEX "Speaker_nameYomi_idx" ON "public"."Speaker"("nameYomi");
 CREATE INDEX "Speaker_displayName_idx" ON "public"."Speaker"("displayName");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Speaker_normalizedName_nameYomi_key" ON "public"."Speaker"("normalizedName", "nameYomi");
+CREATE UNIQUE INDEX "Speaker_normalizedName_key" ON "public"."Speaker"("normalizedName");
 
 -- CreateIndex
 CREATE INDEX "SpeakerAlias_speakerId_idx" ON "public"."SpeakerAlias"("speakerId");
@@ -133,6 +195,48 @@ CREATE INDEX "SpeakerAlias_aliasName_idx" ON "public"."SpeakerAlias"("aliasName"
 CREATE UNIQUE INDEX "SpeakerAlias_aliasName_aliasYomi_key" ON "public"."SpeakerAlias"("aliasName", "aliasYomi");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "House_name_key" ON "public"."House"("name");
+
+-- CreateIndex
+CREATE INDEX "House_name_idx" ON "public"."House"("name");
+
+-- CreateIndex
+CREATE INDEX "PartyGroup_name_idx" ON "public"."PartyGroup"("name");
+
+-- CreateIndex
+CREATE INDEX "PartyGroup_isActive_idx" ON "public"."PartyGroup"("isActive");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "PartyGroup_name_key" ON "public"."PartyGroup"("name");
+
+-- CreateIndex
+CREATE INDEX "Position_name_idx" ON "public"."Position"("name");
+
+-- CreateIndex
+CREATE INDEX "Position_category_idx" ON "public"."Position"("category");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Position_name_key" ON "public"."Position"("name");
+
+-- CreateIndex
+CREATE INDEX "SpeakerRole_name_idx" ON "public"."SpeakerRole"("name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "SpeakerRole_name_key" ON "public"."SpeakerRole"("name");
+
+-- CreateIndex
+CREATE INDEX "SpeakerAffiliation_speakerId_idx" ON "public"."SpeakerAffiliation"("speakerId");
+
+-- CreateIndex
+CREATE INDEX "SpeakerAffiliation_partyGroupId_idx" ON "public"."SpeakerAffiliation"("partyGroupId");
+
+-- CreateIndex
+CREATE INDEX "SpeakerAffiliation_startDate_idx" ON "public"."SpeakerAffiliation"("startDate");
+
+-- CreateIndex
+CREATE INDEX "SpeakerAffiliation_endDate_idx" ON "public"."SpeakerAffiliation"("endDate");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Speech_speechID_key" ON "public"."Speech"("speechID");
 
 -- CreateIndex
@@ -140,6 +244,15 @@ CREATE INDEX "Speech_meetingId_idx" ON "public"."Speech"("meetingId");
 
 -- CreateIndex
 CREATE INDEX "Speech_speakerId_idx" ON "public"."Speech"("speakerId");
+
+-- CreateIndex
+CREATE INDEX "Speech_affiliationId_idx" ON "public"."Speech"("affiliationId");
+
+-- CreateIndex
+CREATE INDEX "Speech_positionId_idx" ON "public"."Speech"("positionId");
+
+-- CreateIndex
+CREATE INDEX "Speech_roleId_idx" ON "public"."Speech"("roleId");
 
 -- CreateIndex
 CREATE INDEX "Speech_rawSpeaker_idx" ON "public"."Speech"("rawSpeaker");
@@ -169,7 +282,22 @@ CREATE INDEX "SearchCache_hitCount_idx" ON "public"."SearchCache"("hitCount");
 ALTER TABLE "public"."SpeakerAlias" ADD CONSTRAINT "SpeakerAlias_speakerId_fkey" FOREIGN KEY ("speakerId") REFERENCES "public"."Speaker"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "public"."SpeakerAffiliation" ADD CONSTRAINT "SpeakerAffiliation_speakerId_fkey" FOREIGN KEY ("speakerId") REFERENCES "public"."Speaker"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."SpeakerAffiliation" ADD CONSTRAINT "SpeakerAffiliation_partyGroupId_fkey" FOREIGN KEY ("partyGroupId") REFERENCES "public"."PartyGroup"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "public"."Speech" ADD CONSTRAINT "Speech_meetingId_fkey" FOREIGN KEY ("meetingId") REFERENCES "public"."Meeting"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "public"."Speech" ADD CONSTRAINT "Speech_speakerId_fkey" FOREIGN KEY ("speakerId") REFERENCES "public"."Speaker"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."Speech" ADD CONSTRAINT "Speech_affiliationId_fkey" FOREIGN KEY ("affiliationId") REFERENCES "public"."SpeakerAffiliation"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."Speech" ADD CONSTRAINT "Speech_positionId_fkey" FOREIGN KEY ("positionId") REFERENCES "public"."Position"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."Speech" ADD CONSTRAINT "Speech_roleId_fkey" FOREIGN KEY ("roleId") REFERENCES "public"."SpeakerRole"("id") ON DELETE SET NULL ON UPDATE CASCADE;

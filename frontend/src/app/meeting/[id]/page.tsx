@@ -189,9 +189,28 @@ export default async function MeetingDetailPage({ params }: MeetingDetailPagePro
                     }}
                   >
                     <Box>
-                      <Typography variant="h6" component="h3" sx={{ fontWeight: 'bold' }}>
-                        {speech.speaker ? speech.speaker.displayName : speech.rawSpeaker}
-                      </Typography>
+                      {speech.speaker ? (
+                        <Link
+                          component={NextLink}
+                          href={`/speakers/${speech.speaker.id}`}
+                          sx={{ textDecoration: 'none', color: 'inherit' }}
+                        >
+                          <Typography 
+                            variant="h6" 
+                            component="h3" 
+                            sx={{ 
+                              fontWeight: 'bold',
+                              '&:hover': { color: 'primary.main' }
+                            }}
+                          >
+                            {speech.speaker.displayName}
+                          </Typography>
+                        </Link>
+                      ) : (
+                        <Typography variant="h6" component="h3" sx={{ fontWeight: 'bold' }}>
+                          {speech.rawSpeaker}
+                        </Typography>
+                      )}
                       {speech.rawSpeakerPosition && (
                         <Typography variant="body2" color="text.secondary">
                           {speech.rawSpeakerPosition}

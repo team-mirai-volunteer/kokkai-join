@@ -212,7 +212,6 @@ async function createSpeeches(meetingId: string, speeches: SpeechRecord[]): Prom
           normalizedName: normalizedName,
           displayName: displayName,
           nameYomi: speech.speakerYomi || null,
-          speechCount: 1,
           firstSpeechDate: meeting.date,
           lastSpeechDate: meeting.date,
         },
@@ -237,7 +236,6 @@ async function createSpeeches(meetingId: string, speeches: SpeechRecord[]): Prom
       await prisma.speaker.update({
         where: { id: speaker.id },
         data: {
-          speechCount: { increment: 1 },
           lastSpeechDate: meeting.date,
           firstSpeechDate:
             speaker.firstSpeechDate && speaker.firstSpeechDate > meeting.date

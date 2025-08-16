@@ -35,6 +35,22 @@ export function formatDateShort(dateString: string): string {
 }
 
 /**
+ * Date型またはstring型を日本語形式でフォーマット（YYYY年MM月DD日）
+ */
+export function formatDate(date: Date | string): string {
+  try {
+    const d = typeof date === 'string' ? new Date(date) : date;
+    return d.toLocaleDateString('ja-JP', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  } catch {
+    return typeof date === 'string' ? date : '';
+  }
+}
+
+/**
  * 相対的な時間表示（例：3日前、1週間前）
  */
 export function formatRelativeTime(dateString: string): string {
