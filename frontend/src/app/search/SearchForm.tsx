@@ -1,41 +1,34 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import {
-  Box,
-  TextField,
-  Button,
-  MenuItem,
-  Paper,
-  Grid,
-} from '@mui/material'
-import { Search } from '@mui/icons-material'
-import { HOUSE_TYPES } from '@/lib/constants'
-import { buildSearchUrl } from '@/lib/utils/search-params'
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Box, TextField, Button, MenuItem, Paper, Grid } from '@mui/material';
+import { Search } from '@mui/icons-material';
+import { HOUSE_TYPES } from '@/lib/constants';
+import { buildSearchUrl } from '@/lib/utils/search-params';
 
 interface SearchFormProps {
   initialValues: {
-    q?: string
-    house?: string
-    speaker?: string
-    session?: string
-    from?: string
-    until?: string
-  }
+    q?: string;
+    house?: string;
+    speaker?: string;
+    session?: string;
+    from?: string;
+    until?: string;
+  };
 }
 
 export function SearchForm({ initialValues }: SearchFormProps) {
-  const router = useRouter()
-  const [keyword, setKeyword] = useState(initialValues.q || '')
-  const [house, setHouse] = useState(initialValues.house || '')
-  const [speaker, setSpeaker] = useState(initialValues.speaker || '')
-  const [session, setSession] = useState(initialValues.session || '')
-  const [dateFrom, setDateFrom] = useState(initialValues.from || '')
-  const [dateUntil, setDateUntil] = useState(initialValues.until || '')
+  const router = useRouter();
+  const [keyword, setKeyword] = useState(initialValues.q || '');
+  const [house, setHouse] = useState(initialValues.house || '');
+  const [speaker, setSpeaker] = useState(initialValues.speaker || '');
+  const [session, setSession] = useState(initialValues.session || '');
+  const [dateFrom, setDateFrom] = useState(initialValues.from || '');
+  const [dateUntil, setDateUntil] = useState(initialValues.until || '');
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     const url = buildSearchUrl({
       q: keyword,
@@ -44,10 +37,10 @@ export function SearchForm({ initialValues }: SearchFormProps) {
       session,
       from: dateFrom,
       until: dateUntil,
-    })
+    });
 
-    router.push(url)
-  }
+    router.push(url);
+  };
 
   return (
     <Paper sx={{ p: 3 }}>
@@ -167,13 +160,13 @@ export function SearchForm({ initialValues }: SearchFormProps) {
                 variant="outlined"
                 size="large"
                 onClick={() => {
-                  setKeyword('')
-                  setHouse('')
-                  setSpeaker('')
-                  setSession('')
-                  setDateFrom('')
-                  setDateUntil('')
-                  router.push('/search')
+                  setKeyword('');
+                  setHouse('');
+                  setSpeaker('');
+                  setSession('');
+                  setDateFrom('');
+                  setDateUntil('');
+                  router.push('/search');
                 }}
               >
                 クリア
@@ -183,5 +176,5 @@ export function SearchForm({ initialValues }: SearchFormProps) {
         </Grid>
       </form>
     </Paper>
-  )
+  );
 }

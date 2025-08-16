@@ -39,14 +39,14 @@ model Meeting {
   @@index([nameOfMeeting])
 }
 
-// 発言者マスターテーブル（簡易版）
+// 発言者マスターテーブル（改訂版）
 model Speaker {
   id              String    @id @default(cuid())
   
-  // 基本情報
+  // 基本情報（同姓同名は同一人物として扱う）
   normalizedName  String    // 正規化された名前（役職・敬称を除去）
   displayName     String    // 表示用名前（最も一般的な表記）
-  nameYomi        String?   // よみがな
+  nameYomi        String?   // よみがな（任意）
   
   // 統計情報（キャッシュ用）
   speechCount     Int       @default(0) // 総発言数
@@ -60,9 +60,10 @@ model Speaker {
   // リレーション
   speeches        Speech[]
   aliases         SpeakerAlias[]
+  affiliations    SpeakerAffiliation[] // 所属履歴
   
-  // インデックス
-  @@unique([normalizedName, nameYomi])
+  // インデックス（同姓同名は同一人物なのでnormalizedNameのみでユニーク）
+  @@unique([normalizedName])
   @@index([normalizedName])
   @@index([nameYomi])
   @@index([displayName])
@@ -84,6 +85,110 @@ model SpeakerAlias {
   @@index([aliasName])
 }
 
+// 院マスター（衆議院、参議院など）
+model House {
+  id              String    @id @default(cuid())
+  name            String    @unique // 院名（衆議院、参議院、両院、その他）
+  code            String?   // 院コード
+  displayOrder    Int       @default(0) // 表示順
+  
+  // リレーション
+  affiliations    SpeakerAffiliation[]
+  
+  // メタデータ
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  @@index([name])
+}
+
+// 会派マスター
+model PartyGroup {
+  id              String    @id @default(cuid())
+  name            String    // 会派名（自由民主党、立憲民主党など）
+  shortName       String?   // 略称
+  isActive        Boolean   @default(true) // 現在も活動中かどうか
+  
+  // リレーション
+  affiliations    SpeakerAffiliation[]
+  
+  // メタデータ
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  @@unique([name])
+  @@index([name])
+  @@index([isActive])
+}
+
+// 役職マスター
+model Position {
+  id              String    @id @default(cuid())
+  name            String    // 役職名（内閣総理大臣、外務大臣、委員長など）
+  category        String?   // カテゴリ（大臣、委員長、理事など）
+  level           Int       @default(0) // 役職レベル（重要度）
+  
+  // リレーション
+  speeches        Speech[]  // この役職での発言
+  
+  // メタデータ
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  @@unique([name])
+  @@index([name])
+  @@index([category])
+}
+
+// 役割マスター（発言者としての立場）
+model SpeakerRole {
+  id              String    @id @default(cuid())
+  name            String    // 役割名（政府参考人、参考人、証人など）
+  description     String?   // 説明
+  
+  // リレーション
+  speeches        Speech[]  // この役割での発言
+  
+  // メタデータ
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  @@unique([name])
+  @@index([name])
+}
+
+// 発言者の所属履歴（院と会派のみ）
+model SpeakerAffiliation {
+  id              String    @id @default(cuid())
+  speakerId       String
+  speaker         Speaker   @relation(fields: [speakerId], references: [id], onDelete: Cascade)
+  
+  // 所属情報（院と会派のみ）
+  houseId         String?
+  house           House?    @relation(fields: [houseId], references: [id])
+  
+  partyGroupId    String?
+  partyGroup      PartyGroup? @relation(fields: [partyGroupId], references: [id])
+  
+  // 期間情報
+  startDate       DateTime  // この所属の開始日
+  endDate         DateTime? // この所属の終了日（nullの場合は現在も継続）
+  
+  // リレーション
+  speeches        Speech[]  // この所属での発言
+  
+  // メタデータ
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  // インデックス
+  @@index([speakerId])
+  @@index([houseId])
+  @@index([partyGroupId])
+  @@index([startDate])
+  @@index([endDate])
+}
+
 // 発言記録テーブル（更新版）
 model Speech {
   id              String    @id @default(cuid())
@@ -94,6 +199,17 @@ model Speech {
   // 発言者との関連（オプショナル：マッチングできない場合がある）
   speakerId       String?
   speaker         Speaker?  @relation(fields: [speakerId], references: [id])
+  
+  // 発言時の所属情報（院と会派）
+  affiliationId   String?
+  affiliation     SpeakerAffiliation? @relation(fields: [affiliationId], references: [id])
+  
+  // 発言時の役職・役割（会議ごとに変わる）
+  positionId      String?
+  position        Position? @relation(fields: [positionId], references: [id])
+  
+  roleId          String?
+  role            SpeakerRole? @relation(fields: [roleId], references: [id])
   
   // 元データの発言者情報（保持しておく）
   rawSpeaker      String    // 元の発言者名
@@ -116,6 +232,9 @@ model Speech {
   // インデックス
   @@index([meetingId])
   @@index([speakerId])
+  @@index([affiliationId])
+  @@index([positionId])
+  @@index([roleId])
   @@index([rawSpeaker])
   @@index([speechOrder])
 }

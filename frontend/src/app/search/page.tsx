@@ -1,32 +1,33 @@
-import { Container, Typography, Box, Alert } from '@mui/material'
-import { SearchForm } from './SearchForm'
-import { SearchResults } from './SearchResults'
-import { searchMeetings } from '@/lib/actions/meeting-actions'
-import { Suspense } from 'react'
+import { Container, Typography, Box, Alert } from '@mui/material';
+import { SearchForm } from './SearchForm';
+import { SearchResults } from './SearchResults';
+import { searchMeetings } from '@/lib/actions/meeting-actions';
+import { Suspense } from 'react';
 
 interface SearchPageProps {
   searchParams: Promise<{
-    q?: string
-    house?: string
-    speaker?: string
-    session?: string
-    from?: string
-    until?: string
-    page?: string
-  }>
+    q?: string;
+    house?: string;
+    speaker?: string;
+    session?: string;
+    from?: string;
+    until?: string;
+    page?: string;
+  }>;
 }
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
-  const params = await searchParams
-  const query = params.q || ''
-  const page = parseInt(params.page || '1', 10)
+  const params = await searchParams;
+  const query = params.q || '';
+  const page = parseInt(params.page || '1', 10);
 
-  let searchResult = null
-  let error = null
+  let searchResult = null;
+  let error = null;
 
   // キーワードがなくても、他の検索条件がある場合は検索を実行
-  const hasSearchParams = query || params.house || params.speaker || params.session || params.from || params.until
-  
+  const hasSearchParams =
+    query || params.house || params.speaker || params.session || params.from || params.until;
+
   if (hasSearchParams) {
     try {
       searchResult = await searchMeetings(query, {
@@ -37,9 +38,9 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         dateTo: params.until,
         page,
         limit: 20,
-      })
+      });
     } catch (err) {
-      error = err instanceof Error ? err.message : '検索中にエラーが発生しました'
+      error = err instanceof Error ? err.message : '検索中にエラーが発生しました';
     }
   } else {
     // 検索条件がない場合は最新の会議録を表示
@@ -47,9 +48,9 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       searchResult = await searchMeetings('', {
         page,
         limit: 20,
-      })
+      });
     } catch (err) {
-      error = err instanceof Error ? err.message : '会議録の取得に失敗しました'
+      error = err instanceof Error ? err.message : '会議録の取得に失敗しました';
     }
   }
 
@@ -70,7 +71,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       {searchResult && (
         <Box sx={{ mt: 4 }}>
           <Typography variant="h5" gutterBottom>
-            {hasSearchParams ? '検索結果' : '最新の会議録'}: {searchResult.totalCount.toLocaleString()}件
+            {hasSearchParams ? '検索結果' : '最新の会議録'}:{' '}
+            {searchResult.totalCount.toLocaleString()}件
           </Typography>
 
           <Suspense fallback={<div>読み込み中...</div>}>
@@ -85,5 +87,5 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         </Box>
       )}
     </Container>
-  )
+  );
 }

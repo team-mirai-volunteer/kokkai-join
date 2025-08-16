@@ -1,26 +1,26 @@
-import { prisma } from '@/lib/prisma'
-import { Prisma } from '@prisma/client'
-import { PAGINATION } from '@/lib/constants'
+import { prisma } from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
+import { PAGINATION } from '@/lib/constants';
 
 // Prismaの型推論を使用して、includeオプションから型を自動生成
 export type MeetingWithSpeeches = Prisma.MeetingGetPayload<{
   include: {
     speeches: {
       include: {
-        speaker: true
-      }
-    }
-  }
-}>
+        speaker: true;
+      };
+    };
+  };
+}>;
 
 // 最近の会議録の型定義
 export type RecentMeeting = Prisma.MeetingGetPayload<{
   include: {
     _count: {
-      select: { speeches: true }
-    }
-  }
-}>
+      select: { speeches: true };
+    };
+  };
+}>;
 
 export async function getRecentMeetingsFromDB(limit: number = PAGINATION.DEFAULT_PAGE_SIZE / 2) {
   try {
@@ -32,7 +32,7 @@ export async function getRecentMeetingsFromDB(limit: number = PAGINATION.DEFAULT
           select: { speeches: true },
         },
       },
-    })
+    });
 
     return meetings.map((meeting) => ({
       id: meeting.issueID,
@@ -44,10 +44,10 @@ export async function getRecentMeetingsFromDB(limit: number = PAGINATION.DEFAULT
       url: meeting.meetingURL || '',
       pdfUrl: meeting.pdfURL || undefined,
       speechCount: meeting._count.speeches,
-    }))
+    }));
   } catch (error) {
-    console.error('Failed to fetch recent meetings from DB:', error)
-    return []
+    console.error('Failed to fetch recent meetings from DB:', error);
+    return [];
   }
 }
 
@@ -63,54 +63,54 @@ export async function getMeetingByIssueID(issueID: string) {
           orderBy: { speechOrder: 'asc' },
         },
       },
-    })
+    });
 
-    return meeting
+    return meeting;
   } catch (error) {
-    console.error('Failed to fetch meeting from DB:', error)
-    return null
+    console.error('Failed to fetch meeting from DB:', error);
+    return null;
   }
 }
 
 export async function searchMeetingsInDB(params: {
-  keyword?: string
-  nameOfHouse?: string
-  nameOfMeeting?: string
-  session?: number
-  speaker?: string
-  from?: string
-  until?: string
-  skip?: number
-  take?: number
+  keyword?: string;
+  nameOfHouse?: string;
+  nameOfMeeting?: string;
+  session?: number;
+  speaker?: string;
+  from?: string;
+  until?: string;
+  skip?: number;
+  take?: number;
 }) {
   try {
-    const where: Prisma.MeetingWhereInput = {}
+    const where: Prisma.MeetingWhereInput = {};
 
     // 院の絞り込み
     if (params.nameOfHouse) {
-      where.nameOfHouse = params.nameOfHouse
+      where.nameOfHouse = params.nameOfHouse;
     }
 
     // 会議名の絞り込み
     if (params.nameOfMeeting) {
       where.nameOfMeeting = {
         contains: params.nameOfMeeting,
-      }
+      };
     }
 
     // 国会回次の絞り込み
     if (params.session) {
-      where.session = params.session
+      where.session = params.session;
     }
 
     // 日付範囲の絞り込み
     if (params.from || params.until) {
-      where.date = {}
+      where.date = {};
       if (params.from) {
-        where.date.gte = new Date(params.from)
+        where.date.gte = new Date(params.from);
       }
       if (params.until) {
-        where.date.lte = new Date(params.until)
+        where.date.lte = new Date(params.until);
       }
     }
 
@@ -118,7 +118,7 @@ export async function searchMeetingsInDB(params: {
     if (params.keyword) {
       where.nameOfMeeting = {
         contains: params.keyword,
-      }
+      };
     }
 
     // 発言者での絞り込み（speechesテーブルを結合）
@@ -147,7 +147,7 @@ export async function searchMeetingsInDB(params: {
             },
           ],
         },
-      }
+      };
     }
 
     const [meetings, total] = await Promise.all([
@@ -163,7 +163,7 @@ export async function searchMeetingsInDB(params: {
         },
       }),
       prisma.meeting.count({ where }),
-    ])
+    ]);
 
     return {
       meetings: meetings.map((meeting) => ({
@@ -179,13 +179,13 @@ export async function searchMeetingsInDB(params: {
       })),
       total,
       hasMore: (params.skip || 0) + meetings.length < total,
-    }
+    };
   } catch {
     return {
       meetings: [],
       total: 0,
       hasMore: false,
-    }
+    };
   }
 }
 
@@ -202,16 +202,16 @@ export async function getDBStats() {
         orderBy: { date: 'desc' },
         select: { date: true, nameOfMeeting: true },
       }),
-    ])
+    ]);
 
     return {
       totalMeetings,
       totalSpeeches,
       oldestMeeting,
       newestMeeting,
-    }
+    };
   } catch (error) {
-    console.error('Failed to get DB stats:', error)
-    return null
+    console.error('Failed to get DB stats:', error);
+    return null;
   }
 }

@@ -9,7 +9,7 @@ import {
   Alert,
   Breadcrumbs,
   Link,
-} from '@mui/material'
+} from '@mui/material';
 import {
   ArrowBack,
   CalendarToday,
@@ -17,29 +17,29 @@ import {
   Home,
   PictureAsPdf,
   OpenInNew,
-} from '@mui/icons-material'
-import NextLink from 'next/link'
-import { notFound } from 'next/navigation'
-import { getMeetingDetail } from '@/lib/actions/meeting-actions'
-import { formatMeetingDate } from '@/lib/utils/date'
-import type { Metadata } from 'next'
+} from '@mui/icons-material';
+import NextLink from 'next/link';
+import { notFound } from 'next/navigation';
+import { getMeetingDetail } from '@/lib/actions/meeting-actions';
+import { formatMeetingDate } from '@/lib/utils/date';
+import type { Metadata } from 'next';
 
 interface MeetingDetailPageProps {
   params: Promise<{
-    id: string
-  }>
+    id: string;
+  }>;
 }
 
 export async function generateMetadata({ params }: MeetingDetailPageProps): Promise<Metadata> {
   try {
-    const { id } = await params
-    const meeting = await getMeetingDetail(id)
+    const { id } = await params;
+    const meeting = await getMeetingDetail(id);
 
     if (!meeting) {
       return {
         title: '会議録が見つかりません | 国会ジョイン',
         description: '指定された会議録が見つかりませんでした。',
-      }
+      };
     }
 
     return {
@@ -50,22 +50,22 @@ export async function generateMetadata({ params }: MeetingDetailPageProps): Prom
         description: `第${meeting.session}回国会 ${meeting.nameOfHouse}`,
         type: 'article',
       },
-    }
+    };
   } catch {
     return {
       title: 'エラー | 国会ジョイン',
       description: '会議録の取得中にエラーが発生しました。',
-    }
+    };
   }
 }
 
 export default async function MeetingDetailPage({ params }: MeetingDetailPageProps) {
   try {
-    const { id } = await params
-    const meeting = await getMeetingDetail(id)
+    const { id } = await params;
+    const meeting = await getMeetingDetail(id);
 
     if (!meeting) {
-      notFound()
+      notFound();
     }
 
     return (
@@ -120,7 +120,7 @@ export default async function MeetingDetailPage({ params }: MeetingDetailPagePro
                 <Person sx={{ fontSize: 20, mr: 1, color: 'text.secondary' }} />
                 <Typography variant="h6" color="text.secondary">
                   {(() => {
-                    const speakers = meeting.speeches.map((speech) => speech.rawSpeaker)
+                    const speakers = meeting.speeches.map((speech) => speech.rawSpeaker);
                     // システム情報を除外して実際の発言者のみをカウント
                     const actualSpeakers = speakers.filter(
                       (speaker) =>
@@ -128,12 +128,12 @@ export default async function MeetingDetailPage({ params }: MeetingDetailPagePro
                         speaker.trim() !== '' &&
                         speaker !== '会議録情報' &&
                         !speaker.includes('情報')
-                    )
-                    const uniqueSpeakers = new Set(actualSpeakers)
-                    const speakerCount = uniqueSpeakers.size
-                    const speechCount = meeting.speeches.length
+                    );
+                    const uniqueSpeakers = new Set(actualSpeakers);
+                    const speakerCount = uniqueSpeakers.size;
+                    const speechCount = meeting.speeches.length;
 
-                    return `${speakerCount}人で${speechCount}発言`
+                    return `${speakerCount}人で${speechCount}発言`;
                   })()}
                 </Typography>
               </Box>
@@ -267,9 +267,9 @@ export default async function MeetingDetailPage({ params }: MeetingDetailPagePro
           </Alert>
         )}
       </Container>
-    )
+    );
   } catch (error) {
-    console.error('Failed to load meeting detail:', error)
+    console.error('Failed to load meeting detail:', error);
     return (
       <Container maxWidth="lg" sx={{ py: 4 }}>
         <Alert severity="error">
@@ -279,6 +279,6 @@ export default async function MeetingDetailPage({ params }: MeetingDetailPagePro
           </Button>
         </Alert>
       </Container>
-    )
+    );
   }
 }

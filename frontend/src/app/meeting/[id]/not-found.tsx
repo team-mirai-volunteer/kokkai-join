@@ -1,6 +1,6 @@
-import { Container, Typography, Box, Button, Alert } from '@mui/material'
-import { Home, Search } from '@mui/icons-material'
-import Link from 'next/link'
+import { Container, Typography, Box, Button, Alert } from '@mui/material';
+import { Home, Search } from '@mui/icons-material';
+import Link from 'next/link';
 
 export default function MeetingNotFound() {
   return (
@@ -42,5 +42,5 @@ export default function MeetingNotFound() {
         </Button>
       </Box>
     </Container>
-  )
+  );
 }

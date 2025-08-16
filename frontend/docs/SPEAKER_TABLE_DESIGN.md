@@ -22,12 +22,12 @@
 ```typescript
 // 識別キーの生成例
 function generateSpeakerKey(speech: SpeechRecord): string {
-  const name = speech.speaker
-  const yomi = speech.speakerYomi || ''
-  const group = speech.speakerGroup || ''
+  const name = speech.speaker;
+  const yomi = speech.speakerYomi || '';
+  const group = speech.speakerGroup || '';
 
   // 名前＋よみがな＋所属で識別
-  return `${name}_${yomi}_${group}`.toLowerCase()
+  return `${name}_${yomi}_${group}`.toLowerCase();
 }
 ```
 
@@ -54,7 +54,7 @@ function normalizeSpeakerName(rawName: string): string {
     .replace(/大臣$/g, '') // 役職を削除
     .replace(/委員長$/g, '') // 役職を削除
     .replace(/議長$/g, '') // 役職を削除
-    .trim()
+    .trim();
 }
 
 // 別名テーブルで元の表記を保持
@@ -95,10 +95,10 @@ function normalizeSpeakerName(rawName: string): string {
 
 async function matchSpeakerToSpeech(speech: Speech) {
   // 1. 正規化した名前で検索
-  const normalizedName = normalizeSpeakerName(speech.rawSpeaker)
+  const normalizedName = normalizeSpeakerName(speech.rawSpeaker);
 
   // 2. 既存のSpeakerを検索
-  let speaker = await findSpeaker(normalizedName, speech.rawSpeakerYomi)
+  let speaker = await findSpeaker(normalizedName, speech.rawSpeakerYomi);
 
   // 3. 見つからない場合は新規作成
   if (!speaker) {
@@ -106,11 +106,11 @@ async function matchSpeakerToSpeech(speech: Speech) {
       normalizedName,
       displayName: speech.rawSpeaker,
       nameYomi: speech.rawSpeakerYomi,
-    })
+    });
   }
 
   // 4. SpeechとSpeakerを関連付け
-  await updateSpeech(speech.id, { speakerId: speaker.id })
+  await updateSpeech(speech.id, { speakerId: speaker.id });
 }
 ```
 

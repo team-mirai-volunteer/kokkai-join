@@ -1,37 +1,37 @@
-'use client'
+'use client';
 
-import { Box, Card, CardContent, Typography, Chip, Button, Pagination, Stack } from '@mui/material'
-import { CalendarToday, Person, OpenInNew } from '@mui/icons-material'
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { buildSearchUrl } from '@/lib/utils/search-params'
-import { PAGINATION } from '@/lib/constants'
-import { formatDateShort } from '@/lib/utils/date'
+import { Box, Card, CardContent, Typography, Chip, Button, Pagination, Stack } from '@mui/material';
+import { CalendarToday, Person, OpenInNew } from '@mui/icons-material';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { buildSearchUrl } from '@/lib/utils/search-params';
+import { PAGINATION } from '@/lib/constants';
+import { formatDateShort } from '@/lib/utils/date';
 
 interface Meeting {
-  issueID: string
-  nameOfMeeting: string
-  nameOfHouse: string
-  date: string
-  session: string
-  issue: string
-  meetingURL: string
-  pdfURL?: string
-  speechCount?: number
+  issueID: string;
+  nameOfMeeting: string;
+  nameOfHouse: string;
+  date: string;
+  session: string;
+  issue: string;
+  meetingURL: string;
+  pdfURL?: string;
+  speechCount?: number;
 }
 
 interface SearchResultsProps {
-  meetings: Meeting[]
-  totalCount: number
-  currentPage: number
-  hasMore: boolean
+  meetings: Meeting[];
+  totalCount: number;
+  currentPage: number;
+  hasMore: boolean;
   searchParams: {
-    q?: string
-    house?: string
-    speaker?: string
-    from?: string
-    until?: string
-  }
+    q?: string;
+    house?: string;
+    speaker?: string;
+    from?: string;
+    until?: string;
+  };
 }
 
 export function SearchResults({
@@ -40,24 +40,24 @@ export function SearchResults({
   currentPage,
   searchParams,
 }: SearchResultsProps) {
-  const router = useRouter()
-  const totalPages = Math.ceil(totalCount / PAGINATION.DEFAULT_PAGE_SIZE)
+  const router = useRouter();
+  const totalPages = Math.ceil(totalCount / PAGINATION.DEFAULT_PAGE_SIZE);
 
   const handlePageChange = (_: React.ChangeEvent<unknown>, page: number) => {
     const url = buildSearchUrl({
       ...searchParams,
       page,
-    })
+    });
 
-    router.push(url)
-  }
+    router.push(url);
+  };
 
   if (meetings.length === 0) {
     return (
       <Typography variant="body1" color="text.secondary" sx={{ mt: 2 }}>
         検索条件に一致する会議録が見つかりませんでした。
       </Typography>
-    )
+    );
   }
 
   return (
@@ -137,5 +137,5 @@ export function SearchResults({
         </Box>
       )}
     </Box>
-  )
+  );
 }

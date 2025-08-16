@@ -7,16 +7,16 @@ import {
   Button,
   Divider,
   Alert,
-} from '@mui/material'
-import { Search, Book, People, Storage } from '@mui/icons-material'
-import SearchButton from './components/SearchButton'
-import Link from 'next/link'
-import { getRecentMeetings, getDatabaseStats } from '@/lib/actions/meeting-actions'
-import { RecentMeetingsList } from '@/components/features/meeting'
-import { formatDateShort } from '@/lib/utils/date'
+} from '@mui/material';
+import { Search, Book, People, Storage } from '@mui/icons-material';
+import SearchButton from './components/SearchButton';
+import Link from 'next/link';
+import { getRecentMeetings, getDatabaseStats } from '@/lib/actions/meeting-actions';
+import { RecentMeetingsList } from '@/components/features/meeting';
+import { formatDateShort } from '@/lib/utils/date';
 
 export default async function Home() {
-  const stats = await getDatabaseStats()
+  const stats = await getDatabaseStats();
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -132,13 +132,13 @@ export default async function Home() {
         </Box>
       </Box>
     </Container>
-  )
+  );
 }
 
 // Server Componentとして最近の会議録を取得・表示
 async function RecentMeetingsSection() {
   try {
-    const meetings = await getRecentMeetings(18)
+    const meetings = await getRecentMeetings(18);
 
     if (meetings.length === 0) {
       return (
@@ -151,12 +151,12 @@ async function RecentMeetingsSection() {
             コマンドでデータを同期してください。
           </Alert>
         </Box>
-      )
+      );
     }
 
-    return <RecentMeetingsList meetings={meetings} />
+    return <RecentMeetingsList meetings={meetings} />;
   } catch (error) {
-    console.error('Failed to load recent meetings:', error)
+    console.error('Failed to load recent meetings:', error);
     return (
       <Box sx={{ textAlign: 'center', py: 4 }}>
         <Typography variant="h4" component="h2" gutterBottom sx={{ mb: 2 }}>
@@ -166,6 +166,6 @@ async function RecentMeetingsSection() {
           会議録の取得に失敗しました。データベース接続を確認してください。
         </Alert>
       </Box>
-    )
+    );
   }
 }

@@ -1,1 +1,1 @@
-export { RecentMeetingsList } from './RecentMeetingsList'
+export { RecentMeetingsList } from './RecentMeetingsList';

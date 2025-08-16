@@ -1,10 +1,10 @@
-import { Box, Typography, Card, CardContent, Chip, Stack, CircularProgress } from '@mui/material'
-import { CalendarToday, Description, RecordVoiceOver } from '@mui/icons-material'
-import NextLink from 'next/link'
-import type { RecentMeeting } from '@/lib/types/api'
+import { Box, Typography, Card, CardContent, Chip, Stack, CircularProgress } from '@mui/material';
+import { CalendarToday, Description, RecordVoiceOver } from '@mui/icons-material';
+import NextLink from 'next/link';
+import type { RecentMeeting } from '@/lib/types/api';
 
 interface RecentMeetingsListProps {
-  meetings?: RecentMeeting[]
+  meetings?: RecentMeeting[];
 }
 
 export function RecentMeetingsList({ meetings }: RecentMeetingsListProps) {
@@ -13,9 +13,9 @@ export function RecentMeetingsList({ meetings }: RecentMeetingsListProps) {
       <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
         <CircularProgress />
       </Box>
-    )
+    );
   }
-  
+
   if (meetings.length === 0) {
     return (
       <Box sx={{ textAlign: 'center', py: 4 }}>
@@ -23,7 +23,7 @@ export function RecentMeetingsList({ meetings }: RecentMeetingsListProps) {
           会議録が見つかりませんでした
         </Typography>
       </Box>
-    )
+    );
   }
 
   return (
@@ -38,22 +38,22 @@ export function RecentMeetingsList({ meetings }: RecentMeetingsListProps) {
         ))}
       </Stack>
     </Box>
-  )
+  );
 }
 
 function MeetingCard({ meeting }: { meeting: RecentMeeting }) {
   const formatDate = (dateString: string) => {
     try {
-      const date = new Date(dateString)
+      const date = new Date(dateString);
       return date.toLocaleDateString('ja-JP', {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
-      })
+      });
     } catch {
-      return dateString
+      return dateString;
     }
-  }
+  };
 
   return (
     <Card
@@ -129,5 +129,5 @@ function MeetingCard({ meeting }: { meeting: RecentMeeting }) {
         </Box>
       </CardContent>
     </Card>
-  )
+  );
 }

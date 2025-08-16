@@ -3,21 +3,21 @@ import {
   getMeetingDetail,
   searchMeetings,
   getDatabaseStats,
-} from '../meeting-actions'
-import * as meetingDb from '@/lib/db/meeting-db'
+} from '../meeting-actions';
+import * as meetingDb from '@/lib/db/meeting-db';
 
 // Mock the database module
-jest.mock('@/lib/db/meeting-db')
+jest.mock('@/lib/db/meeting-db');
 
 describe('meeting-actions', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
-    jest.spyOn(console, 'error').mockImplementation(() => {})
-  })
+    jest.clearAllMocks();
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+  });
 
   afterEach(() => {
-    jest.restoreAllMocks()
-  })
+    jest.restoreAllMocks();
+  });
 
   describe('getRecentMeetings', () => {
     it('should return recent meetings from database', async () => {
@@ -42,38 +42,38 @@ describe('meeting-actions', () => {
           url: 'https://example.com/meeting2',
           speechCount: 30,
         },
-      ]
+      ];
 
-      jest.spyOn(meetingDb, 'getRecentMeetingsFromDB').mockResolvedValue(mockMeetings)
+      jest.spyOn(meetingDb, 'getRecentMeetingsFromDB').mockResolvedValue(mockMeetings);
 
-      const result = await getRecentMeetings(10)
+      const result = await getRecentMeetings(10);
 
-      expect(result).toEqual(mockMeetings)
-      expect(meetingDb.getRecentMeetingsFromDB).toHaveBeenCalledWith(10)
-    })
+      expect(result).toEqual(mockMeetings);
+      expect(meetingDb.getRecentMeetingsFromDB).toHaveBeenCalledWith(10);
+    });
 
     it('should use default limit when not provided', async () => {
-      jest.spyOn(meetingDb, 'getRecentMeetingsFromDB').mockResolvedValue([])
+      jest.spyOn(meetingDb, 'getRecentMeetingsFromDB').mockResolvedValue([]);
 
-      await getRecentMeetings()
+      await getRecentMeetings();
 
-      expect(meetingDb.getRecentMeetingsFromDB).toHaveBeenCalledWith(10)
-    })
+      expect(meetingDb.getRecentMeetingsFromDB).toHaveBeenCalledWith(10);
+    });
 
     it('should return empty array on error', async () => {
       jest
         .spyOn(meetingDb, 'getRecentMeetingsFromDB')
-        .mockRejectedValue(new Error('Database error'))
+        .mockRejectedValue(new Error('Database error'));
 
-      const result = await getRecentMeetings()
+      const result = await getRecentMeetings();
 
-      expect(result).toEqual([])
+      expect(result).toEqual([]);
       expect(console.error).toHaveBeenCalledWith(
         'Server Action: getRecentMeetings failed:',
         expect.any(Error)
-      )
-    })
-  })
+      );
+    });
+  });
 
   describe('getMeetingDetail', () => {
     const mockMeeting = {
@@ -112,52 +112,52 @@ describe('meeting-actions', () => {
           speechURL: 'https://example.com/speech1',
         },
       ],
-    }
+    };
 
     it('should return meeting detail for valid issueId', async () => {
-      jest.spyOn(meetingDb, 'getMeetingByIssueID').mockResolvedValue(mockMeeting)
+      jest.spyOn(meetingDb, 'getMeetingByIssueID').mockResolvedValue(mockMeeting);
 
-      const result = await getMeetingDetail('issue123')
+      const result = await getMeetingDetail('issue123');
 
-      expect(result).toEqual(mockMeeting)
-      expect(meetingDb.getMeetingByIssueID).toHaveBeenCalledWith('issue123')
-    })
+      expect(result).toEqual(mockMeeting);
+      expect(meetingDb.getMeetingByIssueID).toHaveBeenCalledWith('issue123');
+    });
 
     it('should return null for invalid issueId', async () => {
-      const result = await getMeetingDetail('')
+      const result = await getMeetingDetail('');
 
-      expect(result).toBeNull()
-      expect(meetingDb.getMeetingByIssueID).not.toHaveBeenCalled()
-    })
+      expect(result).toBeNull();
+      expect(meetingDb.getMeetingByIssueID).not.toHaveBeenCalled();
+    });
 
     it('should return null when issueId is not a string', async () => {
-      const result = await getMeetingDetail(123 as unknown as string)
+      const result = await getMeetingDetail(123 as unknown as string);
 
-      expect(result).toBeNull()
-      expect(meetingDb.getMeetingByIssueID).not.toHaveBeenCalled()
-    })
+      expect(result).toBeNull();
+      expect(meetingDb.getMeetingByIssueID).not.toHaveBeenCalled();
+    });
 
     it('should return null when meeting not found', async () => {
-      jest.spyOn(meetingDb, 'getMeetingByIssueID').mockResolvedValue(null)
+      jest.spyOn(meetingDb, 'getMeetingByIssueID').mockResolvedValue(null);
 
-      const result = await getMeetingDetail('nonexistent')
+      const result = await getMeetingDetail('nonexistent');
 
-      expect(result).toBeNull()
-      expect(meetingDb.getMeetingByIssueID).toHaveBeenCalledWith('nonexistent')
-    })
+      expect(result).toBeNull();
+      expect(meetingDb.getMeetingByIssueID).toHaveBeenCalledWith('nonexistent');
+    });
 
     it('should return null on database error', async () => {
-      jest.spyOn(meetingDb, 'getMeetingByIssueID').mockRejectedValue(new Error('Database error'))
+      jest.spyOn(meetingDb, 'getMeetingByIssueID').mockRejectedValue(new Error('Database error'));
 
-      const result = await getMeetingDetail('issue123')
+      const result = await getMeetingDetail('issue123');
 
-      expect(result).toBeNull()
+      expect(result).toBeNull();
       expect(console.error).toHaveBeenCalledWith(
         'Server Action: getMeetingDetail failed:',
         expect.any(Error)
-      )
-    })
-  })
+      );
+    });
+  });
 
   describe('searchMeetings', () => {
     const mockSearchResult = {
@@ -175,12 +175,12 @@ describe('meeting-actions', () => {
       ],
       total: 1,
       hasMore: false,
-    }
+    };
 
     it('should search meetings with query', async () => {
-      jest.spyOn(meetingDb, 'searchMeetingsInDB').mockResolvedValue(mockSearchResult)
+      jest.spyOn(meetingDb, 'searchMeetingsInDB').mockResolvedValue(mockSearchResult);
 
-      const result = await searchMeetings('予算')
+      const result = await searchMeetings('予算');
 
       expect(result).toEqual({
         meetings: [
@@ -199,7 +199,7 @@ describe('meeting-actions', () => {
         totalCount: 1,
         hasMore: false,
         currentPage: 1,
-      })
+      });
 
       expect(meetingDb.searchMeetingsInDB).toHaveBeenCalledWith({
         keyword: '予算',
@@ -209,11 +209,11 @@ describe('meeting-actions', () => {
         until: undefined,
         skip: 0,
         take: 30,
-      })
-    })
+      });
+    });
 
     it('should search with all parameters', async () => {
-      jest.spyOn(meetingDb, 'searchMeetingsInDB').mockResolvedValue(mockSearchResult)
+      jest.spyOn(meetingDb, 'searchMeetingsInDB').mockResolvedValue(mockSearchResult);
 
       await searchMeetings('予算', {
         house: '衆議院',
@@ -222,7 +222,7 @@ describe('meeting-actions', () => {
         speaker: '山田',
         limit: 20,
         page: 2,
-      })
+      });
 
       expect(meetingDb.searchMeetingsInDB).toHaveBeenCalledWith({
         keyword: '予算',
@@ -232,13 +232,13 @@ describe('meeting-actions', () => {
         until: '2024-12-31',
         skip: 20,
         take: 20,
-      })
-    })
+      });
+    });
 
     it('should handle empty query', async () => {
-      jest.spyOn(meetingDb, 'searchMeetingsInDB').mockResolvedValue(mockSearchResult)
+      jest.spyOn(meetingDb, 'searchMeetingsInDB').mockResolvedValue(mockSearchResult);
 
-      await searchMeetings('')
+      await searchMeetings('');
 
       expect(meetingDb.searchMeetingsInDB).toHaveBeenCalledWith({
         keyword: undefined,
@@ -248,32 +248,32 @@ describe('meeting-actions', () => {
         until: undefined,
         skip: 0,
         take: 30,
-      })
-    })
+      });
+    });
 
     it('should throw error on database failure', async () => {
-      jest.spyOn(meetingDb, 'searchMeetingsInDB').mockRejectedValue(new Error('Database error'))
+      jest.spyOn(meetingDb, 'searchMeetingsInDB').mockRejectedValue(new Error('Database error'));
 
-      await expect(searchMeetings('予算')).rejects.toThrow('Database error')
+      await expect(searchMeetings('予算')).rejects.toThrow('Database error');
       expect(console.error).toHaveBeenCalledWith(
         'Server Action: searchMeetings failed:',
         expect.any(Error)
-      )
-    })
+      );
+    });
 
     it('should use default pagination values', async () => {
-      jest.spyOn(meetingDb, 'searchMeetingsInDB').mockResolvedValue(mockSearchResult)
+      jest.spyOn(meetingDb, 'searchMeetingsInDB').mockResolvedValue(mockSearchResult);
 
-      await searchMeetings('予算', {})
+      await searchMeetings('予算', {});
 
       expect(meetingDb.searchMeetingsInDB).toHaveBeenCalledWith(
         expect.objectContaining({
           skip: 0,
           take: 30,
         })
-      )
-    })
-  })
+      );
+    });
+  });
 
   describe('getDatabaseStats', () => {
     const mockStats = {
@@ -282,27 +282,27 @@ describe('meeting-actions', () => {
       totalSpeakers: 500,
       oldestDate: new Date('2020-01-01'),
       newestDate: new Date('2024-03-15'),
-    }
+    };
 
     it('should return database statistics', async () => {
-      jest.spyOn(meetingDb, 'getDBStats').mockResolvedValue(mockStats)
+      jest.spyOn(meetingDb, 'getDBStats').mockResolvedValue(mockStats);
 
-      const result = await getDatabaseStats()
+      const result = await getDatabaseStats();
 
-      expect(result).toEqual(mockStats)
-      expect(meetingDb.getDBStats).toHaveBeenCalled()
-    })
+      expect(result).toEqual(mockStats);
+      expect(meetingDb.getDBStats).toHaveBeenCalled();
+    });
 
     it('should return null on error', async () => {
-      jest.spyOn(meetingDb, 'getDBStats').mockRejectedValue(new Error('Database error'))
+      jest.spyOn(meetingDb, 'getDBStats').mockRejectedValue(new Error('Database error'));
 
-      const result = await getDatabaseStats()
+      const result = await getDatabaseStats();
 
-      expect(result).toBeNull()
+      expect(result).toBeNull();
       expect(console.error).toHaveBeenCalledWith(
         'Server Action: getDatabaseStats failed:',
         expect.any(Error)
-      )
-    })
-  })
-})
+      );
+    });
+  });
+});

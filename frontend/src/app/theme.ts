@@ -1,6 +1,6 @@
-'use client'
+'use client';
 
-import { createTheme } from '@mui/material/styles'
+import { createTheme } from '@mui/material/styles';
 
 // モダンなカラーパレット
 const colors = {
@@ -43,7 +43,7 @@ const colors = {
     light: '#ffb347',
     dark: '#cc6a00',
   },
-}
+};
 
 export const theme = createTheme({
   palette: {
@@ -366,4 +366,4 @@ export const theme = createTheme({
       },
     },
   },
-})
+});

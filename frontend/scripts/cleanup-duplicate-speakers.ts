@@ -1,8 +1,8 @@
 #!/usr/bin/env bun
-import { prisma } from '../src/lib/prisma'
+import { prisma } from '../src/lib/prisma';
 
 async function cleanupDuplicateSpeakers() {
-  console.log('🧹 重複Speakerの削除を開始します...')
+  console.log('🧹 重複Speakerの削除を開始します...');
 
   // 重複したnormalizedNameを取得
   const duplicates = await prisma.speaker.groupBy({
@@ -10,19 +10,19 @@ async function cleanupDuplicateSpeakers() {
     having: {
       normalizedName: {
         _count: {
-          gt: 1
-        }
-      }
+          gt: 1,
+        },
+      },
     },
     _count: {
-      normalizedName: true
-    }
-  })
+      normalizedName: true,
+    },
+  });
 
-  console.log(`重複グループ数: ${duplicates.length}`)
+  console.log(`重複グループ数: ${duplicates.length}`);
 
-  let totalDeleted = 0
-  let totalMerged = 0
+  let totalDeleted = 0;
+  let totalMerged = 0;
 
   for (const dup of duplicates) {
     // 同じnormalizedName + nameYomiを持つSpeakerを取得
@@ -35,19 +35,16 @@ async function cleanupDuplicateSpeakers() {
         speeches: true,
         aliases: true,
       },
-      orderBy: [
-        { speechCount: 'desc' },
-        { createdAt: 'asc' }
-      ]
-    })
+      orderBy: [{ speechCount: 'desc' }, { createdAt: 'asc' }],
+    });
 
-    if (speakers.length <= 1) continue
+    if (speakers.length <= 1) continue;
 
     // 最初のSpeaker（最も発言数が多い、または作成日が早い）を残す
-    const keepSpeaker = speakers[0]
-    const duplicateSpeakers = speakers.slice(1)
+    const keepSpeaker = speakers[0];
+    const duplicateSpeakers = speakers.slice(1);
 
-    console.log(`\n統合: ${dup.normalizedName} (${duplicateSpeakers.length}件の重複)`)
+    console.log(`\n統合: ${dup.normalizedName} (${duplicateSpeakers.length}件の重複)`);
 
     await prisma.$transaction(async (tx) => {
       // 重複したSpeakerの発言を統合先に移動
@@ -55,8 +52,8 @@ async function cleanupDuplicateSpeakers() {
         if (dupSpeaker.speeches.length > 0) {
           await tx.speech.updateMany({
             where: { speakerId: dupSpeaker.id },
-            data: { speakerId: keepSpeaker.id }
-          })
+            data: { speakerId: keepSpeaker.id },
+          });
         }
 
         // 重複したSpeakerの別名を統合先に移動（重複チェック付き）
@@ -67,17 +64,17 @@ async function cleanupDuplicateSpeakers() {
                 aliasName_aliasYomi: {
                   aliasName: alias.aliasName,
                   aliasYomi: alias.aliasYomi,
-                }
+                },
               },
               update: {
-                speakerId: keepSpeaker.id
+                speakerId: keepSpeaker.id,
               },
               create: {
                 speakerId: keepSpeaker.id,
                 aliasName: alias.aliasName,
                 aliasYomi: alias.aliasYomi,
-              }
-            })
+              },
+            });
           } catch {
             // 既に存在する場合は無視
           }
@@ -85,28 +82,28 @@ async function cleanupDuplicateSpeakers() {
 
         // 重複したSpeakerを削除
         await tx.speaker.delete({
-          where: { id: dupSpeaker.id }
-        })
+          where: { id: dupSpeaker.id },
+        });
 
-        totalDeleted++
+        totalDeleted++;
       }
 
       // 統合先のSpeakerの統計を更新
       const totalSpeeches = await tx.speech.count({
-        where: { speakerId: keepSpeaker.id }
-      })
+        where: { speakerId: keepSpeaker.id },
+      });
 
       const firstSpeech = await tx.speech.findFirst({
         where: { speakerId: keepSpeaker.id },
         include: { meeting: true },
-        orderBy: { meeting: { date: 'asc' } }
-      })
+        orderBy: { meeting: { date: 'asc' } },
+      });
 
       const lastSpeech = await tx.speech.findFirst({
         where: { speakerId: keepSpeaker.id },
         include: { meeting: true },
-        orderBy: { meeting: { date: 'desc' } }
-      })
+        orderBy: { meeting: { date: 'desc' } },
+      });
 
       await tx.speaker.update({
         where: { id: keepSpeaker.id },
@@ -114,18 +111,18 @@ async function cleanupDuplicateSpeakers() {
           speechCount: totalSpeeches,
           firstSpeechDate: firstSpeech?.meeting.date || keepSpeaker.firstSpeechDate,
           lastSpeechDate: lastSpeech?.meeting.date || keepSpeaker.lastSpeechDate,
-        }
-      })
+        },
+      });
 
-      totalMerged++
-    })
+      totalMerged++;
+    });
   }
 
-  console.log(`\n✅ 削除完了:`)
-  console.log(`  統合されたSpeaker: ${totalMerged}人`)
-  console.log(`  削除されたレコード: ${totalDeleted}件`)
+  console.log(`\n✅ 削除完了:`);
+  console.log(`  統合されたSpeaker: ${totalMerged}人`);
+  console.log(`  削除されたレコード: ${totalDeleted}件`);
 
-  await prisma.$disconnect()
+  await prisma.$disconnect();
 }
 
-cleanupDuplicateSpeakers().catch(console.error)
+cleanupDuplicateSpeakers().catch(console.error);

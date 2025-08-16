@@ -1,22 +1,22 @@
 #!/usr/bin/env node
-import { PrismaClient } from '@prisma/client'
-import { kokkaiSyncClient } from '../src/lib/api/kokkai-sync-client'
-import type { MeetingRecord, SpeechRecord } from '../src/lib/types/api'
+import { PrismaClient } from '@prisma/client';
+import { kokkaiSyncClient } from '../src/lib/api/kokkai-sync-client';
+import type { MeetingRecord, SpeechRecord } from '../src/lib/types/api';
 import {
   normalizeSpeakerName,
   generateDisplayName,
   isSystemSpeaker,
-} from '../src/lib/utils/speaker-normalizer'
-import * as readline from 'readline'
+} from '../src/lib/utils/speaker-normalizer';
+import * as readline from 'readline';
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 interface SyncOptions {
-  startDate: string
-  endDate: string
-  nameOfHouse?: string
-  nameOfMeeting?: string
-  batchSize?: number
+  startDate: string;
+  endDate: string;
+  nameOfHouse?: string;
+  nameOfMeeting?: string;
+  batchSize?: number;
 }
 
 async function saveMeetingToDatabase(
@@ -26,7 +26,7 @@ async function saveMeetingToDatabase(
     const existing = await prisma.meeting.findUnique({
       where: { issueID: meeting.issueID },
       include: { speeches: true },
-    })
+    });
 
     const meetingData = {
       issueID: meeting.issueID,
@@ -41,35 +41,35 @@ async function saveMeetingToDatabase(
       meetingURL: meeting.meetingURL || null,
       pdfURL: meeting.pdfURL || null,
       lastSyncedAt: new Date(),
-    }
+    };
 
     if (existing) {
       await prisma.meeting.update({
         where: { id: existing.id },
         data: meetingData,
-      })
+      });
 
       if (meeting.speechRecord && meeting.speechRecord.length > 0) {
         await prisma.speech.deleteMany({
           where: { meetingId: existing.id },
-        })
+        });
 
-        await createSpeeches(existing.id, meeting.speechRecord, new Date(meeting.date))
+        await createSpeeches(existing.id, meeting.speechRecord, new Date(meeting.date));
       }
-      console.log(`✓ 更新: ${meeting.nameOfMeeting} (${meeting.date})`)
+      console.log(`✓ 更新: ${meeting.nameOfMeeting} (${meeting.date})`);
     } else {
       const created = await prisma.meeting.create({
         data: meetingData,
-      })
+      });
 
       if (meeting.speechRecord && meeting.speechRecord.length > 0) {
-        await createSpeeches(created.id, meeting.speechRecord, new Date(meeting.date))
+        await createSpeeches(created.id, meeting.speechRecord, new Date(meeting.date));
       }
-      console.log(`✓ 新規: ${meeting.nameOfMeeting} (${meeting.date})`)
+      console.log(`✓ 新規: ${meeting.nameOfMeeting} (${meeting.date})`);
     }
   } catch (error) {
-    console.error(`✗ エラー: ${meeting.issueID}:`, error)
-    throw error
+    console.error(`✗ エラー: ${meeting.issueID}:`, error);
+    throw error;
   }
 }
 
@@ -96,13 +96,13 @@ async function createSpeeches(
           speechURL: speech.speechURL || null,
           speakerId: null, // システム発言者は紐付けない
         },
-      })
-      continue
+      });
+      continue;
     }
 
     // 発言者の正規化
-    const normalizedName = normalizeSpeakerName(speech.speaker)
-    const displayName = generateDisplayName(speech.speaker, normalizedName)
+    const normalizedName = normalizeSpeakerName(speech.speaker);
+    const displayName = generateDisplayName(speech.speaker, normalizedName);
 
     // 既存のSpeakerを検索または作成
     let speaker = await prisma.speaker.findFirst({
@@ -110,7 +110,7 @@ async function createSpeeches(
         normalizedName: normalizedName,
         nameYomi: speech.speakerYomi || null,
       },
-    })
+    });
 
     if (!speaker) {
       // 新規Speaker作成
@@ -123,7 +123,7 @@ async function createSpeeches(
           firstSpeechDate: meetingDate,
           lastSpeechDate: meetingDate,
         },
-      })
+      });
 
       // 別名として元の表記を登録
       if (speech.speaker !== normalizedName) {
@@ -137,7 +137,7 @@ async function createSpeeches(
           })
           .catch(() => {
             // 既に存在する場合は無視
-          })
+          });
       }
     } else {
       // 既存Speakerの統計更新
@@ -151,7 +151,7 @@ async function createSpeeches(
               ? meetingDate
               : speaker.firstSpeechDate,
         },
-      })
+      });
 
       // 新しい別名があれば登録
       if (speech.speaker !== normalizedName) {
@@ -165,7 +165,7 @@ async function createSpeeches(
           })
           .catch(() => {
             // 既に存在する場合は無視
-          })
+          });
       }
     }
 
@@ -185,18 +185,18 @@ async function createSpeeches(
         startPage: speech.startPage ? parseInt(speech.startPage, 10) : null,
         speechURL: speech.speechURL || null,
       },
-    })
+    });
   }
 }
 
 async function syncDateRange(options: SyncOptions) {
-  const from = new Date(options.startDate)
-  const until = new Date(options.endDate)
+  const from = new Date(options.startDate);
+  const until = new Date(options.endDate);
 
-  console.log(`\n📅 同期期間: ${options.startDate} 〜 ${options.endDate}`)
-  if (options.nameOfHouse) console.log(`🏛️ 院: ${options.nameOfHouse}`)
-  if (options.nameOfMeeting) console.log(`📋 会議: ${options.nameOfMeeting}`)
-  console.log('━'.repeat(60))
+  console.log(`\n📅 同期期間: ${options.startDate} 〜 ${options.endDate}`);
+  if (options.nameOfHouse) console.log(`🏛️ 院: ${options.nameOfHouse}`);
+  if (options.nameOfMeeting) console.log(`📋 会議: ${options.nameOfMeeting}`);
+  console.log('━'.repeat(60));
 
   const syncHistory = await prisma.syncHistory.create({
     data: {
@@ -205,39 +205,39 @@ async function syncDateRange(options: SyncOptions) {
       endDate: until,
       status: 'processing',
     },
-  })
+  });
 
   try {
-    console.log('\n🔍 会議録を検索中...')
+    console.log('\n🔍 会議録を検索中...');
     const meetings = await kokkaiSyncClient.fetchMeetingsByDateRange(from, until, {
       nameOfHouse: options.nameOfHouse,
       nameOfMeeting: options.nameOfMeeting,
       onProgress: (current, total) => {
-        process.stdout.write(`\r  取得中: ${current}/${total} 件`)
+        process.stdout.write(`\r  取得中: ${current}/${total} 件`);
       },
-    })
-    console.log(`\n  ✓ ${meetings.length} 件の会議録を発見`)
+    });
+    console.log(`\n  ✓ ${meetings.length} 件の会議録を発見`);
 
-    console.log('\n📥 詳細データを取得中...')
+    console.log('\n📥 詳細データを取得中...');
     const detailedMeetings = await kokkaiSyncClient.fetchAllMeetingDetails(meetings, {
       batchSize: options.batchSize || 5,
       onProgress: (current, total) => {
-        const percentage = Math.round((current / total) * 100)
-        const bar = '█'.repeat(Math.floor(percentage / 2))
-        const empty = '░'.repeat(50 - Math.floor(percentage / 2))
-        process.stdout.write(`\r  [${bar}${empty}] ${percentage}% (${current}/${total})`)
+        const percentage = Math.round((current / total) * 100);
+        const bar = '█'.repeat(Math.floor(percentage / 2));
+        const empty = '░'.repeat(50 - Math.floor(percentage / 2));
+        process.stdout.write(`\r  [${bar}${empty}] ${percentage}% (${current}/${total})`);
       },
-    })
-    console.log(`\n  ✓ ${detailedMeetings.length} 件の詳細を取得`)
+    });
+    console.log(`\n  ✓ ${detailedMeetings.length} 件の詳細を取得`);
 
-    console.log('\n💾 データベースに保存中...')
-    let savedMeetings = 0
-    let savedSpeeches = 0
+    console.log('\n💾 データベースに保存中...');
+    let savedMeetings = 0;
+    let savedSpeeches = 0;
 
     for (const meeting of detailedMeetings) {
-      await saveMeetingToDatabase(meeting)
-      savedMeetings++
-      savedSpeeches += meeting.speechRecord?.length || 0
+      await saveMeetingToDatabase(meeting);
+      savedMeetings++;
+      savedSpeeches += meeting.speechRecord?.length || 0;
     }
 
     await prisma.syncHistory.update({
@@ -248,13 +248,13 @@ async function syncDateRange(options: SyncOptions) {
         processedRecords: savedMeetings,
         completedAt: new Date(),
       },
-    })
+    });
 
-    console.log('\n' + '═'.repeat(60))
-    console.log('✅ 同期完了!')
-    console.log(`  📊 保存された会議録: ${savedMeetings} 件`)
-    console.log(`  💬 保存された発言: ${savedSpeeches} 件`)
-    console.log('═'.repeat(60))
+    console.log('\n' + '═'.repeat(60));
+    console.log('✅ 同期完了!');
+    console.log(`  📊 保存された会議録: ${savedMeetings} 件`);
+    console.log(`  💬 保存された発言: ${savedSpeeches} 件`);
+    console.log('═'.repeat(60));
   } catch (error) {
     await prisma.syncHistory.update({
       where: { id: syncHistory.id },
@@ -263,40 +263,40 @@ async function syncDateRange(options: SyncOptions) {
         errorMessage: error instanceof Error ? error.message : '不明なエラー',
         completedAt: new Date(),
       },
-    })
+    });
 
-    throw error
+    throw error;
   }
 }
 
 async function syncLastYear() {
-  console.log('\n🚀 過去1年分のデータ同期を開始します')
-  console.log('━'.repeat(60))
+  console.log('\n🚀 過去1年分のデータ同期を開始します');
+  console.log('━'.repeat(60));
 
-  const endDate = new Date()
-  const startDate = new Date()
-  startDate.setFullYear(startDate.getFullYear() - 1)
+  const endDate = new Date();
+  const startDate = new Date();
+  startDate.setFullYear(startDate.getFullYear() - 1);
 
   console.log(
     `\n📆 ${startDate.toISOString().split('T')[0]} 〜 ${
       endDate.toISOString().split('T')[0]
     } を処理中...`
-  )
+  );
 
   try {
     await syncDateRange({
       startDate: startDate.toISOString().split('T')[0],
       endDate: endDate.toISOString().split('T')[0],
       batchSize: 5,
-    })
+    });
   } catch (error) {
-    console.error(`\n❌ 同期でエラーが発生しました:`, error)
-    process.exit(1)
+    console.error(`\n❌ 同期でエラーが発生しました:`, error);
+    process.exit(1);
   }
 
-  console.log('\n' + '═'.repeat(60))
-  console.log('🎉 過去1年分のデータ同期が完了しました!')
-  console.log('═'.repeat(60))
+  console.log('\n' + '═'.repeat(60));
+  console.log('🎉 過去1年分のデータ同期が完了しました!');
+  console.log('═'.repeat(60));
 }
 
 async function showStats() {
@@ -318,48 +318,48 @@ async function showStats() {
         take: 5,
         select: { displayName: true, speechCount: true },
       }),
-    ])
+    ]);
 
-  console.log('\n📊 データベース統計')
-  console.log('━'.repeat(60))
-  console.log(`  会議録数: ${totalMeetings.toLocaleString()} 件`)
-  console.log(`  発言数: ${totalSpeeches.toLocaleString()} 件`)
-  console.log(`  発言者数: ${totalSpeakers.toLocaleString()} 人`)
+  console.log('\n📊 データベース統計');
+  console.log('━'.repeat(60));
+  console.log(`  会議録数: ${totalMeetings.toLocaleString()} 件`);
+  console.log(`  発言数: ${totalSpeeches.toLocaleString()} 件`);
+  console.log(`  発言者数: ${totalSpeakers.toLocaleString()} 人`);
   if (oldestMeeting && newestMeeting) {
     console.log(
       `  データ範囲: ${oldestMeeting.date.toLocaleDateString(
         'ja-JP'
       )} 〜 ${newestMeeting.date.toLocaleDateString('ja-JP')}`
-    )
+    );
   }
 
   if (topSpeakers.length > 0) {
-    console.log('\n  📢 発言数TOP5:')
+    console.log('\n  📢 発言数TOP5:');
     topSpeakers.forEach((speaker, index) => {
-      console.log(`    ${index + 1}. ${speaker.displayName}: ${speaker.speechCount}回`)
-    })
+      console.log(`    ${index + 1}. ${speaker.displayName}: ${speaker.speechCount}回`);
+    });
   }
 
-  console.log('━'.repeat(60))
+  console.log('━'.repeat(60));
 }
 
 async function main() {
-  const args = process.argv.slice(2)
-  const command = args[0]
+  const args = process.argv.slice(2);
+  const command = args[0];
 
-  console.log('\n🏛️ 国会会議録同期ツール')
-  console.log('━'.repeat(60))
+  console.log('\n🏛️ 国会会議録同期ツール');
+  console.log('━'.repeat(60));
 
   try {
     switch (command) {
       case 'sync':
-        const startDate = args[1]
-        const endDate = args[2]
+        const startDate = args[1];
+        const endDate = args[2];
 
         if (!startDate || !endDate) {
-          console.error('使用方法: bun run sync:data sync <開始日> <終了日>')
-          console.error('例: bun run sync:data sync 2024-01-01 2024-12-31')
-          process.exit(1)
+          console.error('使用方法: bun run sync:data sync <開始日> <終了日>');
+          console.error('例: bun run sync:data sync 2024-01-01 2024-12-31');
+          process.exit(1);
         }
 
         await syncDateRange({
@@ -367,51 +367,51 @@ async function main() {
           endDate,
           nameOfHouse: args[3],
           nameOfMeeting: args[4],
-        })
-        break
+        });
+        break;
 
       case 'sync-year':
-        console.log('⚠️ この処理には時間がかかる可能性があります')
-        console.log('続行しますか? (y/n): ')
+        console.log('⚠️ この処理には時間がかかる可能性があります');
+        console.log('続行しますか? (y/n): ');
 
         const rl = readline.createInterface({
           input: process.stdin,
           output: process.stdout,
-        })
+        });
 
         rl.question('', async (answer: string) => {
-          rl.close()
+          rl.close();
           if (answer.toLowerCase() === 'y') {
-            await syncLastYear()
-            await showStats()
+            await syncLastYear();
+            await showStats();
           } else {
-            console.log('キャンセルされました')
+            console.log('キャンセルされました');
           }
-          await prisma.$disconnect()
-        })
-        return
+          await prisma.$disconnect();
+        });
+        return;
 
       case 'stats':
-        await showStats()
-        break
+        await showStats();
+        break;
 
       default:
-        console.log('使用可能なコマンド:')
-        console.log('  sync <開始日> <終了日> [院] [会議名] - 指定期間のデータを同期')
-        console.log('  sync-year - 過去1年分のデータを同期')
-        console.log('  stats - データベース統計を表示')
-        console.log('\n例:')
-        console.log('  bun run sync:data sync 2024-01-01 2024-12-31')
-        console.log('  bun run sync:data sync 2024-01-01 2024-12-31 衆議院 本会議')
-        console.log('  bun run sync:data sync-year')
-        console.log('  bun run sync:data stats')
+        console.log('使用可能なコマンド:');
+        console.log('  sync <開始日> <終了日> [院] [会議名] - 指定期間のデータを同期');
+        console.log('  sync-year - 過去1年分のデータを同期');
+        console.log('  stats - データベース統計を表示');
+        console.log('\n例:');
+        console.log('  bun run sync:data sync 2024-01-01 2024-12-31');
+        console.log('  bun run sync:data sync 2024-01-01 2024-12-31 衆議院 本会議');
+        console.log('  bun run sync:data sync-year');
+        console.log('  bun run sync:data stats');
     }
   } catch (error) {
-    console.error('\n❌ エラーが発生しました:', error)
-    process.exit(1)
+    console.error('\n❌ エラーが発生しました:', error);
+    process.exit(1);
   } finally {
-    await prisma.$disconnect()
+    await prisma.$disconnect();
   }
 }
 
-main().catch(console.error)
+main().catch(console.error);
