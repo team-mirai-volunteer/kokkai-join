@@ -15,6 +15,10 @@ import { getRecentMeetings, getDatabaseStats } from '@/lib/actions/meeting-actio
 import { RecentMeetingsList } from '@/components/features/meeting';
 import { formatDateShort } from '@/lib/utils/date';
 
+// キャッシュを無効化
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default async function Home() {
   const stats = await getDatabaseStats();
 
@@ -53,7 +57,7 @@ export default async function Home() {
       </Box>
 
       {/* データベース統計 */}
-      {stats && (
+      {stats && stats.totalMeetings > 0 && (
         <Box sx={{ mb: 4 }}>
           <Alert 
             severity="info" 

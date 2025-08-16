@@ -47,6 +47,14 @@ export async function getRecentMeetingsFromDB(limit: number = PAGINATION.DEFAULT
     }));
   } catch (error) {
     console.error('Failed to fetch recent meetings from DB:', error);
+    // より詳細なエラー情報をログに出力
+    if (error instanceof Error) {
+      console.error('Error details:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name,
+      });
+    }
     return [];
   }
 }
