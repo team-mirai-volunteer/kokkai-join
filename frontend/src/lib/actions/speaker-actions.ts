@@ -318,8 +318,9 @@ export async function getSpeakerRoleHistory(speakerId: string) {
         if (speech.meeting.date > existing.lastDate) {
           existing.lastDate = speech.meeting.date;
         }
-        // 最新の5件まで保持
-        if (existing.meetings.length < 5) {
+        // 会議を重複なく追加（最新の5件まで）
+        const meetingExists = existing.meetings.some(m => m.issueID === speech.meeting.issueID);
+        if (!meetingExists && existing.meetings.length < 5) {
           existing.meetings.push({
             id: speech.meeting.id,
             issueID: speech.meeting.issueID,
@@ -356,8 +357,9 @@ export async function getSpeakerRoleHistory(speakerId: string) {
         if (speech.meeting.date > existing.lastDate) {
           existing.lastDate = speech.meeting.date;
         }
-        // 最新の5件まで保持
-        if (existing.meetings.length < 5) {
+        // 会議を重複なく追加（最新の5件まで）
+        const meetingExists = existing.meetings.some(m => m.issueID === speech.meeting.issueID);
+        if (!meetingExists && existing.meetings.length < 5) {
           existing.meetings.push({
             id: speech.meeting.id,
             issueID: speech.meeting.issueID,

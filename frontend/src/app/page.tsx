@@ -55,17 +55,30 @@ export default async function Home() {
       {/* データベース統計 */}
       {stats && (
         <Box sx={{ mb: 4 }}>
-          <Alert severity="info" icon={<Storage />}>
-            <Typography variant="body2">
-              データベース: {stats.totalMeetings.toLocaleString()}件の会議録、
-              {stats.totalSpeeches.toLocaleString()}件の発言を保存済み
-              {stats.oldestMeeting && stats.newestMeeting && (
-                <span>
-                  （{formatDateShort(stats.oldestMeeting.date.toISOString())} 〜
-                  {formatDateShort(stats.newestMeeting.date.toISOString())}）
-                </span>
-              )}
-            </Typography>
+          <Alert 
+            severity="info" 
+            icon={<Storage sx={{ verticalAlign: 'middle', position: 'relative', top: -1 }} />}
+            sx={{ 
+              alignItems: 'center',
+              '& .MuiAlert-icon': {
+                padding: '7px 0',
+                marginRight: '12px',
+                alignItems: 'center',
+              },
+              '& .MuiAlert-message': {
+                padding: '8px 0',
+                lineHeight: 1.5,
+              }
+            }}
+          >
+            データベース: {stats.totalMeetings.toLocaleString()}件の会議録、
+            {stats.totalSpeeches.toLocaleString()}件の発言を保存済み
+            {stats.oldestMeeting && stats.newestMeeting && (
+              <>
+                （{formatDateShort(stats.oldestMeeting.date.toISOString())} 〜{' '}
+                {formatDateShort(stats.newestMeeting.date.toISOString())}）
+              </>
+            )}
           </Alert>
         </Box>
       )}

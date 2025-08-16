@@ -10,6 +10,9 @@ export interface SearchParams {
   from?: string;
   until?: string;
   page?: number;
+  pageSize?: number;
+  sortField?: string;
+  sortOrder?: string;
 }
 
 /**
@@ -25,6 +28,9 @@ export function buildSearchParams(params: SearchParams): URLSearchParams {
   if (params.from) urlParams.append('from', params.from);
   if (params.until) urlParams.append('until', params.until);
   if (params.page && params.page > 1) urlParams.append('page', params.page.toString());
+  if (params.pageSize) urlParams.append('pageSize', params.pageSize.toString());
+  if (params.sortField) urlParams.append('sortField', params.sortField);
+  if (params.sortOrder) urlParams.append('sortOrder', params.sortOrder);
 
   return urlParams;
 }

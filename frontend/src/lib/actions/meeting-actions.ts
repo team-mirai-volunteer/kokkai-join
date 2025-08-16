@@ -52,6 +52,8 @@ export async function searchMeetings(
     speaker?: string;
     limit?: number;
     page?: number;
+    sortField?: string;
+    sortOrder?: 'asc' | 'desc';
   }
 ) {
   try {
@@ -63,6 +65,8 @@ export async function searchMeetings(
       speaker,
       limit = PAGINATION.SEARCH_PAGE_SIZE,
       page = PAGINATION.DEFAULT_PAGE,
+      sortField,
+      sortOrder,
     } = options || {};
 
     const result = await searchMeetingsInDB({
@@ -74,6 +78,8 @@ export async function searchMeetings(
       until: dateTo || undefined,
       skip: (page - 1) * limit,
       take: limit,
+      sortField,
+      sortOrder,
     });
 
     return {

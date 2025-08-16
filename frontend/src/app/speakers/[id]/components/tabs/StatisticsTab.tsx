@@ -13,6 +13,8 @@ import {
   Chip,
   Stack,
   Grid,
+  Tooltip,
+  LinearProgress,
 } from '@mui/material';
 import { getSpeakerStatistics, getCoSpeakers } from '@/lib/actions/speaker-actions';
 import Link from 'next/link';
@@ -138,20 +140,30 @@ export function StatisticsTab({ speakerId }: StatisticsTabProps) {
           <Card>
             <CardContent>
               <Typography color="text.secondary" gutterBottom>
-                活動期間
+                最多発言会議
               </Typography>
-              <Typography variant="h4">
-                {statistics.firstSpeechDate && statistics.lastSpeechDate
-                  ? Math.ceil(
-                      (new Date(statistics.lastSpeechDate).getTime() -
-                        new Date(statistics.firstSpeechDate).getTime()) /
-                        (1000 * 60 * 60 * 24 * 365)
-                    )
-                  : 0}
-              </Typography>
-              <Typography variant="caption" color="text.secondary">
-                年
-              </Typography>
+              <Tooltip title={statistics.topMeetingTypes[0] ? `${statistics.topMeetingTypes[0].count}回発言` : ''}>
+                <Box>
+                  <Typography 
+                    variant="h6" 
+                    sx={{ 
+                      fontSize: '1.25rem',
+                      lineHeight: 1.2,
+                      height: '3em',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                    }}
+                  >
+                    {statistics.topMeetingTypes[0]?.type || '-'}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    {statistics.topMeetingTypes[0] ? `${statistics.topMeetingTypes[0].count}回` : ''}
+                  </Typography>
+                </Box>
+              </Tooltip>
             </CardContent>
           </Card>
         </Grid>
@@ -205,7 +217,7 @@ export function StatisticsTab({ speakerId }: StatisticsTabProps) {
           </Card>
         </Grid>
 
-        {/* 月別発言数（簡易版） */}
+        {/* 月別発言数（改善版） */}
         {statistics.monthlySpeechData.length > 0 && (
           <Grid size={12}>
             <Card>
@@ -213,46 +225,90 @@ export function StatisticsTab({ speakerId }: StatisticsTabProps) {
                 <Typography variant="h6" gutterBottom>
                   月別発言数（直近12ヶ月）
                 </Typography>
+                
+                {/* 最大値と平均値の表示 */}
+                <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
+                  <Typography variant="body2" color="text.secondary">
+                    最大: {Math.max(...statistics.monthlySpeechData.slice(-12).map(d => d.count))}回
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    平均: {Math.round(
+                      statistics.monthlySpeechData.slice(-12).reduce((sum, d) => sum + d.count, 0) / 
+                      Math.min(12, statistics.monthlySpeechData.length)
+                    )}回
+                  </Typography>
+                </Stack>
+
+                {/* 棒グラフ */}
                 <Box sx={{ overflowX: 'auto' }}>
-                  <Stack direction="row" spacing={1} sx={{ minWidth: 600, py: 2 }}>
-                    {statistics.monthlySpeechData.slice(-12).map((item) => (
-                      <Box
-                        key={item.month}
-                        sx={{
-                          textAlign: 'center',
-                          minWidth: 60,
-                        }}
-                      >
-                        <Box
-                          sx={{
-                            height: 100,
-                            width: 40,
-                            bgcolor: 'primary.main',
-                            opacity: 0.8,
-                            mb: 1,
-                            mx: 'auto',
-                            display: 'flex',
-                            alignItems: 'flex-end',
-                          }}
-                        >
-                          <Box
-                            sx={{
-                              width: '100%',
-                              height: `${Math.min(100, (item.count / Math.max(...statistics.monthlySpeechData.map((d) => d.count))) * 100)}%`,
-                              bgcolor: 'primary.main',
-                            }}
-                          />
+                  <Box sx={{ minWidth: 600, py: 2 }}>
+                    {statistics.monthlySpeechData.slice(-12).reverse().map((item) => {
+                      const maxCount = Math.max(...statistics.monthlySpeechData.slice(-12).map(d => d.count));
+                      const percentage = maxCount > 0 ? (item.count / maxCount) * 100 : 0;
+                      const [year, month] = item.month.split('-');
+                      const monthLabel = `${year}年${parseInt(month)}月`;
+                      
+                      return (
+                        <Box key={item.month} sx={{ mb: 2 }}>
+                          <Stack direction="row" spacing={2} alignItems="center">
+                            <Typography 
+                              variant="body2" 
+                              sx={{ 
+                                minWidth: 100,
+                                textAlign: 'right',
+                                color: 'text.secondary'
+                              }}
+                            >
+                              {year.slice(2)}年{parseInt(month)}月
+                            </Typography>
+                            
+                            <Tooltip title={`${monthLabel}: ${item.count}回`} placement="top">
+                              <Box sx={{ flex: 1, position: 'relative' }}>
+                                <LinearProgress
+                                  variant="determinate"
+                                  value={percentage}
+                                  sx={{
+                                    height: 24,
+                                    borderRadius: 1,
+                                    backgroundColor: 'grey.200',
+                                    '& .MuiLinearProgress-bar': {
+                                      borderRadius: 1,
+                                      background: percentage > 70 
+                                        ? 'linear-gradient(90deg, #1976d2 0%, #42a5f5 100%)'
+                                        : percentage > 40
+                                        ? 'linear-gradient(90deg, #42a5f5 0%, #66bb6a 100%)'
+                                        : 'linear-gradient(90deg, #66bb6a 0%, #81c784 100%)',
+                                    },
+                                  }}
+                                />
+                                <Typography
+                                  variant="body2"
+                                  sx={{
+                                    position: 'absolute',
+                                    top: '50%',
+                                    left: '50%',
+                                    transform: 'translate(-50%, -50%)',
+                                    fontWeight: 'medium',
+                                    color: percentage > 50 ? 'white' : 'text.primary',
+                                  }}
+                                >
+                                  {item.count}
+                                </Typography>
+                              </Box>
+                            </Tooltip>
+                          </Stack>
                         </Box>
-                        <Typography variant="caption" display="block">
-                          {item.count}
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {item.month.substring(5)}
-                        </Typography>
-                      </Box>
-                    ))}
-                  </Stack>
+                      );
+                    })}
+                  </Box>
                 </Box>
+
+                {/* データがない月の説明 */}
+                {statistics.monthlySpeechData.slice(-12).some(d => d.count === 0) && (
+                  <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
+                    ※ 発言がない月も含まれています
+                  </Typography>
+                )}
               </CardContent>
             </Card>
           </Grid>

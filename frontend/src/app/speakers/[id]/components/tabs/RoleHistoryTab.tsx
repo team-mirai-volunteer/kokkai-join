@@ -140,7 +140,7 @@ export function RoleHistoryTab({ speakerId }: RoleHistoryTabProps) {
                   {item.position.category && (
                     <Chip label={item.position.category} size="small" variant="outlined" />
                   )}
-                  <Chip label={`${item.count}回`} size="small" color="primary" />
+                  <Chip label={`${item.count}回発言`} size="small" color="primary" />
                   <Typography variant="body2" color="text.secondary">
                     {formatDate(item.firstDate)} 〜 {formatDate(item.lastDate)}
                   </Typography>
@@ -152,8 +152,8 @@ export function RoleHistoryTab({ speakerId }: RoleHistoryTabProps) {
                     最近の会議（最大5件）
                   </Typography>
                   <List dense>
-                    {item.meetings.map((meeting) => (
-                      <ListItem key={meeting.id}>
+                    {item.meetings.map((meeting, meetingIndex) => (
+                      <ListItem key={`${meeting.issueID}-${meetingIndex}`}>
                         <ListItemText
                           primary={
                             <Link
@@ -196,7 +196,7 @@ export function RoleHistoryTab({ speakerId }: RoleHistoryTabProps) {
                   <Typography variant="subtitle1" sx={{ fontWeight: 'bold', flex: 1 }}>
                     {item.role.name}
                   </Typography>
-                  <Chip label={`${item.count}回`} size="small" color="primary" />
+                  <Chip label={`${item.count}回発言`} size="small" color="primary" />
                   <Typography variant="body2" color="text.secondary">
                     {formatDate(item.firstDate)} 〜 {formatDate(item.lastDate)}
                   </Typography>
@@ -208,8 +208,8 @@ export function RoleHistoryTab({ speakerId }: RoleHistoryTabProps) {
                     最近の会議（最大5件）
                   </Typography>
                   <List dense>
-                    {item.meetings.map((meeting) => (
-                      <ListItem key={meeting.id}>
+                    {item.meetings.map((meeting, meetingIndex) => (
+                      <ListItem key={`${meeting.issueID}-${meetingIndex}`}>
                         <ListItemText
                           primary={
                             <Link

@@ -82,6 +82,8 @@ export async function searchMeetingsInDB(params: {
   until?: string;
   skip?: number;
   take?: number;
+  sortField?: string;
+  sortOrder?: 'asc' | 'desc';
 }) {
   try {
     const where: Prisma.MeetingWhereInput = {};
@@ -150,10 +152,37 @@ export async function searchMeetingsInDB(params: {
       };
     }
 
+    // ソート条件の設定
+    let orderBy: Prisma.MeetingOrderByWithRelationInput = { date: 'desc' };
+    if (params.sortField && params.sortOrder) {
+      switch (params.sortField) {
+        case 'date':
+          orderBy = { date: params.sortOrder };
+          break;
+        case 'nameOfHouse':
+          orderBy = { nameOfHouse: params.sortOrder };
+          break;
+        case 'session':
+          orderBy = { session: params.sortOrder };
+          break;
+        case 'nameOfMeeting':
+          orderBy = { nameOfMeeting: params.sortOrder };
+          break;
+        case 'issue':
+          orderBy = { issue: params.sortOrder };
+          break;
+        case 'speechCount':
+          orderBy = { speeches: { _count: params.sortOrder } };
+          break;
+        default:
+          orderBy = { date: 'desc' };
+      }
+    }
+
     const [meetings, total] = await Promise.all([
       prisma.meeting.findMany({
         where,
-        orderBy: { date: 'desc' },
+        orderBy,
         skip: params.skip || 0,
         take: params.take || PAGINATION.MAX_PAGE_SIZE,
         include: {
