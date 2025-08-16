@@ -14,11 +14,14 @@ import * as readline from 'readline';
 // キャッシュディレクトリ
 const CACHE_DIR = path.join(process.cwd(), '.cache', 'kokkai');
 
+// 環境判定
+const isProduction = process.env.DATABASE_URL?.includes('35.187.217.10') || false;
+
 // 同期設定
 const CONFIG = {
   BATCH_SIZE: 10, // 並列で詳細取得する会議録数
   MAX_CONCURRENT_SAVE: 5, // 並列でDBに保存する会議録数
-  API_DELAY_MS: 100, // API呼び出し間のディレイ（ミリ秒）
+  API_DELAY_MS: isProduction ? 500 : 100, // API呼び出し間のディレイ（ミリ秒）
   RETRY_COUNT: 3, // リトライ回数
   RETRY_DELAY_MS: 2000, // リトライ前の待機時間
   CACHE_EXPIRES_DAYS: 7, // キャッシュ有効期限（日）
@@ -285,10 +288,32 @@ class SpeakerManager {
   async findOrCreatePosition(positionName: string | null | undefined): Promise<string | null> {
     if (!positionName) return null;
 
+    // キャッシュチェック
     if (this.positionCache.has(positionName)) {
       return this.positionCache.get(positionName)!;
     }
 
+    // 既に作成中の場合は待機
+    if (this.pendingPositions.has(positionName)) {
+      return await this.pendingPositions.get(positionName)!;
+    }
+
+    // 作成処理を開始
+    const creationPromise = this.doCreatePosition(positionName);
+    this.pendingPositions.set(positionName, creationPromise);
+
+    try {
+      const result = await creationPromise;
+      if (result) {
+        this.positionCache.set(positionName, result);
+      }
+      return result;
+    } finally {
+      this.pendingPositions.delete(positionName);
+    }
+  }
+
+  private async doCreatePosition(positionName: string): Promise<string | null> {
     let position = await prisma.position.findUnique({ where: { name: positionName } });
     if (!position) {
       // カテゴリを推定
@@ -309,7 +334,6 @@ class SpeakerManager {
       }
     }
 
-    this.positionCache.set(positionName, position.id);
     return position.id;
   }
 
@@ -317,10 +341,32 @@ class SpeakerManager {
   async findOrCreateRole(roleName: string | null | undefined): Promise<string | null> {
     if (!roleName) return null;
 
+    // キャッシュチェック
     if (this.roleCache.has(roleName)) {
       return this.roleCache.get(roleName)!;
     }
 
+    // 既に作成中の場合は待機
+    if (this.pendingRoles.has(roleName)) {
+      return await this.pendingRoles.get(roleName)!;
+    }
+
+    // 作成処理を開始
+    const creationPromise = this.doCreateRole(roleName);
+    this.pendingRoles.set(roleName, creationPromise);
+
+    try {
+      const result = await creationPromise;
+      if (result) {
+        this.roleCache.set(roleName, result);
+      }
+      return result;
+    } finally {
+      this.pendingRoles.delete(roleName);
+    }
+  }
+
+  private async doCreateRole(roleName: string): Promise<string | null> {
     let role = await prisma.speakerRole.findUnique({ where: { name: roleName } });
     if (!role) {
       try {
@@ -334,7 +380,6 @@ class SpeakerManager {
       }
     }
 
-    this.roleCache.set(roleName, role.id);
     return role.id;
   }
 
@@ -422,17 +467,17 @@ class SpeakerManager {
         firstSpeechDate?: Date;
         lastSpeechDate?: Date;
       } = {};
-      
+
       // より古い発言の場合は初回発言日を更新
       if (!speaker.firstSpeechDate || meetingDate < speaker.firstSpeechDate) {
         updateData.firstSpeechDate = meetingDate;
       }
-      
+
       // より新しい発言の場合は最終発言日を更新
       if (!speaker.lastSpeechDate || meetingDate > speaker.lastSpeechDate) {
         updateData.lastSpeechDate = meetingDate;
       }
-      
+
       if (Object.keys(updateData).length > 0) {
         await prisma.speaker.update({
           where: { id: speaker.id },
@@ -462,6 +507,8 @@ class SpeakerManager {
   // 所属情報のキャッシュ（speakerId-partyGroupId をキーとする）
   private affiliationCache = new Map<string, string>();
   private pendingAffiliations = new Map<string, Promise<string | null>>();
+  private pendingPositions = new Map<string, Promise<string | null>>();
+  private pendingRoles = new Map<string, Promise<string | null>>();
 
   // 所属情報の取得または作成
   private async findOrCreateAffiliation(
@@ -479,12 +526,12 @@ class SpeakerManager {
 
     // キャッシュキー
     const cacheKey = `${speakerId}-${partyGroupId}`;
-    
+
     // メモリキャッシュチェック
     if (this.affiliationCache.has(cacheKey)) {
       return this.affiliationCache.get(cacheKey)!;
     }
-    
+
     // 既に作成中の場合は待機
     if (this.pendingAffiliations.has(cacheKey)) {
       return await this.pendingAffiliations.get(cacheKey)!;
@@ -493,7 +540,7 @@ class SpeakerManager {
     // 作成処理を開始
     const creationPromise = this.doCreateAffiliation(speakerId, partyGroupId, meetingDate);
     this.pendingAffiliations.set(cacheKey, creationPromise);
-    
+
     try {
       const result = await creationPromise;
       if (result) {

@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 
 datasource db {
@@ -9,29 +10,29 @@ datasource db {
 
 // 会議録のメインテーブル
 model Meeting {
-  id              String    @id @default(cuid())
-  issueID         String    @unique // 国会API側のユニークID
-  imageKind       String?   // 院の種別を示すコード
-  searchObject    Int?      // 検索対象のコード
-  session         Int       // 国会回次
-  nameOfHouse     String    // 院名（衆議院/参議院等）
-  nameOfMeeting   String    // 会議名
-  issue           String?   // 号数
-  date            DateTime  // 開催日
-  closing         String?   // 閉会中フラグ
-  
+  id            String   @id @default(cuid())
+  issueID       String   @unique // 国会API側のユニークID
+  imageKind     String? // 院の種別を示すコード
+  searchObject  Int? // 検索対象のコード
+  session       Int // 国会回次
+  nameOfHouse   String // 院名（衆議院/参議院等）
+  nameOfMeeting String // 会議名
+  issue         String? // 号数
+  date          DateTime // 開催日
+  closing       String? // 閉会中フラグ
+
   // URL情報
-  meetingURL      String?   // 会議録テキスト表示URL
-  pdfURL          String?   // PDF版URL
-  
+  meetingURL String? // 会議録テキスト表示URL
+  pdfURL     String? // PDF版URL
+
   // リレーション
-  speeches        Speech[]  // 発言記録
-  
+  speeches Speech[] // 発言記録
+
   // メタデータ
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  lastSyncedAt    DateTime? // 最後に同期した日時
-  
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  lastSyncedAt DateTime? // 最後に同期した日時
+
   // インデックス
   @@index([date])
   @@index([session])
@@ -41,26 +42,26 @@ model Meeting {
 
 // 発言者マスターテーブル（改訂版）
 model Speaker {
-  id              String    @id @default(cuid())
-  
+  id String @id @default(cuid())
+
   // 基本情報（同姓同名は同一人物として扱う）
-  normalizedName  String    // 正規化された名前（役職・敬称を除去）
-  displayName     String    // 表示用名前（最も一般的な表記）
-  nameYomi        String?   // よみがな（任意）
-  
+  normalizedName String // 正規化された名前（役職・敬称を除去）
+  displayName    String // 表示用名前（最も一般的な表記）
+  nameYomi       String? // よみがな（任意）
+
   // 統計情報（キャッシュ用）
   firstSpeechDate DateTime? // 最初の発言日
   lastSpeechDate  DateTime? // 最後の発言日
-  
+
   // メタデータ
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   // リレーション
-  speeches        Speech[]
-  aliases         SpeakerAlias[]
-  affiliations    SpeakerAffiliation[] // 所属履歴
-  
+  speeches     Speech[]
+  aliases      SpeakerAlias[]
+  affiliations SpeakerAffiliation[] // 所属履歴
+
   // インデックス（同姓同名は同一人物なのでnormalizedNameのみでユニーク）
   @@unique([normalizedName])
   @@index([normalizedName])
@@ -70,15 +71,15 @@ model Speaker {
 
 // 発言者の別名管理（表記ゆれ対応）
 model SpeakerAlias {
-  id              String    @id @default(cuid())
-  speakerId       String
-  speaker         Speaker   @relation(fields: [speakerId], references: [id], onDelete: Cascade)
-  
-  aliasName       String    // 別名（安倍総理、安倍晋三君など）
-  aliasYomi       String?   // 別名のよみがな
-  
-  createdAt       DateTime  @default(now())
-  
+  id        String  @id @default(cuid())
+  speakerId String
+  speaker   Speaker @relation(fields: [speakerId], references: [id], onDelete: Cascade)
+
+  aliasName String // 別名（安倍総理、安倍晋三君など）
+  aliasYomi String? // 別名のよみがな
+
+  createdAt DateTime @default(now())
+
   @@unique([aliasName, aliasYomi])
   @@index([speakerId])
   @@index([aliasName])
@@ -86,32 +87,32 @@ model SpeakerAlias {
 
 // 院マスター（衆議院、参議院など）
 model House {
-  id              String    @id @default(cuid())
-  name            String    @unique // 院名（衆議院、参議院、両院、その他）
-  code            String?   // 院コード
-  displayOrder    Int       @default(0) // 表示順
-  
+  id           String  @id @default(cuid())
+  name         String  @unique // 院名（衆議院、参議院、両院、その他）
+  code         String? // 院コード
+  displayOrder Int     @default(0) // 表示順
+
   // メタデータ
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@index([name])
 }
 
 // 会派マスター
 model PartyGroup {
-  id              String    @id @default(cuid())
-  name            String    // 会派名（自由民主党、立憲民主党など）
-  shortName       String?   // 略称
-  isActive        Boolean   @default(true) // 現在も活動中かどうか
-  
+  id        String  @id @default(cuid())
+  name      String // 会派名（自由民主党、立憲民主党など）
+  shortName String? // 略称
+  isActive  Boolean @default(true) // 現在も活動中かどうか
+
   // リレーション
-  affiliations    SpeakerAffiliation[]
-  
+  affiliations SpeakerAffiliation[]
+
   // メタデータ
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@unique([name])
   @@index([name])
   @@index([isActive])
@@ -119,18 +120,18 @@ model PartyGroup {
 
 // 役職マスター
 model Position {
-  id              String    @id @default(cuid())
-  name            String    // 役職名（内閣総理大臣、外務大臣、委員長など）
-  category        String?   // カテゴリ（大臣、委員長、理事など）
-  level           Int       @default(0) // 役職レベル（重要度）
-  
+  id       String  @id @default(cuid())
+  name     String // 役職名（内閣総理大臣、外務大臣、委員長など）
+  category String? // カテゴリ（大臣、委員長、理事など）
+  level    Int     @default(0) // 役職レベル（重要度）
+
   // リレーション
-  speeches        Speech[]  // この役職での発言
-  
+  speeches Speech[] // この役職での発言
+
   // メタデータ
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@unique([name])
   @@index([name])
   @@index([category])
@@ -138,42 +139,42 @@ model Position {
 
 // 役割マスター（発言者としての立場）
 model SpeakerRole {
-  id              String    @id @default(cuid())
-  name            String    // 役割名（政府参考人、参考人、証人など）
-  description     String?   // 説明
-  
+  id          String  @id @default(cuid())
+  name        String // 役割名（政府参考人、参考人、証人など）
+  description String? // 説明
+
   // リレーション
-  speeches        Speech[]  // この役割での発言
-  
+  speeches Speech[] // この役割での発言
+
   // メタデータ
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@unique([name])
   @@index([name])
 }
 
 // 発言者の所属履歴（会派のみ）
 model SpeakerAffiliation {
-  id              String    @id @default(cuid())
-  speakerId       String
-  speaker         Speaker   @relation(fields: [speakerId], references: [id], onDelete: Cascade)
-  
+  id        String  @id @default(cuid())
+  speakerId String
+  speaker   Speaker @relation(fields: [speakerId], references: [id], onDelete: Cascade)
+
   // 所属情報（会派のみ）
-  partyGroupId    String?
-  partyGroup      PartyGroup? @relation(fields: [partyGroupId], references: [id])
-  
+  partyGroupId String?
+  partyGroup   PartyGroup? @relation(fields: [partyGroupId], references: [id])
+
   // 期間情報
-  startDate       DateTime  // この所属の開始日
-  endDate         DateTime? // この所属の終了日（nullの場合は現在も継続）
-  
+  startDate DateTime // この所属の開始日
+  endDate   DateTime? // この所属の終了日（nullの場合は現在も継続）
+
   // リレーション
-  speeches        Speech[]  // この所属での発言
-  
+  speeches Speech[] // この所属での発言
+
   // メタデータ
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   // インデックス
   @@index([speakerId])
   @@index([partyGroupId])
@@ -183,44 +184,44 @@ model SpeakerAffiliation {
 
 // 発言記録テーブル（更新版）
 model Speech {
-  id              String    @id @default(cuid())
-  speechID        String    @unique // 国会API側の発言ID
-  meetingId       String    // リレーション用
-  meeting         Meeting   @relation(fields: [meetingId], references: [id], onDelete: Cascade)
-  
+  id        String  @id @default(cuid())
+  speechID  String  @unique // 国会API側の発言ID
+  meetingId String // リレーション用
+  meeting   Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+
   // 発言者との関連（オプショナル：マッチングできない場合がある）
-  speakerId       String?
-  speaker         Speaker?  @relation(fields: [speakerId], references: [id])
-  
+  speakerId String?
+  speaker   Speaker? @relation(fields: [speakerId], references: [id])
+
   // 発言時の所属情報（院と会派）
-  affiliationId   String?
-  affiliation     SpeakerAffiliation? @relation(fields: [affiliationId], references: [id])
-  
+  affiliationId String?
+  affiliation   SpeakerAffiliation? @relation(fields: [affiliationId], references: [id])
+
   // 発言時の役職・役割（会議ごとに変わる）
-  positionId      String?
-  position        Position? @relation(fields: [positionId], references: [id])
-  
-  roleId          String?
-  role            SpeakerRole? @relation(fields: [roleId], references: [id])
-  
+  positionId String?
+  position   Position? @relation(fields: [positionId], references: [id])
+
+  roleId String?
+  role   SpeakerRole? @relation(fields: [roleId], references: [id])
+
   // 元データの発言者情報（保持しておく）
-  rawSpeaker      String    // 元の発言者名
-  rawSpeakerYomi  String?   // 元の発言者よみがな
-  rawSpeakerGroup String?   // 元の所属会派
+  rawSpeaker         String // 元の発言者名
+  rawSpeakerYomi     String? // 元の発言者よみがな
+  rawSpeakerGroup    String? // 元の所属会派
   rawSpeakerPosition String? // 元の役職
-  rawSpeakerRole  String?   // 元の役割
-  
-  speechOrder     Int       // 発言順序
-  speech          String    @db.Text // 発言内容（テキスト）
-  startPage       Int?      // 開始ページ
-  
+  rawSpeakerRole     String? // 元の役割
+
+  speechOrder Int // 発言順序
+  speech      String @db.Text // 発言内容（テキスト）
+  startPage   Int? // 開始ページ
+
   // URL情報
-  speechURL       String?   // 発言単位のURL
-  
+  speechURL String? // 発言単位のURL
+
   // メタデータ
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   // インデックス
   @@index([meetingId])
   @@index([speakerId])
@@ -233,18 +234,18 @@ model Speech {
 
 // データ同期の履歴管理
 model SyncHistory {
-  id              String    @id @default(cuid())
-  syncType        String    // 同期タイプ（initial, update, daily等）
-  startDate       DateTime  // 同期対象開始日
-  endDate         DateTime  // 同期対象終了日
-  status          String    // 同期ステータス（pending, processing, completed, failed）
-  totalRecords    Int?      // 取得した総レコード数
-  processedRecords Int?     // 処理済みレコード数
-  errorMessage    String?   // エラーメッセージ
-  
-  startedAt       DateTime  @default(now())
-  completedAt     DateTime?
-  
+  id               String   @id @default(cuid())
+  syncType         String // 同期タイプ（initial, update, daily等）
+  startDate        DateTime // 同期対象開始日
+  endDate          DateTime // 同期対象終了日
+  status           String // 同期ステータス（pending, processing, completed, failed）
+  totalRecords     Int? // 取得した総レコード数
+  processedRecords Int? // 処理済みレコード数
+  errorMessage     String? // エラーメッセージ
+
+  startedAt   DateTime  @default(now())
+  completedAt DateTime?
+
   // インデックス
   @@index([status])
   @@index([syncType])
@@ -253,16 +254,16 @@ model SyncHistory {
 
 // 検索キャッシュ（オプション：頻繁な検索のパフォーマンス向上用）
 model SearchCache {
-  id              String    @id @default(cuid())
-  queryHash       String    @unique // 検索クエリのハッシュ値
-  query           Json      // 検索パラメータ
-  results         Json      // 検索結果
-  hitCount        Int       @default(1) // アクセス回数
-  
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  expiresAt       DateTime  // キャッシュ有効期限
-  
+  id        String @id @default(cuid())
+  queryHash String @unique // 検索クエリのハッシュ値
+  query     Json // 検索パラメータ
+  results   Json // 検索結果
+  hitCount  Int    @default(1) // アクセス回数
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  expiresAt DateTime // キャッシュ有効期限
+
   // インデックス
   @@index([expiresAt])
   @@index([hitCount])
