@@ -1,0 +1,26 @@
+{
+  "imports": {
+    "@std/dotenv": "jsr:@std/dotenv@^0.225.5"
+  },
+  "nodeModulesDir": "auto",
+  "tasks": {
+    "rag": "deno run -A scripts/rag-cli.ts"
+  },
+  "fmt": {
+    "useTabs": false,
+    "lineWidth": 100,
+    "indentWidth": 2,
+    "semiColons": true,
+    "singleQuote": false,
+    "proseWrap": "preserve",
+    "include": ["scripts/", "src/"],
+    "exclude": []
+  },
+  "lint": {
+    "include": ["scripts/", "src/"],
+    "exclude": [],
+    "rules": {
+      "tags": ["recommended"]
+    }
+  }
+}
