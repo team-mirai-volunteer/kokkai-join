@@ -10,11 +10,11 @@ interface SpeechData {
 	id: string;
 	speechOrder: number;
 	speaker: string;
-	speakerRole: string;
-	speakerGroup: string;
+	speakerRole: string | null; // PostgreSQL returns lowercase
+	speakerGroup: string | null; // PostgreSQL returns lowercase
 	speech: string;
-	issueID: string;
-	meetingName: string;
+	issueId: string; // PostgreSQL returns lowercase
+	meetingName: string; // PostgreSQL returns lowercase
 	date: string;
 }
 
@@ -24,6 +24,17 @@ interface EmbeddingProgress {
 	currentBatch: number;
 	startTime: number;
 	errors: number;
+}
+
+interface SearchResult {
+	speech_id: string;
+	speaker: string | null;
+	speaker_group: string | null;
+	date: string | null;
+	meeting_name: string | null;
+	speech_text: string;
+	speech_url: string | null;
+	similarity_score: number;
 }
 
 class PersistentSpeechEmbedder {
@@ -57,7 +68,9 @@ class PersistentSpeechEmbedder {
 			});
 			console.log("🤖 Ollama BGE-M3 embedding model initialized");
 		} catch (error) {
-			throw new Error(`Failed to initialize Ollama: ${error.message}`);
+			throw new Error(
+				`Failed to initialize Ollama: ${(error as Error).message}`,
+			);
 		}
 
 		// データベース接続
@@ -165,11 +178,11 @@ class PersistentSpeechEmbedder {
 				s.id,
 				s."speechOrder",
 				COALESCE(sp."displayName", s."rawSpeaker") as speaker,
-				COALESCE(sr.name, s."rawSpeakerRole") as speakerRole,
-				s."rawSpeakerGroup" as speakerGroup,
+				COALESCE(sr.name, s."rawSpeakerRole") as "speakerRole",
+				s."rawSpeakerGroup" as "speakerGroup",
 				s.speech,
-				m."issueID",
-				m."nameOfMeeting" as meetingName,
+				m."issueID" as "issueId",
+				m."nameOfMeeting" as "meetingName",
 				m.date::text as date
 			FROM "Speech" s
 			LEFT JOIN "Meeting" m ON s."meetingId" = m.id  
@@ -185,6 +198,7 @@ class PersistentSpeechEmbedder {
 		`;
 
 		const result = await this.dbPool.query(query, [batchSize, offset]);
+
 		return result.rows as SpeechData[];
 	}
 
@@ -206,7 +220,7 @@ class PersistentSpeechEmbedder {
 				);
 
 				// URLを生成
-				const speechUrl = `https://kokkai.ndl.go.jp/txt/${speech.issueID}/${speech.speechOrder}`;
+				const speechUrl = `https://kokkai.ndl.go.jp/txt/${speech.issueId}/${speech.speechOrder}`;
 
 				// パラメータをvalues配列に追加
 				const baseIndex = i * 12;
@@ -221,7 +235,7 @@ class PersistentSpeechEmbedder {
 						? speech.speakerGroup
 						: null,
 					speech.speech,
-					speech.issueID || null,
+					speech.issueId || null,
 					speech.meetingName || "Unknown Meeting",
 					speech.date || "2024-01-01",
 					speechUrl,
@@ -363,7 +377,10 @@ class PersistentSpeechEmbedder {
 		);
 	}
 
-	async searchSimilar(query: string, limit: number = 5): Promise<any[]> {
+	async searchSimilar(
+		query: string,
+		limit: number = 5,
+	): Promise<SearchResult[]> {
 		if (!this.dbPool || !Settings.embedModel) {
 			throw new Error("Database or embedding model not initialized");
 		}
@@ -442,7 +459,7 @@ async function main(): Promise<void> {
 			console.log(`   💬 ${result.speech_text.substring(0, 200)}...`);
 		});
 	} catch (error) {
-		console.error("❌ Error:", error.message);
+		console.error("❌ Error:", (error as Error).message);
 		Deno.exit(1);
 	} finally {
 		await embedder.close();
