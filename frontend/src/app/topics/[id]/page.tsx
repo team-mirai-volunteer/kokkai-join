@@ -314,35 +314,6 @@ export default function TopicDetailPage({ params }: TopicDetailPageProps) {
             </div>
           </div>
         )}
-
-        {/* 時系列表示 */}
-        <div className="mb-8">
-          <div className="flex items-center space-x-4 mb-4">
-            <span className="text-lg font-semibold text-gray-900">
-              ⏰ 時系列表示
-            </span>
-            <div className="flex space-x-2">
-              <button
-                type="button"
-                className="px-3 py-1 bg-blue-500 text-white rounded text-sm"
-              >
-                最新順
-              </button>
-              <button
-                type="button"
-                className="px-3 py-1 bg-gray-200 text-gray-700 rounded text-sm hover:bg-gray-300"
-              >
-                発言順
-              </button>
-              <button
-                type="button"
-                className="px-3 py-1 bg-gray-200 text-gray-700 rounded text-sm hover:bg-gray-300"
-              >
-                重要度順
-              </button>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );
