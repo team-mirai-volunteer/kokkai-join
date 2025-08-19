@@ -75,7 +75,9 @@ export default function StanceDetailPage({ params }: StanceDetailPageProps) {
         {/* ヘッダー情報 */}
         <div className="mb-8">
           <h2
-            className={`text-xl font-bold mb-4 flex items-center ${getStanceColor(stance)}`}
+            className={`text-xl font-bold mb-4 flex items-center ${getStanceColor(
+              stance
+            )}`}
           >
             {getStanceIcon(stance)} {getStanceLabel(stance)}発言一覧 (
             {totalCount}名)
@@ -101,8 +103,16 @@ export default function StanceDetailPage({ params }: StanceDetailPageProps) {
               {category.statements.map((statement) => {
                 const member = getMemberById(statement.memberId);
                 const date = new Date(statement.timestamp);
-                const formattedDate = `${date.getMonth() + 1}-${date.getDate()}`;
-                const formattedTime = `${date.getHours().toString().padStart(2, "0")}:${date.getMinutes().toString().padStart(2, "0")}`;
+                const formattedDate = `${
+                  date.getMonth() + 1
+                }-${date.getDate()}`;
+                const formattedTime = `${date
+                  .getHours()
+                  .toString()
+                  .padStart(
+                    2,
+                    "0"
+                  )}:${date.getMinutes().toString().padStart(2, "0")}`;
 
                 return (
                   <div
@@ -112,9 +122,11 @@ export default function StanceDetailPage({ params }: StanceDetailPageProps) {
                     {/* 発言者情報 */}
                     <div className="flex items-center mb-3">
                       <span className="text-lg">👤</span>
-                      <span className="ml-2 font-semibold text-gray-900">
-                        {member?.name}
-                      </span>
+                      <Link href={`/members/${statement.memberId}`}>
+                        <span className="ml-2 font-semibold text-blue-600 hover:text-blue-800 transition-colors cursor-pointer">
+                          {member?.name}
+                        </span>
+                      </Link>
                       {member?.party && (
                         <>
                           <span className="ml-2 text-gray-400">|</span>
@@ -137,12 +149,16 @@ export default function StanceDetailPage({ params }: StanceDetailPageProps) {
 
                     {/* アクションボタン */}
                     <div className="flex items-center space-x-4">
-                      <button
-                        type="button"
-                        className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
+                      <Link
+                        href={`/members/${statement.memberId}/statements/${statement.id}`}
                       >
-                        全文表示
-                      </button>
+                        <button
+                          type="button"
+                          className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
+                        >
+                          発言詳細を見る
+                        </button>
+                      </Link>
                       <button
                         type="button"
                         className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-200 transition-colors"
