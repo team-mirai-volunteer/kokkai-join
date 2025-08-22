@@ -157,7 +157,9 @@ class PersistentKokkaiRAGCLI {
 				planData = JSON.parse(planText);
 			} catch (parseError) {
 				throw new Error(
-					`Failed to parse LLM response as JSON: ${(parseError as Error).message}\nResponse: ${planText}`,
+					`Failed to parse LLM response as JSON: ${
+						(parseError as Error).message
+					}\nResponse: ${planText}`,
 				);
 			}
 
@@ -179,6 +181,7 @@ class PersistentKokkaiRAGCLI {
 			};
 
 			console.log(`📋 Query plan created:`);
+			console.log(`   Original Question: ${JSON.stringify(plan)}`);
 			console.log(`   Subqueries: ${plan.subqueries.length}`);
 			console.log(`   Speakers: ${plan.entities.speakers?.length || 0}`);
 			console.log(`   Topics: ${plan.entities.topics?.length || 0}`);
@@ -201,7 +204,7 @@ class PersistentKokkaiRAGCLI {
 		}
 
 		const conditions = [];
-		const params: any[] = [];
+		const params: string[] = [];
 
 		// 議員名での絞り込み
 		if (entities.speakers && entities.speakers.length > 0) {
@@ -223,12 +226,34 @@ class PersistentKokkaiRAGCLI {
 			conditions.push(`(${partyConditions.join(" OR ")})`);
 		}
 
+		// 会議名での絞り込み
+		if (entities.meetings && entities.meetings.length > 0) {
+			const meetingConditions = entities.meetings.map((_, i) => {
+				const paramIndex = params.length + 1;
+				params.push(`%${entities.meetings![i]}%`);
+				return `(e.meeting_name ILIKE $${paramIndex})`;
+			});
+			conditions.push(`(${meetingConditions.join(" OR ")})`);
+		}
+
+		// 役職での絞り込み
+		if (entities.positions && entities.positions.length > 0) {
+			const positionConditions = entities.positions.map((_, i) => {
+				const paramIndex = params.length + 1;
+				params.push(`%${entities.positions![i]}%`);
+				return `(e.speaker_role ILIKE $${paramIndex})`;
+			});
+			conditions.push(`(${positionConditions.join(" OR ")})`);
+		}
+
 		// 日付範囲での絞り込み
 		if (entities.dateRange) {
-			const startParam = params.length + 1;
-			const endParam = params.length + 2;
+			const startParamIndex = params.length + 1;
+			const endParamIndex = params.length + 2;
 			params.push(entities.dateRange.start, entities.dateRange.end);
-			conditions.push(`(e.date >= $${startParam} AND e.date <= $${endParam})`);
+			conditions.push(
+				`(e.date >= $${startParamIndex} AND e.date <= $${endParamIndex})`,
+			);
 		}
 
 		if (conditions.length === 0) {
@@ -247,7 +272,7 @@ class PersistentKokkaiRAGCLI {
 			console.log(
 				`📋 Structured filter applied: ${result.rows.length} candidates`,
 			);
-			return result.rows.map((row: any) => row.speech_id);
+			return result.rows.map((row: { speech_id: string }) => row.speech_id);
 		} catch (error) {
 			console.error("❌ Structured filter error:", error);
 			return [];
@@ -257,7 +282,7 @@ class PersistentKokkaiRAGCLI {
 	// プランベースの検索実行
 	async searchWithPlan(
 		plan: QueryPlan,
-		topK: number = 5,
+		topK: number = 20,
 	): Promise<SpeechResult[]> {
 		if (!this.dbPool || !Settings.embedModel) {
 			throw new Error("Database or embedding model not initialized");
@@ -283,7 +308,7 @@ class PersistentKokkaiRAGCLI {
 					await Settings.embedModel.getTextEmbedding(expandedQuery);
 
 				let searchQuery: string;
-				let queryParams: any[];
+				let queryParams: string[];
 
 				// 構造化フィルタの適用
 				if (plan.enabledStrategies.includes("structured")) {
@@ -338,7 +363,7 @@ class PersistentKokkaiRAGCLI {
 				const subqueryResults: SpeechResult[] = result.rows.map(
 					(row: DatabaseRow) => ({
 						speechId: row.speech_id,
-						speaker: row.speaker || "未知の議員",
+						speaker: row.speaker || "?",
 						party: row.speaker_group || "?",
 						date: row.date || "2024-01-01",
 						meeting: row.meeting_name || "?",
@@ -369,12 +394,13 @@ class PersistentKokkaiRAGCLI {
 	}
 
 	// 従来の簡単な検索（後方互換性）
-	async search(query: string, topK: number = 5): Promise<SpeechResult[]> {
+	async search(query: string, topK: number = 20): Promise<SpeechResult[]> {
 		// プランナーを使用した検索に切り替え
 		const plan = await this.planKokkaiQuery(query);
 		return this.searchWithPlan(plan, topK);
 	}
 
+	// Chain of Agents (CoA)による多段要約生成
 	async generateAnswer(
 		query: string,
 		results: SpeechResult[],
@@ -383,7 +409,154 @@ class PersistentKokkaiRAGCLI {
 			throw new Error("LLM not initialized");
 		}
 
-		// 検索結果をコンテキストとして整理
+		console.log(`\n🤖 Generating answer using Chain of Agents...`);
+		console.log(`📊 Total results to process: ${results.length}`);
+
+		// 結果が少ない場合は従来の処理
+		if (results.length <= 3) {
+			return this.generateSimpleAnswer(query, results);
+		}
+
+		// Chain of Agents: 多段階での要約処理
+		const CHUNK_SIZE = 3; // 各サブ要約で処理する件数
+		const chunks: SpeechResult[][] = [];
+
+		// 結果をチャンクに分割
+		for (let i = 0; i < results.length; i += CHUNK_SIZE) {
+			chunks.push(results.slice(i, i + CHUNK_SIZE));
+		}
+
+		console.log(`📦 Split into ${chunks.length} chunks for processing`);
+
+		// Step 1: 各チャンクを並行処理でサブ要約
+		console.log(`⚙️ Step 1: Generating sub-summaries...`);
+		const subSummaryPromises = chunks.map(async (chunk, chunkIndex) => {
+			const context = chunk
+				.map(
+					(result, index) =>
+						`【発言 ${index + 1}】
+議員: ${result.speaker} (${result.party})
+日付: ${result.date}
+会議: ${result.meeting}
+内容: ${result.content}
+出典: ${result.url}
+関連度: ${result.score.toFixed(3)}`,
+				)
+				.join("\n\n");
+
+			const subPrompt = `以下の国会議事録から、質問「${query}」に関連する重要な情報を抽出して要約してください。
+
+国会議事録（チャンク${chunkIndex + 1}/${chunks.length}）:
+${context}
+
+要約要件:
+1. 質問に直接関連する重要な発言のみを抽出
+2. 発言者名、所属政党、日付を保持
+3. 具体的な数値や政策名を正確に記載
+4. 各要点に対応する出典URLを必ず含める
+5. 500文字以内で簡潔にまとめる
+
+要約:`;
+
+			try {
+				const response = await Settings.llm.complete({ prompt: subPrompt });
+				return {
+					chunkIndex: chunkIndex + 1,
+					summary: response.text,
+					sourceCount: chunk.length,
+				};
+			} catch (error) {
+				console.error(`❌ Sub-summary ${chunkIndex + 1} failed:`, error);
+				return {
+					chunkIndex: chunkIndex + 1,
+					summary: "要約生成に失敗しました",
+					sourceCount: chunk.length,
+				};
+			}
+		});
+
+		const subSummaries = await Promise.all(subSummaryPromises);
+		console.log(`✅ Generated ${subSummaries.length} sub-summaries`);
+
+		// Step 2: サブ要約が多い場合は中間統合
+		let finalSummaries = subSummaries.map((s) => s.summary);
+		if (subSummaries.length > 5) {
+			console.log(`⚙️ Step 2: Intermediate consolidation...`);
+			const midChunkSize = 3;
+			const midSummaries: string[] = [];
+
+			for (let i = 0; i < finalSummaries.length; i += midChunkSize) {
+				const midChunk = finalSummaries.slice(i, i + midChunkSize);
+				const midPrompt = `以下の要約を統合して、質問「${query}」に対する中間要約を作成してください。
+
+要約群:
+${midChunk.map((s, idx) => `【要約${i + idx + 1}】\n${s}`).join("\n\n")}
+
+統合要件:
+1. 重複を排除し、重要な情報を保持
+2. 発言者情報と出典URLを維持
+3. 論点を整理して構造化
+4. 800文字以内でまとめる
+
+統合要約:`;
+
+				try {
+					const response = await Settings.llm.complete({ prompt: midPrompt });
+					midSummaries.push(response.text);
+				} catch (error) {
+					console.error(`❌ Mid-level consolidation failed:`, error);
+					midSummaries.push(midChunk.join("\n"));
+				}
+			}
+
+			finalSummaries = midSummaries;
+			console.log(
+				`✅ Consolidated to ${midSummaries.length} intermediate summaries`,
+			);
+		}
+
+		// Step 3: 最終統合と回答生成
+		console.log(`⚙️ Step 3: Final answer generation...`);
+		const finalContext = finalSummaries
+			.map((s, idx) => `【要約${idx + 1}】\n${s}`)
+			.join("\n\n");
+
+		const finalPrompt = `以下の要約情報を基に、質問に対する包括的で正確な最終回答を作成してください。
+
+質問: ${query}
+
+要約情報:
+${finalContext}
+
+最終回答要件:
+1. 発言者名と所属政党を明記する
+2. 発言の日付と会議名を含める
+3. 具体的な内容を引用する
+4. 出典URLを提示する
+5. 複数の発言がある場合は比較・整理する
+6. 各論点に対応する出典URLを明記する
+7. 事実に基づいて回答し、推測は避ける
+8. 結論部分でも根拠となった発言の出典URLを含める
+
+重要: すべての主張には必ず根拠となった発言の出典URL（https://kokkai.ndl.go.jp/txt/...）を併記してください。
+
+最終回答:`;
+
+		try {
+			const response = await Settings.llm.complete({ prompt: finalPrompt });
+			console.log(`✅ Final answer generated successfully`);
+			return response.text;
+		} catch (error) {
+			console.error("❌ Final answer generation error:", error);
+			return this.generateSimpleAnswer(query, results);
+		}
+	}
+
+	// 従来のシンプルな回答生成（フォールバック用）
+	private async generateSimpleAnswer(
+		query: string,
+		results: SpeechResult[],
+	): Promise<string> {
 		const context = results
 			.map(
 				(result, index) =>
@@ -444,6 +617,74 @@ ${results
 			await this.dbPool.end();
 			console.log("📊 Database connection closed");
 		}
+	}
+
+	// 検索結果の関連性を評価してノイズを除去
+	async evaluateRelevance(
+		query: string,
+		results: SpeechResult[],
+	): Promise<SpeechResult[]> {
+		if (!Settings.llm) {
+			console.warn("⚠️ LLM not initialized for relevance evaluation");
+			return results;
+		}
+
+		console.log("\n🔍 Evaluating relevance of search results...");
+
+		// 並行処理で各結果の関連性を評価
+		const evaluationPromises = results.map(async (result) => {
+			try {
+				const prompt = `質問: ${query}
+
+以下の国会議事録の内容が質問に関連しているか評価してください。
+
+発言者: ${result.speaker}
+発言内容: ${result.content}
+
+以下の形式で回答してください：
+- 関連性: (高/中/低/無関係)
+- 理由: (簡潔に1行で)
+
+回答:`;
+
+				const response = await Settings.llm.complete({ prompt });
+
+				const evaluation = response.text;
+
+				// 関連性の判定
+				if (evaluation.includes("無関係")) {
+					return null;
+				} else if (evaluation.includes("低")) {
+					// 低関連性の場合はスコアを調整
+					result.score *= 0.5;
+				} else if (evaluation.includes("中")) {
+					result.score *= 0.8;
+				}
+				// 高関連性はそのまま
+
+				return result;
+			} catch (error) {
+				console.error(`❌ Error evaluating result: ${error}`);
+				return result; // エラーの場合は元の結果を返す
+			}
+		});
+
+		// 並行実行して結果を取得
+		const evaluatedResults = await Promise.all(evaluationPromises);
+
+		// nullを除外（無関係と判定されたもの）
+		const filteredResults = evaluatedResults.filter(
+			(result): result is SpeechResult => result !== null,
+		);
+
+		// スコアで再ソート
+		filteredResults.sort((a, b) => b.score - a.score);
+
+		console.log(
+			`✅ Filtered ${results.length} results to ${filteredResults.length} relevant results`,
+		);
+
+		return filteredResults;
 	}
 
 	formatResults(results: SpeechResult[]): void {
@@ -516,12 +757,20 @@ async function main(): Promise<void> {
 			return;
 		}
 
-		// 検索結果表示
-		ragCli.formatResults(results);
+		// 関連性評価でノイズを除去
+		const relevantResults = await ragCli.evaluateRelevance(query, results);
+
+		if (relevantResults.length === 0) {
+			console.log("❌ No relevant speeches found after filtering.");
+			return;
+		}
+
+		// フィルタリング後の結果表示
+		ragCli.formatResults(relevantResults);
 
 		// LLMによる回答生成
 		console.log("🤖 Generating AI answer...\n");
-		const answer = await ragCli.generateAnswer(query, results);
+		const answer = await ragCli.generateAnswer(query, relevantResults);
 
 		console.log("═".repeat(80));
 		console.log("🎯 AI-Generated Answer:");
