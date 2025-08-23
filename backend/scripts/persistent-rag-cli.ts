@@ -1,10 +1,31 @@
 #!/usr/bin/env -S deno run -A
 
+// Standard library imports
 import { load } from "@std/dotenv";
+
+// Third-party library imports
 import { Settings } from "npm:llamaindex";
 import { Ollama, OllamaEmbedding } from "npm:@llamaindex/ollama";
 import { Pool } from "npm:pg";
 import pgvector from "npm:pgvector/pg";
+
+// Constants
+const DEFAULT_OLLAMA_BASE_URL = "http://localhost:11434";
+const EMBEDDING_MODEL_NAME = "bge-m3";
+const LLM_MODEL_NAME = "gpt-oss:20b";
+const MAX_DB_CONNECTIONS = 10;
+const DEFAULT_TOP_K_RESULTS = 20;
+const STRUCTURED_FILTER_LIMIT = 1000;
+const VECTOR_SIMILARITY_THRESHOLD_STRUCTURED = 0.8;
+const VECTOR_SIMILARITY_THRESHOLD_VECTOR_ONLY = 0.6;
+const VECTOR_SIMILARITY_THRESHOLD_FALLBACK = 0.7;
+const CHAIN_OF_AGENTS_CHUNK_SIZE = 3;
+const CHAIN_OF_AGENTS_MIN_RESULTS = 3;
+const MID_CONSOLIDATION_CHUNK_SIZE = 3;
+const MID_CONSOLIDATION_THRESHOLD = 5;
+const CONTENT_PREVIEW_LENGTH = 300;
+const UNKNOWN_VALUE = "?";
+const DEFAULT_DATE_VALUE = "2024-01-01";
 
 interface SpeechResult {
 	speechId: string;
@@ -50,8 +71,160 @@ interface DatabaseRow {
 	similarity_score: string;
 }
 
+// Type aliases for better readability
+type PromptText = string;
+type SqlQuery = string;
+type QueryParameter = string | number;
+type EmbeddingThreshold = number;
+
+interface SubSummaryResult {
+	chunkIndex: number;
+	summary: string;
+	sourceCount: number;
+}
+
 class PersistentKokkaiRAGCLI {
 	private dbPool: Pool | null = null;
+
+	// SQL Query Helpers
+	private buildVectorSearchQuery(
+		useStructuredFilter: boolean,
+		threshold: EmbeddingThreshold,
+	): SqlQuery {
+		const baseSelect = `
+      SELECT 
+        speech_id, speaker, speaker_group, date, meeting_name,
+        speech_text, speech_url,
+        (1 - (embedding <=> $1)) as similarity_score
+      FROM kokkai_speech_embeddings`;
+
+		if (useStructuredFilter) {
+			return `${baseSelect}
+        WHERE speech_id = ANY($2::text[])
+          AND embedding <=> $1 < ${threshold}
+        ORDER BY embedding <=> $1
+        LIMIT $3`;
+		} else {
+			return `${baseSelect}
+        WHERE embedding <=> $1 < ${threshold}
+        ORDER BY embedding <=> $1
+        LIMIT $2`;
+		}
+	}
+
+	private convertDatabaseRowToSpeechResult(row: DatabaseRow): SpeechResult {
+		return {
+			speechId: row.speech_id,
+			speaker: row.speaker || UNKNOWN_VALUE,
+			party: row.speaker_group || UNKNOWN_VALUE,
+			date: row.date || DEFAULT_DATE_VALUE,
+			meeting: row.meeting_name || UNKNOWN_VALUE,
+			content: row.speech_text || "",
+			url: row.speech_url || "",
+			score: parseFloat(row.similarity_score) || 0.0,
+		};
+	}
+
+	private buildFilterCondition(
+		fieldName: string,
+		values: string[],
+		params: string[],
+	): string {
+		const conditions = values.map((_, i) => {
+			const paramIndex = params.length + 1;
+			params.push(`%${values[i]}%`);
+			return `(e.${fieldName} ILIKE $${paramIndex})`;
+		});
+		return `(${conditions.join(" OR ")})`;
+	}
+
+	// Answer Generation Helpers
+	private formatSpeechResultsForPrompt(results: SpeechResult[]): string {
+		return results
+			.map(
+				(result, index) =>
+					`【発言 ${index + 1}】
+議員: ${result.speaker} (${result.party})
+日付: ${result.date}
+会議: ${result.meeting}
+内容: ${result.content}
+出典: ${result.url}
+関連度: ${result.score.toFixed(3)}`,
+			)
+			.join("\n\n");
+	}
+
+	private createSubSummaryPrompt(
+		query: string,
+		context: string,
+		chunkIndex: number,
+		totalChunks: number,
+	): PromptText {
+		return `以下の国会議事録から、質問「${query}」に関連する重要な情報を観点別に整理して要約してください。
+
+国会議事録（チャンク${chunkIndex + 1}/${totalChunks}）:
+${context}
+
+要約要件:
+1. 観点別に整理（例：賛成意見、反対意見、具体的施策、懸念事項など）
+2. 各観点に対して、発言者名、所属政党、日付、出典URLを保持
+3. 具体的な数値や政策名を正確に記載
+4. 発言内容は20-50字程度に要約
+5. 500文字以内で簡潔にまとめる
+
+要約:`;
+	}
+
+	private async generateSubSummary(
+		chunk: SpeechResult[],
+		chunkIndex: number,
+		totalChunks: number,
+		query: string,
+	): Promise<SubSummaryResult> {
+		const context = this.formatSpeechResultsForPrompt(chunk);
+		const subPrompt = this.createSubSummaryPrompt(
+			query,
+			context,
+			chunkIndex,
+			totalChunks,
+		);
+
+		try {
+			const response = await Settings.llm!.complete({ prompt: subPrompt });
+			return {
+				chunkIndex: chunkIndex + 1,
+				summary: response.text,
+				sourceCount: chunk.length,
+			};
+		} catch (error) {
+			console.error(`❌ Sub-summary ${chunkIndex + 1} failed:`, error);
+			return {
+				chunkIndex: chunkIndex + 1,
+				summary: "要約生成に失敗しました",
+				sourceCount: chunk.length,
+			};
+		}
+	}
+
+	private createMidConsolidationPrompt(
+		query: string,
+		midChunk: string[],
+		startIndex: number,
+	): PromptText {
+		return `以下の要約を統合して、質問「${query}」に対する中間要約を作成してください。
+
+要約群:
+${midChunk.map((s, idx) => `【要約${startIndex + idx + 1}】\n${s}`).join("\n\n")}
+
+統合要件:
+1. 観点別の整理を維持（賛成/反対、施策/課題など）
+2. 重複を排除し、重要な情報を保持
+3. 発言者情報と出典URLを必ず維持
+4. 各観点の要点を明確にする
+5. 800文字以内でまとめる
+
+統合要約:`;
+	}
 
 	async initialize(): Promise<void> {
 		// 環境変数読み込み
@@ -59,7 +232,7 @@ class PersistentKokkaiRAGCLI {
 
 		const databaseUrl = Deno.env.get("DATABASE_URL");
 		const ollamaBaseUrl =
-			Deno.env.get("OLLAMA_BASE_URL") || "http://localhost:11434";
+			Deno.env.get("OLLAMA_BASE_URL") || DEFAULT_OLLAMA_BASE_URL;
 
 		if (!databaseUrl) {
 			throw new Error("DATABASE_URL environment variable is required");
@@ -68,14 +241,14 @@ class PersistentKokkaiRAGCLI {
 		// Ollama設定
 		try {
 			Settings.embedModel = new OllamaEmbedding({
-				model: "bge-m3",
+				model: EMBEDDING_MODEL_NAME,
 				config: {
 					host: ollamaBaseUrl,
 				},
 			});
 
 			Settings.llm = new Ollama({
-				model: "gpt-oss:20b",
+				model: LLM_MODEL_NAME,
 				config: {
 					host: ollamaBaseUrl,
 				},
@@ -89,7 +262,7 @@ class PersistentKokkaiRAGCLI {
 		// データベース接続プール
 		this.dbPool = new Pool({
 			connectionString: databaseUrl,
-			max: 10,
+			max: MAX_DB_CONNECTIONS,
 		});
 
 		// pgvectorタイプ登録
@@ -104,16 +277,16 @@ class PersistentKokkaiRAGCLI {
 	}
 
 	// 1. Planner（計画係）の実装
-	async planKokkaiQuery(question: string): Promise<QueryPlan> {
+	async createQueryPlan(userQuestion: string): Promise<QueryPlan> {
 		if (!Settings.llm) {
 			throw new Error("LLM not initialized");
 		}
 
 		console.log("🧠 Planning query strategy...");
 
-		const prompt = `国会議事録検索システムのプランナーとして、以下の質問を分析してください。
+		const systemPrompt = `国会議事録検索システムのプランナーとして、以下の質問を分析してください。
 
-質問: "${question}"
+質問: "${userQuestion}"
 
 以下のJSON形式で出力してください（\`\`\`json等は不要）：
 {
@@ -148,7 +321,7 @@ class PersistentKokkaiRAGCLI {
 → subqueries: ["岸田総理 防衛費", "内閣総理大臣 防衛予算"]`;
 
 		try {
-			const response = await Settings.llm.complete({ prompt });
+			const response = await Settings.llm.complete({ prompt: systemPrompt });
 			const planText = response.text.trim();
 
 			// JSONパース試行
@@ -165,8 +338,8 @@ class PersistentKokkaiRAGCLI {
 
 			// QueryPlan形式に変換
 			const plan: QueryPlan = {
-				originalQuestion: question,
-				subqueries: planData.subqueries || [question],
+				originalQuestion: userQuestion,
+				subqueries: planData.subqueries || [userQuestion],
 				entities: {
 					speakers: planData.entities?.speakers || [],
 					parties: planData.entities?.parties || [],
@@ -208,42 +381,30 @@ class PersistentKokkaiRAGCLI {
 
 		// 議員名での絞り込み
 		if (entities.speakers && entities.speakers.length > 0) {
-			const speakerConditions = entities.speakers.map((_, i) => {
-				const paramIndex = params.length + 1;
-				params.push(`%${entities.speakers![i]}%`);
-				return `(e.speaker ILIKE $${paramIndex})`;
-			});
-			conditions.push(`(${speakerConditions.join(" OR ")})`);
+			conditions.push(
+				this.buildFilterCondition("speaker", entities.speakers, params),
+			);
 		}
 
 		// 政党での絞り込み
 		if (entities.parties && entities.parties.length > 0) {
-			const partyConditions = entities.parties.map((_, i) => {
-				const paramIndex = params.length + 1;
-				params.push(`%${entities.parties![i]}%`);
-				return `(e.speaker_group ILIKE $${paramIndex})`;
-			});
-			conditions.push(`(${partyConditions.join(" OR ")})`);
+			conditions.push(
+				this.buildFilterCondition("speaker_group", entities.parties, params),
+			);
 		}
 
 		// 会議名での絞り込み
 		if (entities.meetings && entities.meetings.length > 0) {
-			const meetingConditions = entities.meetings.map((_, i) => {
-				const paramIndex = params.length + 1;
-				params.push(`%${entities.meetings![i]}%`);
-				return `(e.meeting_name ILIKE $${paramIndex})`;
-			});
-			conditions.push(`(${meetingConditions.join(" OR ")})`);
+			conditions.push(
+				this.buildFilterCondition("meeting_name", entities.meetings, params),
+			);
 		}
 
 		// 役職での絞り込み
 		if (entities.positions && entities.positions.length > 0) {
-			const positionConditions = entities.positions.map((_, i) => {
-				const paramIndex = params.length + 1;
-				params.push(`%${entities.positions![i]}%`);
-				return `(e.speaker_role ILIKE $${paramIndex})`;
-			});
-			conditions.push(`(${positionConditions.join(" OR ")})`);
+			conditions.push(
+				this.buildFilterCondition("speaker_role", entities.positions, params),
+			);
 		}
 
 		// 日付範囲での絞り込み
@@ -264,7 +425,7 @@ class PersistentKokkaiRAGCLI {
 			SELECT DISTINCT e.speech_id 
 			FROM kokkai_speech_embeddings e
 			WHERE ${conditions.join(" AND ")}
-			LIMIT 1000
+			LIMIT ${STRUCTURED_FILTER_LIMIT}
 		`;
 
 		try {
@@ -280,9 +441,9 @@ class PersistentKokkaiRAGCLI {
 	}
 
 	// プランベースの検索実行
-	async searchWithPlan(
-		plan: QueryPlan,
-		topK: number = 20,
+	async executeSearchPlan(
+		queryPlan: QueryPlan,
+		maxResults: number = DEFAULT_TOP_K_RESULTS,
 	): Promise<SpeechResult[]> {
 		if (!this.dbPool || !Settings.embedModel) {
 			throw new Error("Database or embedding model not initialized");
@@ -294,83 +455,61 @@ class PersistentKokkaiRAGCLI {
 			let allResults: SpeechResult[] = [];
 
 			// 各サブクエリを実行
-			for (const subquery of plan.subqueries) {
+			for (const subquery of queryPlan.subqueries) {
 				console.log(`🔎 Processing subquery: "${subquery}"`);
 
 				// 拡張クエリ作成（トピック関連語を追加）
-				let expandedQuery = subquery;
-				if (plan.entities.topics && plan.entities.topics.length > 0) {
-					expandedQuery = `${subquery} ${plan.entities.topics.join(" ")}`;
+				let enhancedQuery = subquery;
+				if (queryPlan.entities.topics && queryPlan.entities.topics.length > 0) {
+					enhancedQuery = `${subquery} ${queryPlan.entities.topics.join(" ")}`;
 				}
 
 				// ベクトル検索実行
 				const queryEmbedding =
-					await Settings.embedModel.getTextEmbedding(expandedQuery);
+					await Settings.embedModel.getTextEmbedding(enhancedQuery);
 
-				let searchQuery: string;
-				let queryParams: string[];
+				let searchQuery: SqlQuery;
+				let queryParams: QueryParameter[];
 
 				// 構造化フィルタの適用
-				if (plan.enabledStrategies.includes("structured")) {
-					const candidateIds = await this.applyStructuredFilter(plan.entities);
+				if (queryPlan.enabledStrategies.includes("structured")) {
+					const candidateIds = await this.applyStructuredFilter(
+						queryPlan.entities,
+					);
 
 					if (candidateIds.length > 0) {
 						// 構造化フィルタ + ベクトル検索
-						searchQuery = `
-							SELECT 
-								speech_id, speaker, speaker_group, date, meeting_name,
-								speech_text, speech_url,
-								(1 - (embedding <=> $1)) as similarity_score
-							FROM kokkai_speech_embeddings
-							WHERE speech_id = ANY($2::text[])
-							  AND embedding <=> $1 < 0.8
-							ORDER BY embedding <=> $1
-							LIMIT $3
-						`;
-						queryParams = [pgvector.toSql(queryEmbedding), candidateIds, topK];
+						searchQuery = this.buildVectorSearchQuery(
+							true,
+							VECTOR_SIMILARITY_THRESHOLD_STRUCTURED,
+						);
+						queryParams = [
+							pgvector.toSql(queryEmbedding),
+							candidateIds,
+							maxResults,
+						];
 					} else {
 						// フォールバック: ベクトル検索のみ
-						searchQuery = `
-							SELECT 
-								speech_id, speaker, speaker_group, date, meeting_name,
-								speech_text, speech_url,
-								(1 - (embedding <=> $1)) as similarity_score
-							FROM kokkai_speech_embeddings
-							WHERE embedding <=> $1 < 0.6
-							ORDER BY embedding <=> $1
-							LIMIT $2
-						`;
-						queryParams = [pgvector.toSql(queryEmbedding), topK];
+						searchQuery = this.buildVectorSearchQuery(
+							false,
+							VECTOR_SIMILARITY_THRESHOLD_VECTOR_ONLY,
+						);
+						queryParams = [pgvector.toSql(queryEmbedding), maxResults];
 					}
 				} else {
 					// ベクトル検索のみ
-					searchQuery = `
-						SELECT 
-							speech_id, speaker, speaker_group, date, meeting_name,
-							speech_text, speech_url,
-							(1 - (embedding <=> $1)) as similarity_score
-						FROM kokkai_speech_embeddings
-						WHERE embedding <=> $1 < 0.7
-						ORDER BY embedding <=> $1
-						LIMIT $2
-					`;
-					queryParams = [pgvector.toSql(queryEmbedding), topK];
+					searchQuery = this.buildVectorSearchQuery(
+						false,
+						VECTOR_SIMILARITY_THRESHOLD_FALLBACK,
+					);
+					queryParams = [pgvector.toSql(queryEmbedding), maxResults];
 				}
 
 				const result = await this.dbPool.query(searchQuery, queryParams);
 
 				// 結果をSpeechResult形式に変換
 				const subqueryResults: SpeechResult[] = result.rows.map(
-					(row: DatabaseRow) => ({
-						speechId: row.speech_id,
-						speaker: row.speaker || "?",
-						party: row.speaker_group || "?",
-						date: row.date || "2024-01-01",
-						meeting: row.meeting_name || "?",
-						content: row.speech_text || "",
-						url: row.speech_url || "",
-						score: parseFloat(row.similarity_score) || 0.0,
-					}),
+					this.convertDatabaseRowToSpeechResult.bind(this),
 				);
 
 				allResults = allResults.concat(subqueryResults);
@@ -381,7 +520,7 @@ class PersistentKokkaiRAGCLI {
 				new Map(allResults.map((r) => [r.speechId, r])).values(),
 			)
 				.sort((a, b) => b.score - a.score)
-				.slice(0, topK);
+				.slice(0, maxResults);
 
 			console.log(
 				`✅ Plan execution completed: ${uniqueResults.length} unique results`,
@@ -394,10 +533,13 @@ class PersistentKokkaiRAGCLI {
 	}
 
 	// 従来の簡単な検索（後方互換性）
-	async search(query: string, topK: number = 20): Promise<SpeechResult[]> {
+	async search(
+		userQuery: string,
+		maxResults: number = DEFAULT_TOP_K_RESULTS,
+	): Promise<SpeechResult[]> {
 		// プランナーを使用した検索に切り替え
-		const plan = await this.planKokkaiQuery(query);
-		return this.searchWithPlan(plan, topK);
+		const queryPlan = await this.createQueryPlan(userQuery);
+		return this.executeSearchPlan(queryPlan, maxResults);
 	}
 
 	// Chain of Agents (CoA)による多段要約生成
@@ -413,12 +555,12 @@ class PersistentKokkaiRAGCLI {
 		console.log(`📊 Total results to process: ${results.length}`);
 
 		// 結果が少ない場合は従来の処理
-		if (results.length <= 3) {
+		if (results.length <= CHAIN_OF_AGENTS_MIN_RESULTS) {
 			return this.generateSimpleAnswer(query, results);
 		}
 
 		// Chain of Agents: 多段階での要約処理
-		const CHUNK_SIZE = 3; // 各サブ要約で処理する件数
+		const CHUNK_SIZE = CHAIN_OF_AGENTS_CHUNK_SIZE; // 各サブ要約で処理する件数
 		const chunks: SpeechResult[][] = [];
 
 		// 結果をチャンクに分割
@@ -430,79 +572,26 @@ class PersistentKokkaiRAGCLI {
 
 		// Step 1: 各チャンクを並行処理でサブ要約
 		console.log(`⚙️ Step 1: Generating sub-summaries...`);
-		const subSummaryPromises = chunks.map(async (chunk, chunkIndex) => {
-			const context = chunk
-				.map(
-					(result, index) =>
-						`【発言 ${index + 1}】
-議員: ${result.speaker} (${result.party})
-日付: ${result.date}
-会議: ${result.meeting}
-内容: ${result.content}
-出典: ${result.url}
-関連度: ${result.score.toFixed(3)}`,
-				)
-				.join("\n\n");
-
-			const subPrompt = `以下の国会議事録から、質問「${query}」に関連する重要な情報を観点別に整理して要約してください。
-
-国会議事録（チャンク${chunkIndex + 1}/${chunks.length}）:
-${context}
-
-要約要件:
-1. 観点別に整理（例：賛成意見、反対意見、具体的施策、懸念事項など）
-2. 各観点に対して、発言者名、所属政党、日付、出典URLを保持
-3. 具体的な数値や政策名を正確に記載
-4. 発言内容は20-50字程度に要約
-5. 500文字以内で簡潔にまとめる
-
-要約:`;
-
-			try {
-				const response = await Settings.llm.complete({ prompt: subPrompt });
-				return {
-					chunkIndex: chunkIndex + 1,
-					summary: response.text,
-					sourceCount: chunk.length,
-				};
-			} catch (error) {
-				console.error(`❌ Sub-summary ${chunkIndex + 1} failed:`, error);
-				return {
-					chunkIndex: chunkIndex + 1,
-					summary: "要約生成に失敗しました",
-					sourceCount: chunk.length,
-				};
-			}
-		});
+		const subSummaryPromises = chunks.map((chunk, chunkIndex) =>
+			this.generateSubSummary(chunk, chunkIndex, chunks.length, query),
+		);
 
 		const subSummaries = await Promise.all(subSummaryPromises);
 		console.log(`✅ Generated ${subSummaries.length} sub-summaries`);
 
 		// Step 2: サブ要約が多い場合は中間統合
 		let finalSummaries = subSummaries.map((s) => s.summary);
-		if (subSummaries.length > 5) {
+		if (subSummaries.length > MID_CONSOLIDATION_THRESHOLD) {
 			console.log(`⚙️ Step 2: Intermediate consolidation...`);
-			const midChunkSize = 3;
+			const midChunkSize = MID_CONSOLIDATION_CHUNK_SIZE;
 			const midSummaries: string[] = [];
 
 			for (let i = 0; i < finalSummaries.length; i += midChunkSize) {
 				const midChunk = finalSummaries.slice(i, i + midChunkSize);
-				const midPrompt = `以下の要約を統合して、質問「${query}」に対する中間要約を作成してください。
-
-要約群:
-${midChunk.map((s, idx) => `【要約${i + idx + 1}】\n${s}`).join("\n\n")}
-
-統合要件:
-1. 観点別の整理を維持（賛成/反対、施策/課題など）
-2. 重複を排除し、重要な情報を保持
-3. 発言者情報と出典URLを必ず維持
-4. 各観点の要点を明確にする
-5. 800文字以内でまとめる
-
-統合要約:`;
+				const midPrompt = this.createMidConsolidationPrompt(query, midChunk, i);
 
 				try {
-					const response = await Settings.llm.complete({ prompt: midPrompt });
+					const response = await Settings.llm!.complete({ prompt: midPrompt });
 					midSummaries.push(response.text);
 				} catch (error) {
 					console.error(`❌ Mid-level consolidation failed:`, error);
@@ -583,19 +672,7 @@ ${finalContext}
 		query: string,
 		results: SpeechResult[],
 	): Promise<string> {
-		const context = results
-			.map(
-				(result, index) =>
-					`【発言 ${index + 1}】
-議員: ${result.speaker} (${result.party})
-日付: ${result.date}
-会議: ${result.meeting}
-内容: ${result.content}
-出典: ${result.url}
-関連度: ${result.score.toFixed(3)}
-`,
-			)
-			.join("\n");
+		const context = this.formatSpeechResultsForPrompt(results);
 
 		const prompt = `以下の国会議事録から、質問に対して正確で詳細な回答を作成してください。
 
@@ -630,7 +707,7 @@ ${results
 			`${index + 1}. ${result.speaker} (${result.party})
    日付: ${result.date}
    会議: ${result.meeting}
-   内容: ${result.content.substring(0, 300)}...
+   内容: ${result.content.substring(0, CONTENT_PREVIEW_LENGTH)}...
    出典: ${result.url}
    関連度: ${result.score.toFixed(3)}`,
 	)
@@ -777,7 +854,7 @@ async function main(): Promise<void> {
 		const answer = await ragCli.generateAnswer(query, relevantResults);
 
 		console.log("═".repeat(80));
-		console.log(answer);
+		console.log("\n" + answer + "\n");
 		console.log("═".repeat(80));
 	} catch (error) {
 		console.error("❌ Error:", (error as Error).message);

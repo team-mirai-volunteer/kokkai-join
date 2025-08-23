@@ -1,10 +1,29 @@
 #!/usr/bin/env -S deno run -A
 
+// Standard library imports
 import { load } from "@std/dotenv";
+
+// Third-party library imports
 import { Settings } from "npm:llamaindex";
 import { OllamaEmbedding } from "npm:@llamaindex/ollama";
 import { Pool } from "npm:pg";
 import pgvector from "npm:pgvector/pg";
+
+// Constants
+const DEFAULT_OLLAMA_BASE_URL = "http://localhost:11434";
+const EMBEDDING_MODEL_NAME = "bge-m3";
+const EMBEDDING_DIMENSION = 1024;
+const MAX_DB_CONNECTIONS = 20;
+const MIN_SPEECH_LENGTH = 50;
+const DEFAULT_BATCH_SIZE = 50;
+const BATCH_PROCESSING_DELAY_MS = 1000;
+const DISPLAY_CONTENT_LIMIT = 200;
+const SEARCH_RESULT_LIMIT = 5;
+const PLACEHOLDER_PARAMS_PER_RECORD = 12;
+const UNKNOWN_SPEAKER = "Unknown";
+const UNKNOWN_MEETING = "Unknown Meeting";
+const DEFAULT_DATE = "2024-01-01";
+const DEFAULT_SPEECH_ORDER = 0;
 
 interface SpeechData {
   id: string;
@@ -37,6 +56,15 @@ interface SearchResult {
   similarity_score: number;
 }
 
+// Type aliases for better readability
+type SqlPlaceholder = string;
+type BatchInsertValues = (string | number | null)[];
+
+interface ProcessedSpeechEmbedding {
+  values: BatchInsertValues;
+  placeholder: SqlPlaceholder;
+}
+
 class PersistentSpeechEmbedder {
   private dbPool: Pool | null = null;
   private progress: EmbeddingProgress = {
@@ -47,11 +75,77 @@ class PersistentSpeechEmbedder {
     errors: 0,
   };
 
+  // SQL Helpers
+  private getSpeechFilterConditions(): string {
+    return `
+      s.speech IS NOT NULL 
+      AND length(trim(s.speech)) > ${MIN_SPEECH_LENGTH}
+      AND s."rawSpeaker" != '会議録情報'
+      AND s."rawSpeaker" NOT LIKE '%委員長%'
+    `;
+  }
+
+  private getUnprocessedSpeechCondition(): string {
+    return `AND s.id NOT IN (SELECT speech_id FROM kokkai_speech_embeddings)`;
+  }
+
+  private generateSpeechUrl(issueId: string, speechOrder: number): string {
+    return `https://kokkai.ndl.go.jp/txt/${issueId}/${speechOrder}`;
+  }
+
+  private async processSingleSpeechForEmbedding(
+    speech: SpeechData,
+    recordIndex: number,
+  ): Promise<ProcessedSpeechEmbedding> {
+    // 埋め込み生成
+    const textEmbedding = await Settings.embedModel!.getTextEmbedding(speech.speech);
+
+    // URLを生成
+    const speechUrl = this.generateSpeechUrl(speech.issueId, speech.speechOrder);
+
+    // パラメータをvalues配列に追加
+    const baseIndex = recordIndex * PLACEHOLDER_PARAMS_PER_RECORD;
+    const values = [
+      `kokkai_${speech.id}`, // id
+      speech.id, // speech_id
+      speech.speaker || UNKNOWN_SPEAKER,
+      speech.speakerRole && speech.speakerRole.trim() !== "" ? speech.speakerRole : null,
+      speech.speakerGroup && speech.speakerGroup.trim() !== "" ? speech.speakerGroup : null,
+      speech.speech,
+      speech.issueId || null,
+      speech.meetingName || UNKNOWN_MEETING,
+      speech.date || DEFAULT_DATE,
+      speechUrl,
+      speech.speechOrder || DEFAULT_SPEECH_ORDER,
+      pgvector.toSql(textEmbedding),
+    ];
+
+    // プレースホルダーを作成
+    const placeholder = `($${baseIndex + 1}, $${baseIndex + 2}, $${baseIndex + 3}, $${
+      baseIndex + 4
+    }, $${baseIndex + 5}, $${baseIndex + 6}, $${baseIndex + 7}, $${baseIndex + 8}, $${
+      baseIndex + 9
+    }, $${baseIndex + 10}, $${baseIndex + 11}, $${baseIndex + 12})`;
+
+    return { values, placeholder };
+  }
+
+  private buildBatchInsertQuery(placeholders: SqlPlaceholder[]): string {
+    return `
+      INSERT INTO kokkai_speech_embeddings (
+        id, speech_id, speaker, speaker_role, speaker_group, 
+        speech_text, issue_id, meeting_name, date, speech_url, 
+        speech_order, embedding
+      ) VALUES ${placeholders.join(", ")}
+      ON CONFLICT (speech_id) DO NOTHING
+    `;
+  }
+
   async initialize(): Promise<void> {
     await load({ export: true });
 
     const databaseUrl = Deno.env.get("DATABASE_URL");
-    const ollamaBaseUrl = Deno.env.get("OLLAMA_BASE_URL") || "http://localhost:11434";
+    const ollamaBaseUrl = Deno.env.get("OLLAMA_BASE_URL") || DEFAULT_OLLAMA_BASE_URL;
 
     if (!databaseUrl) {
       throw new Error("DATABASE_URL environment variable is required");
@@ -60,7 +154,7 @@ class PersistentSpeechEmbedder {
     // Ollama埋め込み設定
     try {
       Settings.embedModel = new OllamaEmbedding({
-        model: "bge-m3",
+        model: EMBEDDING_MODEL_NAME,
         config: {
           host: ollamaBaseUrl,
         },
@@ -75,7 +169,7 @@ class PersistentSpeechEmbedder {
     // データベース接続
     this.dbPool = new Pool({
       connectionString: databaseUrl,
-      max: 20,
+      max: MAX_DB_CONNECTIONS,
     });
 
     // pgvectorタイプ登録
@@ -111,7 +205,7 @@ class PersistentSpeechEmbedder {
 				date TEXT,
 				speech_url TEXT,
 				speech_order INTEGER,
-				embedding vector(1024),
+				embedding vector(${EMBEDDING_DIMENSION}),
 				created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 				updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 			);
@@ -142,11 +236,8 @@ class PersistentSpeechEmbedder {
     const result = await this.dbPool.query(`
 			SELECT COUNT(*) as count 
 			FROM "Speech" s
-			WHERE s.speech IS NOT NULL 
-			AND length(trim(s.speech)) > 50
-			AND s."rawSpeaker" != '会議録情報'
-			AND s."rawSpeaker" NOT LIKE '%委員長%'
-			AND s.id NOT IN (SELECT speech_id FROM kokkai_speech_embeddings)
+			WHERE ${this.getSpeechFilterConditions()}
+			${this.getUnprocessedSpeechCondition()}
 		`);
 
     return parseInt(result.rows[0].count);
@@ -166,7 +257,7 @@ class PersistentSpeechEmbedder {
 
   async fetchUnprocessedSpeechBatch(
     offset: number,
-    batchSize: number,
+    limit: number,
   ): Promise<SpeechData[]> {
     if (!this.dbPool) {
       throw new Error("Database pool not initialized");
@@ -187,90 +278,54 @@ class PersistentSpeechEmbedder {
 			LEFT JOIN "Meeting" m ON s."meetingId" = m.id  
 			LEFT JOIN "Speaker" sp ON s."speakerId" = sp.id
 			LEFT JOIN "SpeakerRole" sr ON s."roleId" = sr.id
-			WHERE s.speech IS NOT NULL 
-				AND length(trim(s.speech)) > 50
-				AND s."rawSpeaker" != '会議録情報'
-				AND s."rawSpeaker" NOT LIKE '%委員長%'
-				AND s.id NOT IN (SELECT speech_id FROM kokkai_speech_embeddings)
+			WHERE ${this.getSpeechFilterConditions()}
+			${this.getUnprocessedSpeechCondition()}
 			ORDER BY m.date DESC, s."speechOrder"
 			LIMIT $1 OFFSET $2
 		`;
 
-    const result = await this.dbPool.query(query, [batchSize, offset]);
+    const result = await this.dbPool.query(query, [limit, offset]);
 
     return result.rows as SpeechData[];
   }
 
-  async embedAndStoreBatch(speeches: SpeechData[]): Promise<void> {
+  async embedAndStoreSpeechBatch(speechBatch: SpeechData[]): Promise<void> {
     if (!this.dbPool || !Settings.embedModel) {
       throw new Error("Database or embedding model not initialized");
     }
 
-    const values = [];
-    const placeholders = [];
+    const allValues: BatchInsertValues = [];
+    const placeholders: SqlPlaceholder[] = [];
 
-    for (let i = 0; i < speeches.length; i++) {
-      const speech = speeches[i];
+    for (let i = 0; i < speechBatch.length; i++) {
+      const currentSpeech = speechBatch[i];
 
       try {
-        // 埋め込み生成
-        const embedding = await Settings.embedModel.getTextEmbedding(
-          speech.speech,
+        const { values, placeholder } = await this.processSingleSpeechForEmbedding(
+          currentSpeech,
+          i,
         );
-
-        // URLを生成
-        const speechUrl = `https://kokkai.ndl.go.jp/txt/${speech.issueId}/${speech.speechOrder}`;
-
-        // パラメータをvalues配列に追加
-        const baseIndex = i * 12;
-        values.push(
-          `kokkai_${speech.id}`, // id
-          speech.id, // speech_id
-          speech.speaker || "Unknown",
-          speech.speakerRole && speech.speakerRole.trim() !== "" ? speech.speakerRole : null,
-          speech.speakerGroup && speech.speakerGroup.trim() !== "" ? speech.speakerGroup : null,
-          speech.speech,
-          speech.issueId || null,
-          speech.meetingName || "Unknown Meeting",
-          speech.date || "2024-01-01",
-          speechUrl,
-          speech.speechOrder || 0,
-          pgvector.toSql(embedding),
-        );
-
-        // プレースホルダーを作成
-        const placeholder = `($${baseIndex + 1}, $${baseIndex + 2}, $${baseIndex + 3}, $${
-          baseIndex + 4
-        }, $${baseIndex + 5}, $${baseIndex + 6}, $${baseIndex + 7}, $${baseIndex + 8}, $${
-          baseIndex + 9
-        }, $${baseIndex + 10}, $${baseIndex + 11}, $${baseIndex + 12})`;
+        allValues.push(...values);
         placeholders.push(placeholder);
       } catch (error) {
-        console.error(`❌ Error processing speech ${speech.id}:`, error);
+        console.error(`❌ Error processing speech ${currentSpeech.id}:`, error);
         this.progress.errors++;
         throw error;
       }
     }
 
     // バッチインサート実行
-    const insertQuery = `
-			INSERT INTO kokkai_speech_embeddings (
-				id, speech_id, speaker, speaker_role, speaker_group, 
-				speech_text, issue_id, meeting_name, date, speech_url, 
-				speech_order, embedding
-			) VALUES ${placeholders.join(", ")}
-			ON CONFLICT (speech_id) DO NOTHING
-		`;
+    const insertQuery = this.buildBatchInsertQuery(placeholders);
 
     try {
-      await this.dbPool.query(insertQuery, values);
+      await this.dbPool.query(insertQuery, allValues);
     } catch (error) {
       console.error("❌ Error storing embeddings:", error);
       throw error;
     }
   }
 
-  displayProgress(): void {
+  displayEmbeddingProgress(): void {
     const now = Date.now();
     const elapsed = (now - this.progress.startTime) / 1000;
     const rate = this.progress.processed / elapsed;
@@ -292,7 +347,7 @@ class PersistentSpeechEmbedder {
   }
 
   async runEmbeddingBatch(
-    batchSize: number = 50,
+    batchSize: number = DEFAULT_BATCH_SIZE,
     maxBatches?: number,
   ): Promise<void> {
     // 既処理済み件数を表示
@@ -344,17 +399,17 @@ class PersistentSpeechEmbedder {
         }
 
         // 埋め込み生成・保存
-        await this.embedAndStoreBatch(speeches);
+        await this.embedAndStoreSpeechBatch(speeches);
 
         this.progress.processed += speeches.length;
         offset += batchSize;
         batchCount++;
 
         // 進捗表示
-        this.displayProgress();
+        this.displayEmbeddingProgress();
 
         // 少し待機（Ollamaサーバーへの負荷軽減）
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, BATCH_PROCESSING_DELAY_MS));
       } catch (error) {
         console.error(
           `❌ Error in batch ${this.progress.currentBatch}:`,
@@ -380,7 +435,7 @@ class PersistentSpeechEmbedder {
 
   async searchSimilar(
     query: string,
-    limit: number = 5,
+    limit: number = SEARCH_RESULT_LIMIT,
   ): Promise<SearchResult[]> {
     if (!this.dbPool || !Settings.embedModel) {
       throw new Error("Database or embedding model not initialized");
@@ -422,7 +477,7 @@ class PersistentSpeechEmbedder {
 
 async function main(): Promise<void> {
   const args = Deno.args;
-  const batchSize = args[0] ? parseInt(args[0]) : 50;
+  const batchSize = args[0] ? parseInt(args[0]) : DEFAULT_BATCH_SIZE;
   const maxBatches = args[1] ? parseInt(args[1]) : undefined;
 
   if (isNaN(batchSize) || batchSize <= 0) {
@@ -457,7 +512,7 @@ async function main(): Promise<void> {
       console.log(`   📅 ${result.date} - ${result.meeting_name}`);
       console.log(`   ⭐ Similarity: ${result.similarity_score.toFixed(3)}`);
       console.log(`   🔗 ${result.speech_url}`);
-      console.log(`   💬 ${result.speech_text.substring(0, 200)}...`);
+      console.log(`   💬 ${result.speech_text.substring(0, DISPLAY_CONTENT_LIMIT)}...`);
     });
   } catch (error) {
     console.error("❌ Error:", (error as Error).message);
