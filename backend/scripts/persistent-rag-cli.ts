@@ -559,13 +559,27 @@ ${midChunk.map((s, idx) => `【要約${startIndex + idx + 1}】\n${s}`).join("\n
 			return this.generateSimpleAnswer(query, results);
 		}
 
-		// Chain of Agents: 多段階での要約処理
-		const CHUNK_SIZE = CHAIN_OF_AGENTS_CHUNK_SIZE; // 各サブ要約で処理する件数
-		const chunks: SpeechResult[][] = [];
+		// Chain of Agents: 発言者ごとにグループ化してから要約処理
+		// Step 0: 発言者ごとにグループ化（同一発言者の発言が混在しないように）
+		const speakerGroups = new Map<string, SpeechResult[]>();
+		for (const result of results) {
+			const speakerKey = `${result.speaker}_${result.party}`;
+			if (!speakerGroups.has(speakerKey)) {
+				speakerGroups.set(speakerKey, []);
+			}
+			speakerGroups.get(speakerKey)!.push(result);
+		}
 
-		// 結果をチャンクに分割
-		for (let i = 0; i < results.length; i += CHUNK_SIZE) {
-			chunks.push(results.slice(i, i + CHUNK_SIZE));
+		console.log(`📊 Grouped into ${speakerGroups.size} speakers`);
+
+		// 各発言者グループをチャンクに分割（同一発言者の発言をまとめて処理）
+		const chunks: SpeechResult[][] = [];
+		for (const [_, speeches] of speakerGroups) {
+			// 発言者ごとにチャンク化
+			for (let i = 0; i < speeches.length; i += CHAIN_OF_AGENTS_CHUNK_SIZE) {
+				const chunk = speeches.slice(i, i + CHAIN_OF_AGENTS_CHUNK_SIZE);
+				chunks.push(chunk);
+			}
 		}
 
 		console.log(`📦 Split into ${chunks.length} chunks for processing`);
