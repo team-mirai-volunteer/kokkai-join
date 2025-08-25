@@ -1,8 +1,11 @@
 // Query planning service for Kokkai RAG system
 
-import { Settings } from "npm:llamaindex";
+import { cerebrasClient, CEREBRAS_MODEL } from "../config/cerebras.ts";
 import type { QueryPlan } from "../types/kokkai.ts";
-import { createQueryPlanPrompt } from "../utils/prompt.ts";
+import {
+	createQueryPlanPrompt,
+	getQueryPlanSystemPrompt,
+} from "../utils/prompt.ts";
 
 /**
  * Service responsible for creating query plans from user questions
@@ -12,17 +15,28 @@ export class QueryPlanningService {
 	 * Create a query plan from a user question
 	 */
 	async createQueryPlan(userQuestion: string): Promise<QueryPlan> {
-		if (!Settings.llm) {
-			throw new Error("LLM not initialized");
-		}
-
 		console.log("🧠 Planning query strategy...");
 
-		const systemPrompt = createQueryPlanPrompt(userQuestion);
+		const userPrompt = createQueryPlanPrompt(userQuestion);
 
 		try {
-			const response = await Settings.llm.complete({ prompt: systemPrompt });
-			const planText = response.text.trim();
+			// Cerebras Chat APIを直接呼び出し
+			const completion = await cerebrasClient.chat.completions.create({
+				messages: [
+					{ role: "system", content: getQueryPlanSystemPrompt() },
+					{ role: "user", content: userPrompt },
+				],
+				model: CEREBRAS_MODEL,
+				max_tokens: 1000,
+				temperature: 0.3, // 計画生成は確定的に
+				stream: false,
+			});
+
+			// deno-lint-ignore no-explicit-any
+			const planText = (completion as any).choices[0]?.message?.content?.trim();
+			if (!planText) {
+				throw new Error("No text in completion response");
+			}
 
 			// JSONパース試行
 			let planData;
