@@ -199,33 +199,13 @@ async function main(): Promise<void> {
 		console.log("\n📋 Relevant Search Results Details:");
 		console.log(`Found ${relevantResults.length} relevant results\n`);
 
-		relevantResults.slice(0, 5).forEach((result, index) => {
-			console.log(`[Result ${index + 1}]`);
-			console.log(`  Speaker: ${result.speaker} (${result.party})`);
-			console.log(`  Date: ${result.date || "不明"}`);
-			console.log(`  Meeting: ${result.meeting || "不明"}`);
-			console.log(`  URL: ${result.url || "不明"}`);
-			console.log(`  Score: ${result.score.toFixed(3)}`);
-			console.log(`  Content: ${result.content.substring(0, 100)}...`);
-			console.log("");
-		});
-
 		if (relevantResults.length > 5) {
 			console.log(`... and ${relevantResults.length - 5} more results\n`);
 		}
 
 		// データの統計情報
-		const missingDates = relevantResults.filter(
-			(r) => !r.date || r.date === "不明" || r.date === "",
-		).length;
-		const missingUrls = relevantResults.filter(
-			(r) => !r.url || r.url === "",
-		).length;
-
 		console.log("📊 Data Statistics:");
 		console.log(`  Total results: ${relevantResults.length}`);
-		console.log(`  Missing dates: ${missingDates}/${relevantResults.length}`);
-		console.log(`  Missing URLs: ${missingUrls}/${relevantResults.length}`);
 
 		// LLMによる回答生成
 		console.log("\n🤖 Generating AI answer...\n");
