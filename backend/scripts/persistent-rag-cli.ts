@@ -215,7 +215,7 @@ async function main(): Promise<void> {
 		console.log("\n" + answer + "\n");
 		console.log("═".repeat(80));
 	} catch (error) {
-		console.error("❌ Error:", (error as Error).message);
+		console.error("❌ Error:", error);
 		Deno.exit(1);
 	} finally {
 		await ragCli.close();
