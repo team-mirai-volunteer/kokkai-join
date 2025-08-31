@@ -1,2 +1,3 @@
 node_modules
 backend/data/kokkai_backup_20250819_211208.sql.gz
+backend/.env
