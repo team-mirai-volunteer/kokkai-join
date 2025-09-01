@@ -43,6 +43,7 @@ interface EmbeddingProgress {
   currentBatch: number;
   startTime: number;
   errors: number;
+  currentDateRange?: string;
 }
 
 interface SearchResult {
@@ -98,10 +99,15 @@ class PersistentSpeechEmbedder {
     recordIndex: number,
   ): Promise<ProcessedSpeechEmbedding> {
     // 埋め込み生成
-    const textEmbedding = await Settings.embedModel!.getTextEmbedding(speech.speech);
+    const textEmbedding = await Settings.embedModel!.getTextEmbedding(
+      speech.speech,
+    );
 
     // URLを生成
-    const speechUrl = this.generateSpeechUrl(speech.issueId, speech.speechOrder);
+    const speechUrl = this.generateSpeechUrl(
+      speech.issueId,
+      speech.speechOrder,
+    );
 
     // パラメータをvalues配列に追加
     const baseIndex = recordIndex * PLACEHOLDER_PARAMS_PER_RECORD;
@@ -255,8 +261,8 @@ class PersistentSpeechEmbedder {
     return parseInt(result.rows[0].count);
   }
 
-  async fetchUnprocessedSpeechBatch(
-    offset: number,
+  async fetchUnprocessedSpeechBatchByDateRange(
+    startDate: string,
     limit: number,
   ): Promise<SpeechData[]> {
     if (!this.dbPool) {
@@ -280,13 +286,46 @@ class PersistentSpeechEmbedder {
 			LEFT JOIN "SpeakerRole" sr ON s."roleId" = sr.id
 			WHERE ${this.getSpeechFilterConditions()}
 			${this.getUnprocessedSpeechCondition()}
-			ORDER BY m.date DESC, s."speechOrder"
-			LIMIT $1 OFFSET $2
+			AND m.date >= $1
+			ORDER BY m.date ASC, s."speechOrder" ASC
+			LIMIT $2
 		`;
 
-    const result = await this.dbPool.query(query, [limit, offset]);
+    const result = await this.dbPool.query(query, [startDate, limit]);
 
     return result.rows as SpeechData[];
+  }
+
+  async getTotalCountFromDate(startDate?: string): Promise<number> {
+    if (!this.dbPool) {
+      throw new Error("Database pool not initialized");
+    }
+
+    const dateFilter = startDate ? `AND m.date >= '${startDate}'` : "";
+    const result = await this.dbPool.query(`
+			SELECT COUNT(*) as count 
+			FROM "Speech" s
+			LEFT JOIN "Meeting" m ON s."meetingId" = m.id
+			WHERE ${this.getSpeechFilterConditions()}
+			${this.getUnprocessedSpeechCondition()}
+			${dateFilter}
+		`);
+
+    return parseInt(result.rows[0].count);
+  }
+
+  async getLatestProcessedDate(): Promise<string | null> {
+    if (!this.dbPool) {
+      throw new Error("Database pool not initialized");
+    }
+
+    const result = await this.dbPool.query(`
+			SELECT MAX(date) as latest_date
+			FROM kokkai_speech_embeddings
+			WHERE date IS NOT NULL
+		`);
+
+    return result.rows[0]?.latest_date || null;
   }
 
   async embedAndStoreSpeechBatch(speechBatch: SpeechData[]): Promise<void> {
@@ -343,18 +382,44 @@ class PersistentSpeechEmbedder {
     console.log(`⏰ ETA: ${Math.round(eta / 60)} minutes`);
     console.log(`❌ Errors: ${this.progress.errors}`);
     console.log(`🔄 Current Batch: ${this.progress.currentBatch}`);
+    if (this.progress.currentDateRange) {
+      console.log(`📅 Current Date Range: ${this.progress.currentDateRange}`);
+    }
     console.log("---");
   }
 
-  async runEmbeddingBatch(
+  async runEmbeddingBatchByDateRange(
     batchSize: number = DEFAULT_BATCH_SIZE,
+    startDate?: string,
     maxBatches?: number,
   ): Promise<void> {
+    // 開始日付の決定
+    let actualStartDate = startDate;
+    if (!actualStartDate) {
+      // 最新処理日付から継続
+      const latestProcessed = await this.getLatestProcessedDate();
+      if (latestProcessed) {
+        // 1日後から開始（既処理の翌日）
+        const nextDay = new Date(latestProcessed);
+        nextDay.setDate(nextDay.getDate() + 1);
+        actualStartDate = nextDay.toISOString().split("T")[0];
+        console.log(
+          `📅 Resuming from: ${actualStartDate} (day after latest processed: ${latestProcessed})`,
+        );
+      } else {
+        // 処理済みデータがない場合はデフォルト日付から
+        actualStartDate = "1990-01-01";
+        console.log(`📅 Starting from default date: ${actualStartDate}`);
+      }
+    } else {
+      console.log(`📅 Starting from specified date: ${actualStartDate}`);
+    }
+
     // 既処理済み件数を表示
     const processedCount = await this.getProcessedCount();
     console.log(`✅ Already processed: ${processedCount} speeches`);
 
-    this.progress.total = await this.getTotalCount();
+    this.progress.total = await this.getTotalCountFromDate(actualStartDate);
     this.progress.startTime = Date.now();
 
     if (maxBatches) {
@@ -365,17 +430,17 @@ class PersistentSpeechEmbedder {
     }
 
     if (this.progress.total === 0) {
-      console.log("🎉 All speeches have already been processed!");
+      console.log("🎉 No new speeches to process from the specified date!");
       return;
     }
 
     console.log(
-      `🎯 Starting embedding process for ${this.progress.total} remaining speeches`,
+      `🎯 Starting embedding process for ${this.progress.total} speeches from ${actualStartDate}`,
     );
     console.log(`📦 Batch size: ${batchSize}`);
 
-    let offset = 0;
     let batchCount = 0;
+    let lastProcessedDate = "";
 
     while (this.progress.processed < this.progress.total) {
       if (maxBatches && batchCount >= maxBatches) {
@@ -388,9 +453,9 @@ class PersistentSpeechEmbedder {
       try {
         console.log(`🔄 Processing batch ${this.progress.currentBatch}...`);
 
-        // データ取得
-        const speeches = await this.fetchUnprocessedSpeechBatch(
-          offset,
+        // データ取得（日付昇順で取得）
+        const speeches = await this.fetchUnprocessedSpeechBatchByDateRange(
+          actualStartDate,
           batchSize,
         );
         if (speeches.length === 0) {
@@ -398,27 +463,56 @@ class PersistentSpeechEmbedder {
           break;
         }
 
+        // 現在のバッチの日付範囲を設定
+        const batchDates = speeches.map((s) => s.date).sort();
+        const minDate = batchDates[0];
+        const maxDate = batchDates[batchDates.length - 1];
+        this.progress.currentDateRange = minDate === maxDate ? minDate : `${minDate} ~ ${maxDate}`;
+
         // 埋め込み生成・保存
         await this.embedAndStoreSpeechBatch(speeches);
 
         this.progress.processed += speeches.length;
-        offset += batchSize;
         batchCount++;
+        lastProcessedDate = maxDate;
+
+        // 進捗とともに日付範囲をログ出力
+        console.log(
+          `✅ Batch ${this.progress.currentBatch} completed: ${speeches.length} speeches processed`,
+        );
+        console.log(
+          `📅 Date range processed: ${this.progress.currentDateRange}`,
+        );
+        console.log(`🎯 Latest processed date: ${lastProcessedDate}`);
 
         // 進捗表示
         this.displayEmbeddingProgress();
+
+        // 次回の開始日付を最新処理日の翌日に更新
+        const nextDay = new Date(lastProcessedDate);
+        nextDay.setDate(nextDay.getDate() + 1);
+        actualStartDate = nextDay.toISOString().split("T")[0];
 
         // 少し待機（Ollamaサーバーへの負荷軽減）
         await new Promise((resolve) => setTimeout(resolve, BATCH_PROCESSING_DELAY_MS));
       } catch (error) {
         console.error(
-          `❌ Error in batch ${this.progress.currentBatch}:`,
+          `❌ Error in batch ${this.progress.currentBatch} (${this.progress.currentDateRange}):`,
           error,
         );
         this.progress.errors++;
 
+        if (lastProcessedDate) {
+          // エラーが発生した場合、最後に成功した日の翌日から再開
+          const nextDay = new Date(lastProcessedDate);
+          nextDay.setDate(nextDay.getDate() + 1);
+          actualStartDate = nextDay.toISOString().split("T")[0];
+          console.log(
+            `⚠️ Error occurred, next run should start from: ${actualStartDate}`,
+          );
+        }
+
         // エラーがあっても続行
-        offset += batchSize;
         batchCount++;
       }
     }
@@ -431,6 +525,14 @@ class PersistentSpeechEmbedder {
     console.log(
       `⚡ Average rate: ${(this.progress.processed / totalTime).toFixed(1)} docs/sec`,
     );
+    if (lastProcessedDate) {
+      console.log(`📅 Last processed date: ${lastProcessedDate}`);
+      const nextDay = new Date(lastProcessedDate);
+      nextDay.setDate(nextDay.getDate() + 1);
+      console.log(
+        `🔄 To resume, use: --start-date ${nextDay.toISOString().split("T")[0]}`,
+      );
+    }
   }
 
   async searchSimilar(
@@ -475,18 +577,140 @@ class PersistentSpeechEmbedder {
   }
 }
 
-async function main(): Promise<void> {
-  const args = Deno.args;
-  const batchSize = args[0] ? parseInt(args[0]) : DEFAULT_BATCH_SIZE;
-  const maxBatches = args[1] ? parseInt(args[1]) : undefined;
+function parseArgs(args: string[]): {
+  batchSize: number;
+  maxBatches?: number;
+  limit?: number;
+  startDate?: string;
+  help: boolean;
+} {
+  const result = {
+    batchSize: DEFAULT_BATCH_SIZE,
+    maxBatches: undefined as number | undefined,
+    limit: undefined as number | undefined,
+    startDate: undefined as string | undefined,
+    help: false,
+  };
 
-  if (isNaN(batchSize) || batchSize <= 0) {
-    console.error(
-      "❌ Usage: deno run -A scripts/persistent-embed-speeches.ts [batchSize] [maxBatches]",
-    );
-    console.error(
-      "   Example: deno run -A scripts/persistent-embed-speeches.ts 50 10",
-    );
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+
+    switch (arg) {
+      case "--help":
+      case "-h":
+        result.help = true;
+        break;
+      case "--start-date":
+        if (i + 1 < args.length) {
+          result.startDate = args[++i];
+        }
+        break;
+      case "--batch-size":
+        if (i + 1 < args.length) {
+          result.batchSize = parseInt(args[++i]);
+        }
+        break;
+      case "--max-batches":
+        if (i + 1 < args.length) {
+          result.maxBatches = parseInt(args[++i]);
+        }
+        break;
+      case "--limit":
+        if (i + 1 < args.length) {
+          result.limit = parseInt(args[++i]);
+        }
+        break;
+      default:
+        // 位置引数としても解釈
+        if (!isNaN(parseInt(arg))) {
+          if (!result.batchSize || result.batchSize === DEFAULT_BATCH_SIZE) {
+            result.batchSize = parseInt(arg);
+          } else if (!result.maxBatches) {
+            result.maxBatches = parseInt(arg);
+          }
+        }
+        break;
+    }
+  }
+
+  return result;
+}
+
+function showUsage(): void {
+  console.log("🚀 Persistent Speech Embedder");
+  console.log(
+    "Generates embeddings for unprocessed speeches and stores them in PostgreSQL with pgvector.",
+  );
+  console.log("");
+  console.log("📋 Usage:");
+  console.log("  deno run -A scripts/persistent-embed-speeches.ts [options]");
+  console.log("");
+  console.log("🔧 Options:");
+  console.log(
+    "  --batch-size <number>     Number of speeches to process per batch (default: 10)",
+  );
+  console.log(
+    "  --max-batches <number>    Maximum number of batches to process (optional)",
+  );
+  console.log(
+    "  --limit <number>          Maximum total number of records to process (optional)",
+  );
+  console.log(
+    "  --start-date <YYYY-MM-DD> Start processing from this date (optional)",
+  );
+  console.log("  --help, -h               Show this help message");
+  console.log("");
+  console.log("📅 Processing Method:");
+  console.log(
+    "  • If no --start-date is provided, resumes from the day after the latest processed date",
+  );
+  console.log("  • Processes speeches in chronological order (oldest first)");
+  console.log(
+    "  • Shows progress with date ranges for easy resumption after interruption",
+  );
+  console.log("  • Automatically calculates next start date for resumption");
+  console.log("");
+  console.log("📖 Examples:");
+  console.log(
+    "  # Process 10 speeches per batch, starting from latest processed date + 1 day",
+  );
+  console.log("  deno run -A scripts/persistent-embed-speeches.ts");
+  console.log("");
+  console.log("  # Process 20 speeches per batch, maximum 5 batches");
+  console.log(
+    "  deno run -A scripts/persistent-embed-speeches.ts --batch-size 20 --max-batches 5",
+  );
+  console.log("");
+  console.log("  # Start processing from a specific date");
+  console.log(
+    "  deno run -A scripts/persistent-embed-speeches.ts --start-date 2023-01-01",
+  );
+  console.log("");
+  console.log("  # Process exactly 100 records from 2025-01-01");
+  console.log(
+    "  deno run -A scripts/persistent-embed-speeches.ts --start-date 2025-01-01 --limit 100",
+  );
+  console.log("");
+  console.log("🔄 Resumption:");
+  console.log(
+    "  After interruption, the script will show the recommended --start-date for next run.",
+  );
+  console.log(
+    "  Copy the suggested command to resume from where you left off.",
+  );
+}
+
+async function main(): Promise<void> {
+  const parsedArgs = parseArgs(Deno.args);
+
+  if (parsedArgs.help) {
+    showUsage();
+    return;
+  }
+
+  if (isNaN(parsedArgs.batchSize) || parsedArgs.batchSize <= 0) {
+    console.error("❌ Invalid batch size. Must be a positive number.");
+    showUsage();
     Deno.exit(1);
   }
 
@@ -494,7 +718,29 @@ async function main(): Promise<void> {
 
   try {
     await embedder.initialize();
-    await embedder.runEmbeddingBatch(batchSize, maxBatches);
+    // --limitが指定されている場合、バッチサイズとmaxBatchesを調整
+    let effectiveBatchSize = parsedArgs.batchSize;
+    let effectiveMaxBatches = parsedArgs.maxBatches;
+
+    if (parsedArgs.limit) {
+      if (parsedArgs.limit <= parsedArgs.batchSize) {
+        // limitがバッチサイズより小さい場合、バッチサイズをlimitに設定
+        effectiveBatchSize = parsedArgs.limit;
+        effectiveMaxBatches = 1;
+      } else if (!parsedArgs.maxBatches) {
+        // limitがバッチサイズより大きい場合、maxBatchesを計算
+        effectiveMaxBatches = Math.ceil(parsedArgs.limit / parsedArgs.batchSize);
+      }
+      console.log(
+        `📊 Processing up to ${parsedArgs.limit} records (batch size: ${effectiveBatchSize}, max batches: ${effectiveMaxBatches})`,
+      );
+    }
+
+    await embedder.runEmbeddingBatchByDateRange(
+      effectiveBatchSize,
+      parsedArgs.startDate,
+      effectiveMaxBatches,
+    );
 
     console.log("\n🎯 Testing search with stored embeddings...");
 
@@ -512,7 +758,9 @@ async function main(): Promise<void> {
       console.log(`   📅 ${result.date} - ${result.meeting_name}`);
       console.log(`   ⭐ Similarity: ${result.similarity_score.toFixed(3)}`);
       console.log(`   🔗 ${result.speech_url}`);
-      console.log(`   💬 ${result.speech_text.substring(0, DISPLAY_CONTENT_LIMIT)}...`);
+      console.log(
+        `   💬 ${result.speech_text.substring(0, DISPLAY_CONTENT_LIMIT)}...`,
+      );
     });
   } catch (error) {
     console.error("❌ Error:", (error as Error).message);
