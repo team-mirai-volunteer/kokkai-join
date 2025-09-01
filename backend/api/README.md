@@ -1,0 +1,177 @@
+# Kokkai Deep Research API
+
+国会議事録深層調査システムのHono API実装
+
+## 概要
+
+`persistent-rag-cli.ts`をベースにした、国会議事録を深層調査・分析するRESTful APIです。
+
+## 機能
+
+- **国会議事録深層調査**: ベクトル検索による類似発言の抽出と分析
+- **AI深層分析**: Cerebras LLMによる多角的分析と回答生成
+- **ヘルスチェック**: サービス状態の確認
+- **CORS対応**: ブラウザからの直接アクセス可能
+
+## API エンドポイント
+
+### GET /
+API情報とエンドポイント一覧を返します。
+
+
+### POST /search
+国会議事録を深層調査して多角的分析を実行します。
+
+**リクエスト:**
+```json
+{
+  "query": "防衛費と子育て支援と消費税についての最近の議論",
+  "limit": 20
+}
+```
+
+**レスポンス:**
+```json
+{
+  "query": "防衛費の増額について",
+  "answer": "## 全体のまとめ\n\n- 防衛費の増額について複数の観点から議論が展開されており...\n- 子育て支援政策では財源確保の課題が指摘されている...\n- 消費税に関しては減税と社会保障の両面での議論が活発化している...",
+  "sources": [
+    {
+      "speaker": "岸田文雄",
+      "party": "自由民主党",
+      "date": "2023-03-15",
+      "content": "防衛費について...",
+      "url": "https://kokkai.ndl.go.jp/...",
+      "similarity_score": 0.85
+    }
+  ],
+  "metadata": {
+    "totalResults": 15,
+    "processingTime": 2500,
+    "timestamp": "2025-09-01T12:00:00.000Z"
+  }
+}
+```
+
+## 環境変数
+
+以下の環境変数が必要です：
+
+```bash
+DATABASE_URL=postgresql://user:pass@localhost:5432/kokkai_db
+CEREBRAS_API_KEY=your_cerebras_api_key
+OLLAMA_BASE_URL=http://localhost:11434  # オプション（デフォルト値）
+PORT=8000  # オプション（デフォルト値）
+```
+
+## 使用方法
+
+**注意**: 以下のコマンドは `backend/` ディレクトリから実行してください。
+
+```bash
+cd backend
+```
+
+### 1. 開発サーバーの起動
+
+```bash
+# 依存関係の確認
+deno check api/server.ts
+
+# サーバー起動
+deno run -A api/server.ts
+
+# 別のポートで起動
+PORT=443 deno run -A api/server.ts
+```
+
+### 2. API テスト
+
+```bash
+# 検索リクエスト
+curl -X POST http://localhost:8000/search \
+  -H "Content-Type: application/json" \
+  -d '{"query": "防衛費と子育て支援と消費税についての政策議論", "limit": 10}'
+```
+
+## Tailscale Funnel での公開
+
+### 1. 443ポートでの公開（HTTPS）
+
+```bash
+# backend/ディレクトリから実行
+cd backend
+
+# APIサーバーを443ポートで起動
+PORT=443 deno run -A api/server.ts
+
+# Tailscale Serveで設定
+tailscale serve https / http://localhost:443
+
+# Funnelで公開
+tailscale funnel 443 on
+```
+
+### 2. 8443ポートでの公開（代替HTTPS）
+
+```bash
+# backend/ディレクトリから実行
+cd backend
+
+# APIサーバーを8443ポートで起動  
+PORT=8443 deno run -A api/server.ts
+
+# Tailscale Serveで設定
+tailscale serve https:8443 / http://localhost:8443
+
+# Funnelで公開
+tailscale funnel 8443 on
+```
+
+### 3. アクセス方法
+
+```bash
+# 公開後のアクセス
+curl https://your-hostname.tailnet.ts.net/
+curl -X POST https://your-hostname.tailnet.ts.net:8443/search \
+  -H "Content-Type: application/json" \
+  -d '{"query": "防衛費と子育て支援と消費税の政策連携について"}'
+```
+
+## アーキテクチャ
+
+```
+[Client Request] 
+    ↓
+[Hono Middleware] (CORS, Logger, Validator)
+    ↓  
+[RAG Pipeline]
+    ├── QueryPlanningService (クエリ計画)
+    ├── VectorSearchService (ベクトル検索)
+    ├── RelevanceEvaluationService (関連度評価)
+    └── AnswerGenerationService (回答生成)
+    ↓
+[JSON Response]
+```
+
+## 依存関係
+
+- **Hono**: 軽量Web フレームワーク
+- **pgvector**: ベクトル検索
+- **Ollama**: 埋め込みモデル（BGE-M3）
+- **Cerebras**: LLM推論
+- **PostgreSQL**: データベース
+
+## エラーハンドリング
+
+- **400**: リクエスト形式エラー
+- **404**: エンドポイント未存在
+- **500**: サーバー内部エラー
+- **503**: サービス利用不可（ヘルスチェック失敗時）
+
+## パフォーマンス
+
+- **並行処理**: 複数リクエストの同時処理対応
+- **エラー復旧**: 一時的な障害からの自動回復
+- **タイムアウト**: 適切なタイムアウト設定
+- **ログ**: 詳細なリクエストログ
