@@ -269,31 +269,47 @@ class PersistentSpeechEmbedder {
       throw new Error("Database pool not initialized");
     }
 
-    const query = `
-			SELECT
-				s.id,
-				s."speechOrder",
-				COALESCE(sp."displayName", s."rawSpeaker") as speaker,
-				COALESCE(sr.name, s."rawSpeakerRole") as "speakerRole",
-				s."rawSpeakerGroup" as "speakerGroup",
-				s.speech,
-				m."issueID" as "issueId",
-				m."nameOfMeeting" as "meetingName",
-				m.date::text as date
-			FROM "Speech" s
-			LEFT JOIN "Meeting" m ON s."meetingId" = m.id  
-			LEFT JOIN "Speaker" sp ON s."speakerId" = sp.id
-			LEFT JOIN "SpeakerRole" sr ON s."roleId" = sr.id
-			WHERE ${this.getSpeechFilterConditions()}
-			${this.getUnprocessedSpeechCondition()}
-			AND m.date >= $1
-			ORDER BY m.date ASC, s."speechOrder" ASC
-			LIMIT $2
-		`;
+    console.log(
+      `🔍 Debug: Fetching batch from ${startDate}, limit ${limit}...`,
+    );
 
-    const result = await this.dbPool.query(query, [startDate, limit]);
+    try {
+      const query = `
+				SELECT
+					s.id,
+					s."speechOrder",
+					COALESCE(sp."displayName", s."rawSpeaker") as speaker,
+					COALESCE(sr.name, s."rawSpeakerRole") as "speakerRole",
+					s."rawSpeakerGroup" as "speakerGroup",
+					s.speech,
+					m."issueID" as "issueId",
+					m."nameOfMeeting" as "meetingName",
+					m.date::text as date
+				FROM "Speech" s
+				LEFT JOIN "Meeting" m ON s."meetingId" = m.id  
+				LEFT JOIN "Speaker" sp ON s."speakerId" = sp.id
+				LEFT JOIN "SpeakerRole" sr ON s."roleId" = sr.id
+				WHERE ${this.getSpeechFilterConditions()}
+				AND NOT EXISTS (
+					SELECT 1 FROM kokkai_speech_embeddings e 
+					WHERE e.speech_id = s.id
+				)
+				AND m.date >= $1
+				ORDER BY m.date ASC, s."speechOrder" ASC
+				LIMIT $2
+			`;
 
-    return result.rows as SpeechData[];
+      const result = await this.dbPool.query(query, [startDate, limit]);
+      console.log(`🔍 Debug: Fetched ${result.rows.length} speeches`);
+
+      return result.rows as SpeechData[];
+    } catch (error) {
+      console.error(
+        "❌ Error in fetchUnprocessedSpeechBatchByDateRange:",
+        error,
+      );
+      throw error;
+    }
   }
 
   async getTotalCountFromDate(startDate?: string): Promise<number> {
@@ -301,17 +317,36 @@ class PersistentSpeechEmbedder {
       throw new Error("Database pool not initialized");
     }
 
-    const dateFilter = startDate ? `AND m.date >= '${startDate}'` : "";
-    const result = await this.dbPool.query(`
-			SELECT COUNT(*) as count 
-			FROM "Speech" s
-			LEFT JOIN "Meeting" m ON s."meetingId" = m.id
-			WHERE ${this.getSpeechFilterConditions()}
-			${this.getUnprocessedSpeechCondition()}
-			${dateFilter}
-		`);
+    console.log(`🔍 Debug: Counting unprocessed speeches from ${startDate}...`);
 
-    return parseInt(result.rows[0].count);
+    try {
+      // より効率的なクエリ: 既処理のものを除外する方法を簡素化
+      const dateFilter = startDate
+        ? `AND EXISTS (
+				SELECT 1 FROM "Meeting" m 
+				WHERE m.id = s."meetingId" AND m.date >= '${startDate}'
+			)`
+        : "";
+
+      const result = await this.dbPool.query(`
+				SELECT COUNT(*) as count 
+				FROM "Speech" s
+				WHERE ${this.getSpeechFilterConditions()}
+				AND NOT EXISTS (
+					SELECT 1 FROM kokkai_speech_embeddings e 
+					WHERE e.speech_id = s.id
+				)
+				${dateFilter}
+			`);
+
+      console.log(
+        `🔍 Debug: Count query completed, result: ${result.rows[0].count}`,
+      );
+      return parseInt(result.rows[0].count);
+    } catch (error) {
+      console.error("❌ Error in getTotalCountFromDate:", error);
+      throw error;
+    }
   }
 
   async getLatestProcessedDate(): Promise<string | null> {
@@ -333,11 +368,17 @@ class PersistentSpeechEmbedder {
       throw new Error("Database or embedding model not initialized");
     }
 
+    console.log(
+      `🔍 Debug: Starting embedding generation for ${speechBatch.length} speeches...`,
+    );
     const allValues: BatchInsertValues = [];
     const placeholders: SqlPlaceholder[] = [];
 
     for (let i = 0; i < speechBatch.length; i++) {
       const currentSpeech = speechBatch[i];
+      console.log(
+        `🔍 Debug: Processing speech ${i + 1}/${speechBatch.length} (ID: ${currentSpeech.id})...`,
+      );
 
       try {
         const { values, placeholder } = await this.processSingleSpeechForEmbedding(
@@ -346,6 +387,7 @@ class PersistentSpeechEmbedder {
         );
         allValues.push(...values);
         placeholders.push(placeholder);
+        console.log(`🔍 Debug: Speech ${i + 1} embedding completed`);
       } catch (error) {
         console.error(`❌ Error processing speech ${currentSpeech.id}:`, error);
         this.progress.errors++;
@@ -353,11 +395,15 @@ class PersistentSpeechEmbedder {
       }
     }
 
+    console.log(
+      `🔍 Debug: All embeddings generated, starting database insert...`,
+    );
     // バッチインサート実行
     const insertQuery = this.buildBatchInsertQuery(placeholders);
 
     try {
       await this.dbPool.query(insertQuery, allValues);
+      console.log(`🔍 Debug: Database insert completed successfully`);
     } catch (error) {
       console.error("❌ Error storing embeddings:", error);
       throw error;
@@ -420,6 +466,9 @@ class PersistentSpeechEmbedder {
     console.log(`✅ Already processed: ${processedCount} speeches`);
 
     this.progress.total = await this.getTotalCountFromDate(actualStartDate);
+    console.log(
+      `🔍 Debug: Total unprocessed speeches from ${actualStartDate}: ${this.progress.total}`,
+    );
     this.progress.startTime = Date.now();
 
     if (maxBatches) {
@@ -463,14 +512,18 @@ class PersistentSpeechEmbedder {
           break;
         }
 
+        console.log(`🔍 Debug: Processing ${speeches.length} speeches...`);
+
         // 現在のバッチの日付範囲を設定
         const batchDates = speeches.map((s) => s.date).sort();
         const minDate = batchDates[0];
         const maxDate = batchDates[batchDates.length - 1];
         this.progress.currentDateRange = minDate === maxDate ? minDate : `${minDate} ~ ${maxDate}`;
 
+        console.log(`🔍 Debug: Starting embedding generation for batch...`);
         // 埋め込み生成・保存
         await this.embedAndStoreSpeechBatch(speeches);
+        console.log(`🔍 Debug: Embedding batch completed`);
 
         this.progress.processed += speeches.length;
         batchCount++;
@@ -601,6 +654,7 @@ function parseArgs(args: string[]): {
         result.help = true;
         break;
       case "--start-date":
+      case "--startDate":
         if (i + 1 < args.length) {
           result.startDate = args[++i];
         }
@@ -621,8 +675,8 @@ function parseArgs(args: string[]): {
         }
         break;
       default:
-        // 位置引数としても解釈
-        if (!isNaN(parseInt(arg))) {
+        // 位置引数としても解釈（日付文字列は除外）
+        if (!isNaN(parseInt(arg)) && !arg.includes("-") && arg.length < 5) {
           if (!result.batchSize || result.batchSize === DEFAULT_BATCH_SIZE) {
             result.batchSize = parseInt(arg);
           } else if (!result.maxBatches) {
@@ -729,7 +783,9 @@ async function main(): Promise<void> {
         effectiveMaxBatches = 1;
       } else if (!parsedArgs.maxBatches) {
         // limitがバッチサイズより大きい場合、maxBatchesを計算
-        effectiveMaxBatches = Math.ceil(parsedArgs.limit / parsedArgs.batchSize);
+        effectiveMaxBatches = Math.ceil(
+          parsedArgs.limit / parsedArgs.batchSize,
+        );
       }
       console.log(
         `📊 Processing up to ${parsedArgs.limit} records (batch size: ${effectiveBatchSize}, max batches: ${effectiveMaxBatches})`,

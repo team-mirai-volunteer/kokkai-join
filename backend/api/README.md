@@ -94,50 +94,6 @@ curl -X POST http://localhost:8000/search \
   -d '{"query": "防衛費と子育て支援と消費税についての政策議論", "limit": 10}'
 ```
 
-## Tailscale Funnel での公開
-
-### 1. 443ポートでの公開（HTTPS）
-
-```bash
-# backend/ディレクトリから実行
-cd backend
-
-# APIサーバーを443ポートで起動
-PORT=443 deno run -A api/server.ts
-
-# Tailscale Serveで設定
-tailscale serve https / http://localhost:443
-
-# Funnelで公開
-tailscale funnel 443 on
-```
-
-### 2. 8443ポートでの公開（代替HTTPS）
-
-```bash
-# backend/ディレクトリから実行
-cd backend
-
-# APIサーバーを8443ポートで起動  
-PORT=8443 deno run -A api/server.ts
-
-# Tailscale Serveで設定
-tailscale serve https:8443 / http://localhost:8443
-
-# Funnelで公開
-tailscale funnel 8443 on
-```
-
-### 3. アクセス方法
-
-```bash
-# 公開後のアクセス
-curl https://your-hostname.tailnet.ts.net/
-curl -X POST https://your-hostname.tailnet.ts.net:8443/search \
-  -H "Content-Type: application/json" \
-  -d '{"query": "防衛費と子育て支援と消費税の政策連携について"}'
-```
-
 ## アーキテクチャ
 
 ```
