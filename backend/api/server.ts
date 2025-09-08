@@ -9,23 +9,17 @@ import { cors } from "jsr:@hono/hono/cors";
 import { logger } from "jsr:@hono/hono/logger";
 import { prettyJSON } from "jsr:@hono/hono/pretty-json";
 import { validator } from "jsr:@hono/hono/validator";
-import { Settings } from "npm:llamaindex";
-import { OllamaEmbedding } from "npm:@llamaindex/ollama";
-import { Pool } from "npm:pg";
-import pgvector from "npm:pgvector/pg";
 
 // Local imports
 import type { SpeechResult } from "../types/kokkai.ts";
-import {
-	DEFAULT_OLLAMA_BASE_URL,
-	DEFAULT_TOP_K_RESULTS,
-	EMBEDDING_MODEL_NAME,
-	MAX_DB_CONNECTIONS,
-} from "../config/constants.ts";
+import { DEFAULT_TOP_K_RESULTS } from "../config/constants.ts";
 import { QueryPlanningService } from "../services/query-planning.ts";
-import { VectorSearchService } from "../services/vector-search.ts";
 import { AnswerGenerationService } from "../services/answer-generation.ts";
 import { RelevanceEvaluationService } from "../services/relevance-evaluation.ts";
+import { ProviderRegistry } from "../services/provider-registry.ts";
+import { MultiSourceSearchService } from "../services/multi-source-search.ts";
+import type { ProviderQuery } from "../types/knowledge.ts";
+import { documentToSpeech } from "../providers/adapter.ts";
 
 // API Types
 interface SearchRequest {
@@ -48,12 +42,12 @@ interface SearchResponse {
  * Kokkai Deep Research API Server using Hono
  */
 class KokkaiDeepResearchAPI {
-	private dbPool: Pool | null = null;
-	private queryPlanningService!: QueryPlanningService;
-	private vectorSearchService!: VectorSearchService;
-	private answerGenerationService!: AnswerGenerationService;
-	private relevanceEvaluationService!: RelevanceEvaluationService;
-	private app: Hono;
+  private queryPlanningService!: QueryPlanningService;
+  private answerGenerationService!: AnswerGenerationService;
+  private relevanceEvaluationService!: RelevanceEvaluationService;
+  private providerRegistry!: ProviderRegistry;
+  private multiSource!: MultiSourceSearchService;
+  private app: Hono;
 
 	constructor() {
 		this.app = new Hono();
@@ -201,109 +195,53 @@ class KokkaiDeepResearchAPI {
 	/**
 	 * Initialize all services
 	 */
-	async initialize(): Promise<void> {
-		// 環境変数読み込み
-		await load({ export: true });
-
-		const databaseUrl = Deno.env.get("DATABASE_URL");
-		const ollamaBaseUrl =
-			Deno.env.get("OLLAMA_BASE_URL") || DEFAULT_OLLAMA_BASE_URL;
-		const cerebrasApiKey = Deno.env.get("CEREBRAS_API_KEY");
-
-		if (!databaseUrl) {
-			throw new Error("DATABASE_URL environment variable is required");
-		}
-
-		if (!cerebrasApiKey) {
-			throw new Error("CEREBRAS_API_KEY environment variable is required");
-		}
-
-		console.log("🚀 Initializing Kokkai Deep Research API...");
-
-		// Ollama埋め込みモデル設定
-		try {
-			Settings.embedModel = new OllamaEmbedding({
-				model: EMBEDDING_MODEL_NAME,
-				config: {
-					host: ollamaBaseUrl,
-				},
-			});
-			console.log("🤖 Ollama BGE-M3 embedding model initialized");
-		} catch (error) {
-			throw new Error(
-				`Failed to initialize Ollama embedding: ${(error as Error).message}`,
-			);
-		}
-
-		// Database connection
-		try {
-			this.dbPool = new Pool({
-				connectionString: databaseUrl,
-				max: MAX_DB_CONNECTIONS,
-			});
-
-			// pgvector types registration
-			const client = await this.dbPool.connect();
-			await pgvector.registerTypes(client);
-			client.release();
-			console.log("📊 pgvector types registered");
-		} catch (error) {
-			throw new Error(
-				`Database initialization failed: ${(error as Error).message}`,
-			);
-		}
-
-		// Initialize services
-		this.queryPlanningService = new QueryPlanningService();
-		this.vectorSearchService = new VectorSearchService(this.dbPool);
-		this.answerGenerationService = new AnswerGenerationService();
-		this.relevanceEvaluationService = new RelevanceEvaluationService();
-
-		console.log("✅ All services initialized successfully");
-		console.log("🌟 Kokkai Deep Research API ready to serve requests");
-	}
+  async initialize(): Promise<void> {
+    await load({ export: true });
+    const cerebrasApiKey = Deno.env.get("CEREBRAS_API_KEY");
+    if (!cerebrasApiKey) {
+      throw new Error("CEREBRAS_API_KEY environment variable is required");
+    }
+    console.log("🚀 Initializing Kokkai Deep Research API (provider-based)...");
+    this.queryPlanningService = new QueryPlanningService();
+    this.answerGenerationService = new AnswerGenerationService();
+    this.relevanceEvaluationService = new RelevanceEvaluationService();
+    this.providerRegistry = new ProviderRegistry();
+    this.multiSource = new MultiSourceSearchService();
+    console.log("✅ Services initialized");
+  }
 
 	/**
 	 * Execute the Deep Research pipeline
 	 */
-	private async executeDeepResearchPipeline(
-		query: string,
-		limit: number,
-	): Promise<{
-		answer: string;
-		sources: SpeechResult[];
-	}> {
-		// Query planning
-		console.log("🧠 Planning query strategy...");
-		const queryPlan = await this.queryPlanningService.createQueryPlan(query);
+  private async executeDeepResearchPipeline(
+    query: string,
+    limit: number,
+  ): Promise<{ answer: string; sources: SpeechResult[] }> {
+    console.log("🧠 Planning query strategy...");
+    const plan = await this.queryPlanningService.createQueryPlan(query);
 
-		// Vector search
-		console.log("🔍 Executing search plan...");
-		const searchResults = await this.vectorSearchService.executeSearchPlan(
-			queryPlan,
-			limit,
-		);
+    console.log("🔍 Executing provider searches...");
+    const providerQuery: ProviderQuery = {
+      originalQuestion: plan.originalQuestion,
+      subqueries: plan.subqueries,
+      limit,
+    };
+    const providers = this.providerRegistry.byIds();
+    const docs = await this.multiSource.searchAcross(providers, providerQuery);
 
-		// Relevance evaluation
-		console.log("🔍 Evaluating relevance of search results...");
-		const relevantResults =
-			await this.relevanceEvaluationService.evaluateRelevance(
-				query,
-				searchResults,
-			);
+    // Normalize to existing SpeechResult for downstream services
+    const searchResults: SpeechResult[] = docs.map(documentToSpeech);
 
-		// Answer generation
-		console.log("🤖 Generating AI answer...");
-		const answer = await this.answerGenerationService.generateAnswer(
-			query,
-			relevantResults,
-		);
+    console.log("🔍 Evaluating relevance of search results...");
+    const relevantResults = await this.relevanceEvaluationService.evaluateRelevance(
+      query,
+      searchResults,
+    );
 
-		return {
-			answer,
-			sources: relevantResults,
-		};
-	}
+    console.log("🤖 Generating AI answer...");
+    const answer = await this.answerGenerationService.generateAnswer(query, relevantResults);
+    return { answer, sources: relevantResults };
+  }
 
 	/**
 	 * Start the server
@@ -330,38 +268,29 @@ class KokkaiDeepResearchAPI {
 	/**
 	 * Cleanup resources
 	 */
-	async close(): Promise<void> {
-		if (this.dbPool) {
-			await this.dbPool.end();
-			console.log("📊 Database connection closed");
-		}
-	}
+  async close(): Promise<void> {}
 }
 
 // Main execution
 if (import.meta.main) {
 	const api = new KokkaiDeepResearchAPI();
 
-	try {
-		await api.initialize();
+  try {
+    await api.initialize();
 
-		// Handle graceful shutdown
-		const handleShutdown = async (signal: string) => {
-			console.log(`\n🛑 Received ${signal}, shutting down gracefully...`);
-			await api.close();
-			Deno.exit(0);
-		};
+    const handleShutdown = async (signal: string) => {
+      console.log(`\n🛑 Received ${signal}, shutting down gracefully...`);
+      await api.close();
+      Deno.exit(0);
+    };
+    Deno.addSignalListener("SIGINT", () => handleShutdown("SIGINT"));
+    Deno.addSignalListener("SIGTERM", () => handleShutdown("SIGTERM"));
 
-		// Register signal handlers
-		Deno.addSignalListener("SIGINT", () => handleShutdown("SIGINT"));
-		Deno.addSignalListener("SIGTERM", () => handleShutdown("SIGTERM"));
-
-		// Start server
-		const port = parseInt(Deno.env.get("PORT") || "8000");
-		api.serve(port);
-	} catch (error) {
-		console.error("❌ Failed to start server:", error);
-		await api.close();
-		Deno.exit(1);
-	}
+    const port = parseInt(Deno.env.get("PORT") || "8000");
+    api.serve(port);
+  } catch (error) {
+    console.error("❌ Failed to start server:", error);
+    await api.close();
+    Deno.exit(1);
+  }
 }

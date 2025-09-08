@@ -4,7 +4,7 @@
 
 ## 概要
 
-`persistent-rag-cli.ts`をベースにした、国会議事録を深層調査・分析するRESTful APIです。
+国会議事録を深層調査・分析するRESTful APIです。
 
 ## 機能
 
@@ -85,6 +85,24 @@ deno run -A api/server.ts
 PORT=443 deno run -A api/server.ts
 ```
 
+### 1-b. Kokkai RAG API（検索専用）の起動（新規）
+
+```bash
+# 依存関係の確認
+deno check api/kokkai_rag.ts
+
+# Kokkai RAG API 起動（デフォルト :8001）
+deno run -A api/kokkai_rag.ts
+
+# 動作確認
+curl http://localhost:8001/v1/health
+
+# 検索例（結果のみ・要約なし）
+curl -s -X POST http://localhost:8001/v1/search \
+  -H "Content-Type: application/json" \
+  -d '{"query": "防衛費", "limit": 5}'
+```
+
 ### 2. API テスト
 
 ```bash
@@ -109,6 +127,12 @@ curl -X POST http://localhost:8000/search \
     ↓
 [JSON Response]
 ```
+
+### マイクロサービス分離（段階的）
+
+- Kokkai RAG API: ベクトル検索と結果返却のみ（`api/kokkai_rag.ts`）。
+- Deep Research API: クエリ計画・複数プロバイダ統合・要約生成（`api/server.ts`）。
+  - 将来的に Deep Research から Kokkai RAG API を HTTP 経由で呼び出す構成へ移行予定。
 
 ## 依存関係
 
