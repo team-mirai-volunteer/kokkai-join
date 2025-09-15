@@ -8,6 +8,7 @@
     "npm:@llamaindex/community@*": "0.0.102",
     "npm:@llamaindex/ollama@*": "0.1.21_@llamaindex+core@0.6.20__zod@3.25.76_@llamaindex+env@0.1.30",
     "npm:llamaindex@*": "0.11.27_@llamaindex+core@0.6.20__zod@3.25.76_@llamaindex+env@0.1.30",
+    "npm:openai@*": "5.12.2",
     "npm:pg@*": "8.16.3",
     "npm:pgvector@*": "0.2.1"
   },
@@ -1315,6 +1316,10 @@
       "dependencies": [
         "whatwg-fetch"
       ]
+    },
+    "openai@5.12.2": {
+      "integrity": "sha512-xqzHHQch5Tws5PcKR2xsZGX9xtch+JQFz5zb14dGqlshmmDAFBFEWmeIpf7wVqWV+w7Emj7jRgkNJakyKE0tYQ==",
+      "bin": true
     },
     "p-retry@6.2.1": {
       "integrity": "sha512-hEt02O4hUct5wtwg4H4KcWgDdm+l1bOaEy/hWzd8xtXB9BqxTWBBhb+2ImAtH4Cv4rPjV76xN3Zumqk3k3AhhQ==",

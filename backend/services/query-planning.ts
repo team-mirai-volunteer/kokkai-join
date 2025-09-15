@@ -8,12 +8,13 @@ import {
 } from "../utils/prompt.ts";
 
 /**
- * Service responsible for creating query plans from user questions
+ * クエリプランニングサービス。
+ *
+ * - 役割: ユーザ質問を解析し、検索に適したサブクエリやエンティティ（話者/政党/期間など）を抽出。
+ * - 本実装: Cerebras へプロンプトして JSON 形式のプランを生成する。
  */
 export class QueryPlanningService {
-	/**
-	 * Create a query plan from a user question
-	 */
+	/** ユーザ質問からクエリプラン（サブクエリ等）を生成 */
 	async createQueryPlan(userQuestion: string): Promise<QueryPlan> {
 		console.log("🧠 Planning query strategy...");
 
@@ -27,7 +28,7 @@ export class QueryPlanningService {
 					{ role: "user", content: userPrompt },
 				],
 				model: CEREBRAS_MODEL,
-				max_tokens: 1000,
+				max_tokens: 3000,
 				temperature: 0.3, // 計画生成は確定的に
 				stream: false,
 			});

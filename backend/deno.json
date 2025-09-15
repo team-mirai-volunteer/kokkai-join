@@ -4,7 +4,8 @@
   },
   "nodeModulesDir": "auto",
   "tasks": {
-    "rag": "deno run -A scripts/rag-cli.ts"
+    "rag": "deno run -A scripts/rag-cli.ts",
+    "search": "deno run -A scripts/search-cli.ts"
   },
   "fmt": {
     "useTabs": false,

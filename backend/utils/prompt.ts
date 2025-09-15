@@ -295,4 +295,70 @@ export function getRelevanceEvaluationSystemPrompt(): string {
 - 中: 質問に関連する話題だが、直接的な答えではない
 - 低: わずかに関連するキーワードを含むが、文脈が異なる
 - 無関係: 質問とは関係ない内容`;
+} 
+
+// --- Deep Research section synthesis prompts ---
+import type { EvidenceRecord } from "../types/deepresearch.ts";
+
+export function getSectionSynthesisSystemPrompt(): string {
+  return `あなたは政策ドキュメントの編集者です。与えられた証拠（evidences）のみを根拠として、日本語で指定のセクションJSONを生成してください。出力は必ず有効なJSONのみで、余計な文言やコードフェンスは不要です。
+
+要件:
+- 他セクションは内容ごとに適切な evidence の id を citations に含める。
+- timeline は items の各要素に date(YYYY-MM-DD) と text と citations を付ける。
+- list は items の各要素に text と citations を付ける。
+- related_links は links の各要素に label, url, citations を付ける。
+- JSONキーは固定: purpose_overview, current_status, timeline, key_points, background, main_issues, past_debates_summary, status_notes, related_links。
+- 事実に確信が持てない場合は曖昧表現を避け、記載しないか「不明」とする。
+`;
+}
+
+export function createSectionSynthesisPrompt(
+  userQuery: string,
+  asOfDate: string | undefined,
+  evidences: EvidenceRecord[],
+): string {
+  const evLines = evidences.map((e) => {
+    const parts = [
+      `id:${e.id}`,
+      e.url ? `url:${e.url}` : undefined,
+      e.date ? `date:${e.date}` : undefined,
+      e.title ? `title:${e.title}` : undefined,
+      e.excerpt ? `excerpt:${e.excerpt}` : undefined,
+      `provider:${e.source.providerId}`,
+    ].filter(Boolean);
+    return `- ${parts.join(" | ")}`;
+  }).join("\n");
+
+  const sectionsDesc = `生成するセクション:
+- purpose_overview (text)
+- current_status (text)${asOfDate ? ` ※ ${asOfDate}時点での状況` : ""}
+- timeline (timeline)
+- key_points (list)
+- background (text)
+- main_issues (list)
+- past_debates_summary (text)
+- status_notes (text)
+- related_links (links)`;
+
+  return `質問: ${userQuery}
+${asOfDate ? `対象時点: ${asOfDate}\n` : ""}
+
+利用可能な証拠 (evidences):
+${evLines}
+
+${sectionsDesc}
+
+出力は必ず次のJSONオブジェクトのみ：
+{
+  "purpose_overview": {"title":"法案の目的や概要","type":"text","content":"...","citations":["eX"]},
+  "current_status": {"title":"現在の審議状況${asOfDate ? `（${asOfDate}時点、検索ベース）` : "（検索ベース）"}","type":"text","content":"...","citations":["eX"]},
+  "timeline": {"title":"審議プロセスのタイムライン","type":"timeline","items":[{"date":"YYYY-MM-DD","text":"...","citations":["eX"]}]},
+  "key_points": {"title":"法改正の重要ポイント","type":"list","items":[{"text":"...","citations":["eX"]}]},
+  "background": {"title":"法案提出までの経緯（背景）","type":"text","content":"...","citations":["eX"]},
+  "main_issues": {"title":"主要な論点（審議・実務で指摘された主なポイント）","type":"list","items":[{"text":"...","citations":["eX"]}]},
+  "past_debates_summary": {"title":"過去の議論の要約","type":"text","content":"...","citations":["eX"]},
+  "status_notes": {"title":"現在の審議状況の確認メモ${asOfDate ? `（${asOfDate}時点）` : ""}","type":"text","content":"...","citations":["eX"]},
+  "related_links": {"title":"関連リンク（一次・準一次情報）","type":"links","links":[{"label":"...","url":"https://...","citations":["eX"]}]}
+}`;
 }

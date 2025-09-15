@@ -8,12 +8,13 @@ import {
 } from "../utils/prompt.ts";
 
 /**
- * Service responsible for evaluating and filtering search results based on relevance
+ * 関連度評価サービス。
+ *
+ * - 各ドキュメント（SpeechResult）を質問に対して LLM で評価（高/中/低/無関係）
+ * - スコアを調整し、降順ソートした配列を返す（無関係は除外）
  */
 export class RelevanceEvaluationService {
-	/**
-	 * Evaluate relevance of search results and filter out noise
-	 */
+	/** 質問に対する関連度を評価し、ノイズを除去してスコア順で返す */
 	async evaluateRelevance(
 		query: string,
 		results: SpeechResult[],

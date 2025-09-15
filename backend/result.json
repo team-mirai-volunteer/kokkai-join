@@ -1,0 +1,752 @@
+{
+  "query": "医療法等の一部を改正する法律案　（第217回国会閣法第21号）について",
+  "asOfDate": "2025-09-15",
+  "sections": {
+    "law_name": {
+      "title": "法案の正式名称または通称",
+      "type": "text",
+      "content": "医療法等の一部を改正する法律案（第217回国会閣法第21号）",
+      "citations": []
+    },
+    "purpose_overview": {
+      "title": "法案の目的や概要",
+      "type": "text",
+      "content": "医師の長時間労働の是正や健康確保のための制度創設、医療従事者の業務範囲見直し、外来医療機能の明確化と連携推進、報告制度の創設、地域医療構想の見直し、医師偏在是正、医療DXの推進などを通じて、良質かつ適切な医療を効率的に提供できる体制の確保を目的とする。",
+      "citations": [
+        "e1",
+        "e2"
+      ]
+    },
+    "current_status": {
+      "title": "現在の審議状況（2025-09-15時点、検索ベース）",
+      "type": "text",
+      "content": "本法案は2025年4月3日に審議入りしたが、同年6月以降も議論が停滞しており、野党側が並行審議を求める中、与党は審議入りに難色を示す状況が続いている。2025年6月20日の参議院情報や2025年8月5日の厚生労働委員会審議記録から、まだ最終的な可決には至っていないことが確認できる。",
+      "citations": [
+        "e5",
+        "e4",
+        "e18"
+      ]
+    },
+    "timeline": {
+      "title": "審議プロセスのタイムライン",
+      "type": "timeline",
+      "items": [
+        {
+          "date": "2021-02-02",
+          "text": "医師の長時間労働等の状況を踏まえ、法改正の必要性が提示される。",
+          "citations": [
+            "e1"
+          ]
+        },
+        {
+          "date": "2023-02-14",
+          "text": "内閣法制局にて本法案が閣議決定され、同日に国会へ提出。",
+          "citations": [
+            "e17"
+          ]
+        },
+        {
+          "date": "2025-02-14",
+          "text": "第217回国会に本法案が提出され、衆議院・参議院の法案情報が公開される。",
+          "citations": [
+            "e2",
+            "e6",
+            "e7"
+          ]
+        },
+        {
+          "date": "2025-04-03",
+          "text": "本法案が審議入りし、委員会での審査が開始される。",
+          "citations": [
+            "e5"
+          ]
+        },
+        {
+          "date": "2025-06-02",
+          "text": "審議が停滞し、議論の見通しが立たない状態が続く。",
+          "citations": [
+            "e5"
+          ]
+        },
+        {
+          "date": "2025-06-20",
+          "text": "参議院における本法案の情報が公開される。",
+          "citations": [
+            "e4"
+          ]
+        },
+        {
+          "date": "2025-08-05",
+          "text": "厚生労働委員会で本法案に関する閉会中審査が行われる。",
+          "citations": [
+            "e18"
+          ]
+        }
+      ]
+    },
+    "key_points": {
+      "title": "法改正の重要ポイント",
+      "type": "list",
+      "items": [
+        {
+          "text": "医師の労働時間短縮と健康確保のための制度創設",
+          "citations": [
+            "e1"
+          ]
+        },
+        {
+          "text": "医療関係職種の業務範囲見直し",
+          "citations": [
+            "e1"
+          ]
+        },
+        {
+          "text": "外来医療機能の明確化と連携推進のための報告制度創設",
+          "citations": [
+            "e1"
+          ]
+        },
+        {
+          "text": "地域医療構想の見直し・医師偏在是正・医療DX推進",
+          "citations": [
+            "e2"
+          ]
+        },
+        {
+          "text": "オンライン診療の法制化とその安全管理に関する懸念",
+          "citations": [
+            "e3"
+          ]
+        },
+        {
+          "text": "営利法人による病院開設の可能性拡大と特別養護老人ホーム設置基準の見直し",
+          "citations": [
+            "e21"
+          ]
+        }
+      ]
+    },
+    "background": {
+      "title": "法案提出までの経緯（背景）",
+      "type": "text",
+      "content": "医師の長時間労働や医療提供体制の課題が顕在化し、良質かつ適切な医療を効率的に提供できる体制の確保が求められたことが本法案提出の背景である。また、地域医療構想の見直しや医師偏在の是正、医療DXの推進といった広範な課題への対応も目的に含まれる。",
+      "citations": [
+        "e1",
+        "e2"
+      ]
+    },
+    "main_issues": {
+      "title": "主要な論点（審議・実務で指摘された主なポイント）",
+      "type": "list",
+      "items": [
+        {
+          "text": "オンライン診療の法制化に伴う医療安全管理・プライバシー保護の不安",
+          "citations": [
+            "e3"
+          ]
+        },
+        {
+          "text": "医師の労働時間短縮と健康確保制度の具体的な運用方法",
+          "citations": [
+            "e1"
+          ]
+        },
+        {
+          "text": "営利法人による病院開設拡大に対する公平性・質の確保",
+          "citations": [
+            "e21"
+          ]
+        },
+        {
+          "text": "議論の停滞と野党・与党間の審議姿勢の相違",
+          "citations": [
+            "e5"
+          ]
+        },
+        {
+          "text": "地域医療構想の見直しと医師偏在是正の実効性",
+          "citations": [
+            "e2"
+          ]
+        }
+      ]
+    },
+    "past_debates_summary": {
+      "title": "過去の議論の要約",
+      "type": "text",
+      "content": "過去の審議では、医療法・医師法の一部改正案として、検体検査の精度基準明確化、特定機能病院の管理運営の透明化、医療広告規制の見直し、持ち分なし医療法人への移行計画認定制度の改正などが議論された（2015年・2017年・2018年の委員会報告）。2021年には採決が行われ、修正案も審議されたが、最終的な可決には至っていない。これらの議論は、医療提供体制の安全性・透明性向上を目的としている。",
+      "citations": [
+        "e15",
+        "e9",
+        "e10",
+        "e12",
+        "e14"
+      ]
+    },
+    "status_notes": {
+      "title": "現在の審議状況の確認メモ（2025-09-15時点）",
+      "type": "text",
+      "content": "2025年4月に審議入りしたものの、6月以降は議論が停滞し、野党が並行審議を求める声が上がっている。参議院・厚生労働委員会の最新情報（2025年6月・8月）でも、最終的な可決や法案の成立時期は未定である。",
+      "citations": [
+        "e5",
+        "e4",
+        "e18"
+      ]
+    },
+    "related_links": {
+      "title": "関連リンク（一次・準一次情報）",
+      "type": "links",
+      "links": [
+        {
+          "label": "法案概要（CLB）",
+          "url": "https://www.clb.go.jp/recent-laws/diet_bill/detail/id%3D3820",
+          "citations": [
+            "e1"
+          ]
+        },
+        {
+          "label": "衆議院法案情報",
+          "url": "https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/keika/1DDE412.htm",
+          "citations": [
+            "e2"
+          ]
+        },
+        {
+          "label": "参議院法案情報",
+          "url": "https://www.sangiin.go.jp/japanese/joho1/kousei/gian/217/meisai/m217080217021.htm",
+          "citations": [
+            "e4"
+          ]
+        },
+        {
+          "label": "東京保険医協会 コメント",
+          "url": "https://www.hokeni.org/docs/2025060200021/",
+          "citations": [
+            "e5"
+          ]
+        },
+        {
+          "label": "厚生労働委員会審議経過（2023-08-05）",
+          "url": "https://www.shugiin.go.jp/internet/itdb_iinkai.nsf/html/gianrireki/218_217_kakuho_21.htm",
+          "citations": [
+            "e18"
+          ]
+        }
+      ]
+    }
+  },
+  "evidences": [
+    {
+      "id": "e1",
+      "source": {
+        "providerId": "openai-web",
+        "type": "openai-web"
+      },
+      "url": "https://www.clb.go.jp/recent-laws/diet_bill/detail/id%3D3820",
+      "date": "2021-02-02",
+      "title": "良質かつ適切な医療を効率的に提供する体制の確保を推進するための医療法等の一部を改正する法律案",
+      "excerpt": "医師の長時間労働等の状況に鑑み、良質かつ適切な医療を効率的に提供する体制の確保を推進するため、医師の労働時間の短縮及び健康確保のための制度の創設、各医療関係職種の業務範囲の見直し等の措置を講ずるとともに、外来医療の機能の明確化及び連携の推進のための報告制度の創設、地域医療構想の実現に向けた医療機関の取組に関する支援の仕組みの強化等の措置を講ずる必要がある。これが、この法律案を提出する理由である。",
+      "score": 1,
+      "extras": {
+        "subquery": "医療法等の一部を改正する法律案　（第217回国会閣法第21号）について 目的"
+      },
+      "sectionHints": [
+        "purpose_overview"
+      ]
+    },
+    {
+      "id": "e2",
+      "source": {
+        "providerId": "openai-web",
+        "type": "openai-web"
+      },
+      "url": "https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/keika/1DDE412.htm",
+      "date": "2025-02-14",
+      "title": "閣法 第217回国会 21 医療法等の一部を改正する法律案",
+      "excerpt": "第217回国会に提出された「医療法等の一部を改正する法律案」は、地域医療構想の見直しや医師偏在是正、医療DXの推進などを目的としています。",
+      "score": 1,
+      "extras": {
+        "subquery": "医療法等の一部を改正する法律案　（第217回国会閣法第21号）について 概要"
+      },
+      "sectionHints": [
+        "purpose_overview",
+        "current_status",
+        "timeline",
+        "background",
+        "main_issues",
+        "status_notes"
+      ]
+    },
+    {
+      "id": "e3",
+      "source": {
+        "providerId": "openai-web",
+        "type": "openai-web"
+      },
+      "url": "https://hodanren.doc-net.or.jp/info/news/2025-04-06/",
+      "date": "2025-04-06",
+      "title": "オンライン診療は医療安全管理に危惧 - 全国保険医団体連合会",
+      "excerpt": "医療法改正案では、従前、通知で運用してきたオンライン診療が「法制化」されます。オンライン診療を受ける場所を提供する施設に関して規定が設けられますが、診療所などの「医療提供施設」とは異なり、「医療の質」の維持への不安はもとより、感染防止、防犯、プライバシー保護や機材管理など医療安全管理が曖昧になる事態が危惧されます。",
+      "score": 0.9,
+      "extras": {
+        "subquery": "医療法等の一部を改正する法律案　（第217回国会閣法第21号）について 目的"
+      },
+      "sectionHints": [
+        "purpose_overview"
+      ]
+    },
+    {
+      "id": "e4",
+      "source": {
+        "providerId": "openai-web",
+        "type": "openai-web"
+      },
+      "url": "https://www.sangiin.go.jp/japanese/joho1/kousei/gian/217/meisai/m217080217021.htm",
+      "date": "2025-06-20",
+      "title": "医療法等の一部を改正する法律案：参議院",
+      "excerpt": "第217回国会（常会）に提出された「医療法等の一部を改正する法律案」についての情報です。",
+      "score": 1,
+      "extras": {
+        "subquery": "医療法等の一部を改正する法律案　（第217回国会閣法第21号）について 趣旨"
+      },
+      "sectionHints": [
+        "purpose_overview"
+      ]
+    },
+    {
+      "id": "e5",
+      "source": {
+        "providerId": "openai-web",
+        "type": "openai-web"
+      },
+      "url": "https://www.hokeni.org/docs/2025060200021/",
+      "date": "2025-06-02",
+      "title": "医療のあり方 変質させる\"医療法改定案\" | 東京保険医協会",
+      "excerpt": "厚労省が提出した「医療法等の一部を改正する法律案」（以下、医療法改定案）は、４月３日に審議入りしたが、その後、議論の見通しが立たない状況が続いている。野党が医療法改定案との並行審議を求めている議員立法について、与党が審議入りに難色を示しているためだ。",
+      "score": 0.8,
+      "extras": {
+        "subquery": "医療法等の一部を改正する法律案　（第217回国会閣法第21号）について 目的"
+      },
+      "sectionHints": [
+        "purpose_overview"
+      ]
+    },
+    {
+      "id": "e6",
+      "source": {
+        "providerId": "openai-web",
+        "type": "openai-web"
+      },
+      "url": "https://medicallaw.exblog.jp/34486436/",
+      "date": "2025-02-14",
+      "title": "医療法等の一部を改正する法律案",
+      "excerpt": "第217回国会に提出された「医療法等の一部を改正する法律案」の概要と目的について解説しています。",
+      "score": 0.8,
+      "extras": {
+        "subquery": "医療法等の一部を改正する法律案　（第217回国会閣法第21号）について 概要"
+      },
+      "sectionHints": [
+        "purpose_overview"
+      ]
+    },
+    {
+      "id": "e7",
+      "source": {
+        "providerId": "openai-web",
+        "type": "openai-web"
+      },
+      "url": "https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/honbun/g21709021.htm",
+      "date": "2025-02-14",
+      "title": "閣法 第217回国会 21 医療法等の一部を改正する法律案",
+      "excerpt": "第217回国会に提出された「医療法等の一部を改正する法律案」の本文が公開されています。",
+      "score": 0.9,
+      "extras": {
+        "subquery": "医療法等の一部を改正する法律案　（第217回国会閣法第21号）について 概要"
+      },
+      "sectionHints": [
+        "purpose_overview",
+        "key_points",
+        "background"
+      ]
+    },
+    {
+      "id": "e8",
+      "source": {
+        "providerId": "kokkai-db",
+        "type": "kokkai-db"
+      },
+      "url": "https://kokkai.ndl.go.jp/txt/119614260X01120180419/4",
+      "date": "2018-04-19 00:00:00",
+      "title": "厚生労働委員会",
+      "excerpt": "○委員長（島村大君）　医療法及び医師法の一部を改正する法律案を議題といたします。\r\n　本案の趣旨説明は既に聴取しておりますので、これより質疑に入ります。\r\n　質疑のある方は順次御発言願います。",
+      "score": 0.6620221381909412,
+      "extras": {
+        "speaker": "島村大",
+        "party": "自由民主党・こころ",
+        "meeting": "厚生労働委員会"
+      },
+      "sectionHints": [
+        "current_status",
+        "timeline",
+        "background",
+        "main_issues",
+        "past_debates_summary",
+        "status_notes",
+        "related_links"
+      ]
+    },
+    {
+      "id": "e9",
+      "source": {
+        "providerId": "kokkai-db",
+        "type": "kokkai-db"
+      },
+      "url": "https://kokkai.ndl.go.jp/txt/119305254X02820170526/17",
+      "date": "2017-05-26 00:00:00",
+      "title": "本会議",
+      "excerpt": "○丹羽秀樹君　ただいま議題となりました医療法等の一部を改正する法律案について、厚生労働委員会における審査の経過及び結果を御報告申し上げます。\r\n　本案は、安全で適切な医療提供の確保を推進するため、所要の措置を講じようとするもので、その主な内容は、\r\n　第一に、医療機関、衛生検査所で行われる検体検査について、その精度の確保に関する基準の明確化等を行うこと、\r\n　第二に、特定機能病院が医療の高度の安全を確保する必要があることを法律上明記するとともに、合議体の決議に基づく管理運営の確保、管理者の選任方法の透明化の義務づけ等の措置を講ずること、\r\n　第三に、医療機関のウエブサイト等について、虚偽広告等を禁止するなど、医療に関する広告規制の見直しを行うこと、\r\n　第四に、持ち分なしの医療法人への移行計画認定制度について、認定要件を見直すとともに、認定期間を三年間延長すること\r\n等であります。\r\n　本",
+      "score": 0.6544744886689849,
+      "extras": {
+        "speaker": "丹羽秀樹",
+        "party": "自由民主党・無所属の会",
+        "meeting": "本会議"
+      },
+      "sectionHints": [
+        "current_status",
+        "timeline",
+        "background",
+        "main_issues",
+        "past_debates_summary",
+        "status_notes",
+        "related_links"
+      ]
+    },
+    {
+      "id": "e10",
+      "source": {
+        "providerId": "kokkai-db",
+        "type": "kokkai-db"
+      },
+      "url": "https://kokkai.ndl.go.jp/txt/119305254X02820170526/16",
+      "date": "2017-05-26 00:00:00",
+      "title": "本会議",
+      "excerpt": "○議長（大島理森君）　日程第二、医療法等の一部を改正する法律案を議題といたします。\r\n　委員長の報告を求めます。厚生労働委員長丹羽秀樹君。\r\n　　　　—————————————\r\n　医療法等の一部を改正する法律案及び同報告書\r\n　　　　〔本号末尾に掲載〕\r\n　　　　—————————————\r\n　　　　〔丹羽秀樹君登壇〕",
+      "score": 0.6526072780444725,
+      "extras": {
+        "speaker": "大島理森",
+        "party": "無所属",
+        "meeting": "本会議"
+      },
+      "sectionHints": [
+        "current_status",
+        "timeline",
+        "background",
+        "main_issues",
+        "past_debates_summary",
+        "status_notes",
+        "related_links"
+      ]
+    },
+    {
+      "id": "e11",
+      "source": {
+        "providerId": "kokkai-db",
+        "type": "kokkai-db"
+      },
+      "url": "https://kokkai.ndl.go.jp/txt/120004260X00520191113/347",
+      "date": "2019-11-13 00:00:00",
+      "title": "厚生労働委員会",
+      "excerpt": "○盛山委員長　これより採決に入ります。\r\n　第百九十八回国会、内閣提出、医薬品、医療機器等の品質、有効性及び安全性の確保等に関する法律等の一部を改正する法律案について採決をいたします。\r\n　本案に賛成の諸君の起立を求めます。\r\n　　　　〔賛成者起立〕",
+      "score": 0.6500515856267831,
+      "extras": {
+        "speaker": "盛山正仁",
+        "party": "自由民主党・無所属の会",
+        "meeting": "厚生労働委員会"
+      },
+      "sectionHints": [
+        "current_status",
+        "timeline",
+        "background",
+        "main_issues",
+        "past_debates_summary",
+        "status_notes",
+        "related_links"
+      ]
+    },
+    {
+      "id": "e12",
+      "source": {
+        "providerId": "kokkai-db",
+        "type": "kokkai-db"
+      },
+      "url": "https://kokkai.ndl.go.jp/txt/119604260X03420180710/3",
+      "date": "2018-07-10 00:00:00",
+      "title": "厚生労働委員会",
+      "excerpt": "○高鳥委員長　本日付託になりました内閣提出、参議院送付、医療法及び医師法の一部を改正する法律案を議題といたします。\r\n　趣旨の説明を聴取いたします。加藤厚生労働大臣。\r\n　　　　—————————————\r\n　医療法及び医師法の一部を改正する法律案\r\n　　　　〔本号末尾に掲載〕\r\n　　　　—————————————",
+      "score": 0.6445724144624791,
+      "extras": {
+        "speaker": "高鳥修一",
+        "party": "自由民主党",
+        "meeting": "厚生労働委員会"
+      },
+      "sectionHints": [
+        "current_status",
+        "timeline",
+        "background",
+        "main_issues",
+        "past_debates_summary",
+        "related_links"
+      ]
+    },
+    {
+      "id": "e13",
+      "source": {
+        "providerId": "openai-web",
+        "type": "openai-web"
+      },
+      "url": "https://www.shugiin.go.jp/Internet/itdb_iinkai.nsf/html/gianrireki/217_217_kakuho_21.htm",
+      "title": "法律案第217回国会 医療法等の一部を改正する法律案　内関接第21号",
+      "extras": {
+        "subquery": "医療法等の一部を改正する法律案　（第217回国会閣法第21号）について 現在の審議状況 -site:www.clb.go.jp -site:www.shugiin.go.jp -site:hodanren.doc-net.or.jp"
+      },
+      "sectionHints": [
+        "current_status",
+        "key_points",
+        "background",
+        "main_issues",
+        "status_notes",
+        "related_links"
+      ]
+    },
+    {
+      "id": "e14",
+      "source": {
+        "providerId": "kokkai-db",
+        "type": "kokkai-db"
+      },
+      "url": "https://kokkai.ndl.go.jp/txt/120404260X00920210407/352",
+      "date": "2021-04-07 00:00:00",
+      "title": "厚生労働委員会",
+      "excerpt": "○とかしき委員長　これより採決に入ります。\r\n　内閣提出、良質かつ適切な医療を効率的に提供する体制の確保を推進するための医療法等の一部を改正する法律案及びこれに対する修正案について採決いたします。\r\n　まず、中島克仁君外一名提出の修正案について採決いたします。\r\n　本修正案に賛成の諸君の起立を求めます。\r\n　　　　〔賛成者起立〕",
+      "score": 0.644954566533165,
+      "extras": {
+        "speaker": "とかしきなおみ",
+        "party": "自由民主党・無所属の会",
+        "meeting": "厚生労働委員会"
+      },
+      "sectionHints": [
+        "current_status",
+        "timeline",
+        "background",
+        "main_issues",
+        "past_debates_summary",
+        "related_links"
+      ]
+    },
+    {
+      "id": "e15",
+      "source": {
+        "providerId": "kokkai-db",
+        "type": "kokkai-db"
+      },
+      "url": "https://kokkai.ndl.go.jp/txt/118914260X03520150915/4",
+      "date": "2015-09-15 00:00:00",
+      "title": "厚生労働委員会",
+      "excerpt": "○委員長（丸川珠代君）　医療法の一部を改正する法律案を議題といたします。\r\n　本案の趣旨説明は既に聴取をしておりますので、これより質疑に入ります。\r\n　質疑のある方は順次御発言願います。",
+      "score": 0.6612746406913055,
+      "extras": {
+        "speaker": "丸川珠代",
+        "party": "自由民主党",
+        "meeting": "厚生労働委員会"
+      },
+      "sectionHints": [
+        "current_status",
+        "timeline",
+        "main_issues",
+        "past_debates_summary",
+        "related_links"
+      ]
+    },
+    {
+      "id": "e16",
+      "source": {
+        "providerId": "kokkai-db",
+        "type": "kokkai-db"
+      },
+      "url": "https://kokkai.ndl.go.jp/txt/119604260X03620180713/330",
+      "date": "2018-07-13 00:00:00",
+      "title": "厚生労働委員会",
+      "excerpt": "○高鳥委員長　これより採決に入ります。\r\n　内閣提出、参議院送付、医療法及び医師法の一部を改正する法律案について採決いたします。\r\n　本案に賛成の諸君の起立を求めます。\r\n　　　　〔賛成者起立〕",
+      "score": 0.6455334802967997,
+      "extras": {
+        "speaker": "高鳥修一",
+        "party": "自由民主党",
+        "meeting": "厚生労働委員会"
+      },
+      "sectionHints": [
+        "current_status",
+        "past_debates_summary",
+        "related_links"
+      ]
+    },
+    {
+      "id": "e17",
+      "source": {
+        "providerId": "openai-web",
+        "type": "openai-web"
+      },
+      "url": "https://www.clb.go.jp/recent-laws/diet_bill/detail/id%3D4940",
+      "date": "2023-02-14",
+      "title": "医療法等の一部を改正する法律案 | 内閣法制局",
+      "excerpt": "令和7年2月14日に内閣法制局から医療法等の一部を改正する法律案が閣議決定され、同日に国会に提出されました。",
+      "extras": {
+        "subquery": "医療法等の一部を改正する法律案　（第217回国会閣法第21号）について タイムライン -site:www.clb.go.jp -site:www.shugiin.go.jp -site:hodanren.doc-net.or.jp"
+      },
+      "sectionHints": [
+        "timeline",
+        "key_points",
+        "background",
+        "main_issues",
+        "related_links"
+      ]
+    },
+    {
+      "id": "e18",
+      "source": {
+        "providerId": "openai-web",
+        "type": "openai-web"
+      },
+      "url": "https://www.shugiin.go.jp/internet/itdb_iinkai.nsf/html/gianrireki/218_217_kakuho_21.htm",
+      "date": "2023-08-05",
+      "title": "法律案等審査経過概要 第218回国会 医療法等の一部を改正する法律案（内閣提出、第217回国会閣法第21号）",
+      "excerpt": "令和7年8月5日（火）に、厚生労働委員会で閉会中審査に関する件が審議されました。",
+      "extras": {
+        "subquery": "医療法等の一部を改正する法律案　（第217回国会閣法第21号）について タイムライン -site:www.clb.go.jp -site:www.shugiin.go.jp -site:hodanren.doc-net.or.jp"
+      },
+      "sectionHints": [
+        "timeline"
+      ]
+    },
+    {
+      "id": "e19",
+      "source": {
+        "providerId": "kokkai-db",
+        "type": "kokkai-db"
+      },
+      "url": "https://kokkai.ndl.go.jp/txt/119804260X00820190412/4",
+      "date": "2019-04-12 00:00:00",
+      "title": "厚生労働委員会",
+      "excerpt": "○冨岡委員長　これより採決に入ります。\r\n　内閣提出、医療保険制度の適正かつ効率的な運営を図るための健康保険法等の一部を改正する法律案について採決いたします。\r\n　本案に賛成の諸君の起立を求めます。\r\n　　　　〔賛成者起立〕",
+      "score": 0.6448257494543108,
+      "extras": {
+        "speaker": "冨岡勉",
+        "party": "自由民主党",
+        "meeting": "厚生労働委員会"
+      },
+      "sectionHints": [
+        "past_debates_summary"
+      ]
+    },
+    {
+      "id": "e20",
+      "source": {
+        "providerId": "kokkai-db",
+        "type": "kokkai-db"
+      },
+      "url": "https://kokkai.ndl.go.jp/txt/119314260X02120170601/4",
+      "date": "2017-06-01 00:00:00",
+      "title": "厚生労働委員会",
+      "excerpt": "○委員長（羽生田俊君）　医療法等の一部を改正する法律案を議題といたします。\r\n　本案の趣旨説明は既に聴取しておりますので、これより質疑に入ります。\r\n　質疑のある方は順次御発言願います。",
+      "score": 0.6594563072030842,
+      "extras": {
+        "speaker": "羽生田俊",
+        "party": "自由民主党・こころ",
+        "meeting": "厚生労働委員会"
+      },
+      "sectionHints": [
+        "past_debates_summary"
+      ]
+    },
+    {
+      "id": "e21",
+      "source": {
+        "providerId": "openai-web",
+        "type": "openai-web"
+      },
+      "url": "https://www.shugiin.go.jp/Internet/itdb_gian.nsf/html/gian/honbun/houan/g19606014.htm",
+      "date": "2023-10-01",
+      "title": "医療法等の一部を改正する法律案",
+      "excerpt": "この法律案は、医療法、老人福祉法、介護保険法、構造改革特別区域法、国家戦略特別区域法の一部を改正する内容です。主な改正点として、営利法人の病院開設の可能性拡大や、特別養護老人ホームの設置基準の見直しなどが含まれています。",
+      "score": 1,
+      "extras": {
+        "subquery": "医療法等の一部を改正する法律案　（第217回国会閣法第21号）について 注意点 -site:www.clb.go.jp -site:www.shugiin.go.jp -site:hodanren.doc-net.or.jp"
+      },
+      "sectionHints": [
+        "status_notes"
+      ]
+    },
+    {
+      "id": "e22",
+      "source": {
+        "providerId": "openai-web",
+        "type": "openai-web"
+      },
+      "url": "https://hodanren.doc-net.or.jp/news/teigen/210412_seimei_medlaw.html",
+      "date": "2021年4月12日",
+      "title": "【売明】医療法改正案の衛薬院本会議での採歴に抗議する",
+      "excerpt": "【売明】医療法改正案の衛薬院本会議での採歴に抗議する",
+      "score": 1,
+      "extras": {
+        "subquery": "衆議院・参議院 本会議 医療法等の一部を改正する法律案 -site:www.clb.go.jp -site:www.shugiin.go.jp -site:hodanren.doc-net.or.jp"
+      },
+      "sectionHints": [
+        "status_notes"
+      ]
+    },
+    {
+      "id": "e23",
+      "source": {
+        "providerId": "openai-web",
+        "type": "openai-web"
+      },
+      "url": "https://www.shugiin.go.jp/Internet/itdb_gian.nsf/html/gian/honbun/g15606009.htm",
+      "date": "",
+      "title": "参法 第156回国会 9 健康保険法等の一部を改正する法律案",
+      "score": 1,
+      "extras": {
+        "subquery": "衆議院・参議院 本会議 医療法等の一部を改正する法律案 -site:www.clb.go.jp -site:www.shugiin.go.jp -site:hodanren.doc-net.or.jp"
+      },
+      "sectionHints": [
+        "status_notes"
+      ]
+    },
+    {
+      "id": "e24",
+      "source": {
+        "providerId": "openai-web",
+        "type": "openai-web"
+      },
+      "url": "https://www.shugiin.go.jp/Internet/itdb_gian.nsf/html/gian/keika/1DC1C6A.htm",
+      "date": "",
+      "title": "参法 第192回国会 33 医療法等の一部を改正する法律案",
+      "score": 1,
+      "extras": {
+        "subquery": "衆議院・参議院 本会議 医療法等の一部を改正する法律案 -site:www.clb.go.jp -site:www.shugiin.go.jp -site:hodanren.doc-net.or.jp"
+      },
+      "sectionHints": [
+        "status_notes"
+      ]
+    }
+  ],
+  "metadata": {
+    "usedProviders": [
+      "kokkai-db",
+      "openai-web"
+    ],
+    "iterations": 1,
+    "totalResults": 24,
+    "processingTime": 110258,
+    "timestamp": "2025-09-15T09:08:59.659Z",
+    "version": "deepresearch-v1"
+  }
+}

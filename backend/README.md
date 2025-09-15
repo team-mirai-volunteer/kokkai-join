@@ -58,10 +58,24 @@ deno check api/server.ts
 deno run -A api/server.ts
 # ルート
 curl http://localhost:8000/
-# 検索+要約
+# 旧パイプライン（参考）
 curl -s -X POST http://localhost:8000/search \
   -H 'Content-Type: application/json' \
   -d '{"query":"防衛費と子育て支援","limit":10}'
+
+# 新: Deep Research v1（セクション+引用JSON）
+curl -s -X POST http://localhost:8000/v1/deepresearch \
+  -H 'Content-Type: application/json' \
+  -d '{
+        "query":"電子B/Lの法改正",
+        "asOfDate":"2025-09-08",
+        "limit":20,
+        "providers":["kokkai-db"],
+        "seedUrls":[
+          "https://www.moj.go.jp/...",
+          "https://www.sangiin.go.jp/..."
+        ]
+      }' | jq '.sections.timeline'
 ```
 
 ## 5) データベースダンプ（任意）
