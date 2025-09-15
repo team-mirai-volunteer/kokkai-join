@@ -72,7 +72,9 @@ async function startContainer(): Promise<void> {
 async function waitHealthy(name: string): Promise<void> {
   console.log("Waiting for postgres to become healthy (no timeout)...");
   for (;;) {
-    const r = await run(["docker", "inspect", "-f", "{{.State.Health.Status}}", name], { quiet: true });
+    const r = await run(["docker", "inspect", "-f", "{{.State.Health.Status}}", name], {
+      quiet: true,
+    });
     if (r.code === 0 && r.stdout.trim() === "healthy") {
       console.log("Postgres is healthy");
       return;
@@ -135,4 +137,3 @@ if (import.meta.main) {
     Deno.exit(1);
   });
 }
-
