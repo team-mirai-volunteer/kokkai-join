@@ -14,11 +14,9 @@ import { validator } from "jsr:@hono/hono/validator";
 import type { SpeechResult } from "../types/kokkai.ts";
 import { DEFAULT_TOP_K_RESULTS } from "../config/constants.ts";
 import { QueryPlanningService } from "../services/query-planning.ts";
-import { AnswerGenerationService } from "../services/answer-generation.ts";
 import { RelevanceEvaluationService } from "../services/relevance-evaluation.ts";
 import { ProviderRegistry } from "../services/provider-registry.ts";
-import { MultiSourceSearchService } from "../services/multi-source-search.ts";
-import type { DocumentResult, ProviderQuery } from "../types/knowledge.ts";
+import type { DocumentResult } from "../types/knowledge.ts";
 import { documentToSpeech } from "../providers/adapter.ts";
 import { HttpDocsProvider } from "../providers/http-docs.ts";
 import type {
@@ -31,35 +29,13 @@ import { convertDeepResearchToMarkdown } from "../utils/markdown-converter.ts";
 import { SectionSynthesisService } from "../services/section-synthesis.ts";
 import { DeepResearchOrchestrator } from "../services/deepresearch-orchestrator.ts";
 
-// API Types
-interface SearchRequest {
-	query: string;
-	limit?: number;
-}
-
-interface SearchResponse {
-	query: string;
-	answer: string;
-	sources: SpeechResult[];
-	metadata: {
-		totalResults: number;
-		processingTime: number;
-		timestamp: string;
-	};
-}
-
-// 旧パイプライン（/search）で使用する返却型
-type LegacyPipelineResult = { answer: string; sources: SpeechResult[] };
-
 /**
  * Kokkai Deep Research API Server using Hono
  */
 class KokkaiDeepResearchAPI {
 	private queryPlanningService!: QueryPlanningService;
-	private answerGenerationService!: AnswerGenerationService;
 	private relevanceEvaluationService!: RelevanceEvaluationService;
 	private providerRegistry!: ProviderRegistry;
-	private multiSource!: MultiSourceSearchService;
 	private sectionSynthesis!: SectionSynthesisService;
 	private orchestrator!: DeepResearchOrchestrator;
 	private app: Hono;
@@ -95,77 +71,6 @@ class KokkaiDeepResearchAPI {
 	 * Setup API routes
 	 */
 	private setupRoutes(): void {
-		// Search endpoint
-		this.app.post(
-			"/search",
-			validator("json", (value, c) => {
-				const { query, limit } = value as SearchRequest;
-				if (!query || typeof query !== "string" || query.trim().length === 0) {
-					return c.json(
-						{
-							error:
-								"Query parameter is required and must be a non-empty string",
-						},
-						400,
-					);
-				}
-				if (
-					limit !== undefined &&
-					(typeof limit !== "number" || limit < 1 || limit > 100)
-				) {
-					return c.json(
-						{ error: "Limit must be a number between 1 and 100" },
-						400,
-					);
-				}
-				return value;
-			}),
-			async (c) => {
-				const startTime = Date.now();
-
-				try {
-					const { query, limit = DEFAULT_TOP_K_RESULTS } =
-						await c.req.json<SearchRequest>();
-
-					console.log(`🔍 Processing search query: "${query}"`);
-
-					// Execute Deep Research pipeline
-					const results = await this.executeDeepResearchPipeline(query, limit);
-
-					const processingTime = Date.now() - startTime;
-
-					const response: SearchResponse = {
-						query,
-						answer: results.answer,
-						sources: results.sources,
-						metadata: {
-							totalResults: results.sources.length,
-							processingTime,
-							timestamp: new Date().toISOString(),
-						},
-					};
-
-					console.log(`✅ Search completed in ${processingTime}ms`);
-					return c.json(response);
-				} catch (error) {
-					const processingTime = Date.now() - startTime;
-					console.error("❌ Search error:", error);
-
-					return c.json(
-						{
-							error: "Internal server error",
-							message: (error as Error).message,
-							metadata: {
-								processingTime,
-								timestamp: new Date().toISOString(),
-							},
-						},
-						500,
-					);
-				}
-			},
-		);
-
 		// Deep Research v1 endpoint
 		this.app.post(
 			"/v1/deepresearch",
@@ -232,7 +137,8 @@ class KokkaiDeepResearchAPI {
 					"Deep Research API for Japanese parliamentary records analysis",
 				endpoints: {
 					"/": "This endpoint",
-					"/search": "POST - Deep research on parliamentary records",
+					"/v1/deepresearch":
+						"POST - Deep research pipeline returning sections and citations",
 				},
 				timestamp: new Date().toISOString(),
 			});
@@ -275,50 +181,11 @@ class KokkaiDeepResearchAPI {
 		}
 		console.log("🚀 Initializing Kokkai Deep Research API (provider-based)...");
 		this.queryPlanningService = new QueryPlanningService();
-		this.answerGenerationService = new AnswerGenerationService();
 		this.relevanceEvaluationService = new RelevanceEvaluationService();
 		this.providerRegistry = new ProviderRegistry();
-		this.multiSource = new MultiSourceSearchService();
 		this.sectionSynthesis = new SectionSynthesisService();
 		this.orchestrator = new DeepResearchOrchestrator();
 		console.log("✅ Services initialized");
-	}
-
-	/**
-	 * Execute the Deep Research pipeline
-	 */
-	private async executeDeepResearchPipeline(
-		query: string,
-		limit: number,
-	): Promise<LegacyPipelineResult> {
-		console.log("🧠 Planning query strategy...");
-		const plan = await this.queryPlanningService.createQueryPlan(query);
-
-		console.log("🔍 Executing provider searches...");
-		const providerQuery: ProviderQuery = {
-			originalQuestion: plan.originalQuestion,
-			subqueries: plan.subqueries,
-			limit,
-		};
-		const providers = this.providerRegistry.byIds();
-		const docs = await this.multiSource.searchAcross(providers, providerQuery);
-
-		// Normalize to existing SpeechResult for downstream services
-		const searchResults: SpeechResult[] = docs.map(documentToSpeech);
-
-		console.log("🔍 Evaluating relevance of search results...");
-		const relevantResults =
-			await this.relevanceEvaluationService.evaluateRelevance(
-				query,
-				searchResults,
-			);
-
-		console.log("🤖 Generating AI answer...");
-		const answer = await this.answerGenerationService.generateAnswer(
-			query,
-			relevantResults,
-		);
-		return { answer, sources: relevantResults };
 	}
 
 	/**
@@ -486,10 +353,9 @@ class KokkaiDeepResearchAPI {
 				onListen: ({ port, hostname }) => {
 					console.log(`🌐 Server running at http://${hostname}:${port}`);
 					console.log("📋 Available endpoints:");
-					console.log(`   GET  /          - API information`);
-					console.log(`   POST /search    - Deep research (legacy pipeline)`);
+					console.log(`   GET  /                - API information`);
 					console.log(
-						`   POST /v1/deepresearch - Deep research v1 (sections+citations)`,
+						`   POST /v1/deepresearch - Deep research pipeline (sections+citations)`,
 					);
 				},
 			},
