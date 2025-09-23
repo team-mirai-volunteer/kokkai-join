@@ -1,96 +1,174 @@
-# backend の動かし方
+# Kokkai Deep Research API
 
-本ディレクトリは Kokkai（国会会議録）向けの RAG 検索と Deep Research API を提供します。
+国会議事録深層調査システムのHono API実装
 
-- Kokkai RAG API: ベクトル検索のみ（要約なし）
-- Deep Research API: クエリ計画・情報統合・回答生成（Kokkai RAG などの情報源を利用）
+## 概要
 
-## 前提
+国会議事録を深層調査・分析するRESTful APIです。
 
-- Docker / Docker Compose
-- Deno 1.45+（`deno -V`）
-- Ollama（`bge-m3` を使用）
+## 機能
 
-## 初期設定
+- **国会議事録深層調査**: ベクトル検索による類似発言の抽出と分析
+- **AI深層分析**: OpenAI API を用いた多角的分析と回答生成
+- **ヘルスチェック**: サービス状態の確認
+- **CORS対応**: ブラウザからの直接アクセス可能
+
+## API エンドポイント
+
+### GET /
+
+API情報とエンドポイント一覧を返します。
+
+### POST /v1/deepresearch
+
+国会議事録や追加ドキュメントを横断的に調査し、セクション別の要約と引用リストを返します。
+
+**リクエスト:**
+
+```json
+{
+  "query": "電子帳簿保存法 2024年改正の国会議論",
+  "limit": 15,
+  "asOfDate": "2025-09-01",
+  "providers": ["kokkai-db"],
+  "seedUrls": [
+    "https://www.soumu.go.jp/main_content/000900000.pdf"
+  ]
+}
+```
+
+**レスポンス（抜粋）:**
+
+```json
+{
+  "query": "電子帳簿保存法 2024年改正の国会議論",
+  "sections": {
+    "purpose_overview": {
+      "summary": "2024年改正では電子取引データ保存の猶予終了が主要論点となった...",
+      "citations": ["e1", "e3"]
+    },
+    "timeline": { "summary": "2023年末の附則改正案提出から2024年6月の施行まで..." }
+  },
+  "evidences": [
+    {
+      "id": "e1",
+      "title": "第213回国会 財務金融委員会",
+      "url": "https://kokkai.ndl.go.jp/...",
+      "source": { "providerId": "kokkai-db" }
+    }
+  ],
+  "metadata": {
+    "usedProviders": ["kokkai-db"],
+    "totalResults": 28,
+    "timestamp": "2025-09-16T12:34:56.000Z",
+    "version": "deepresearch-v1"
+  }
+}
+```
+
+## 環境変数
+
+以下の環境変数が必要です：
+
+```bash
+DATABASE_URL=postgresql://user:pass@localhost:5432/kokkai_db
+OPENAI_API_KEY=your_openai_api_key
+LLM_MODEL=gpt-4o-mini  # オプション（デフォルト値）
+OLLAMA_BASE_URL=http://localhost:11434  # オプション
+PORT=8000  # オプション
+```
+
+## 使用方法
+
+**注意**: 以下のコマンドは `backend/` ディレクトリから実行してください。
 
 ```bash
 cd backend
-cp .env.example .env
-# .env を編集して以下を設定
-# DATABASE_URL=postgresql://kokkai_user:kokkai_pass@localhost:5432/kokkai_db
-# OLLAMA_BASE_URL=http://localhost:11434
-# OPENAI_API_KEY=...
-# LLM_MODEL=gpt-4o-mini
 ```
 
-## 1) データベース起動（pgvector）
+### 1. 開発サーバーの起動
 
 ```bash
-docker compose up -d postgres
-# healthy になるまで待機
-```
-
-## 2) 埋め込み投入（初回・検証用）
-
-十分に `kokkai_speech_embeddings` がある場合はスキップ可。
-
-```bash
-# 少量テスト（100件）
-deno run -A scripts/persistent-embed-speeches.ts --limit 100
-# 期間指定で実行
-deno run -A scripts/persistent-embed-speeches.ts --batch-size 20 --start-date 2023-01-01
-```
-
-## 3) Kokkai RAG API（検索専用）
-
-```bash
-# チェック
-deno check api/kokkai_rag.ts
-# 起動（デフォルト: :8001）
-deno run -A api/kokkai_rag.ts
-# ヘルスチェック
-curl http://localhost:8001/v1/health
-# 検索例（結果のみ）
-curl -s -X POST http://localhost:8001/v1/search \
-  -H 'Content-Type: application/json' \
-  -d '{"query":"防衛費","limit":5}' | jq '.results[0]'
-```
-
-## 4) Deep Research API（要約・統合）
-
-```bash
-export KOKKAI_RAG_URL=http://localhost:8001/v1/search
-export OPENAI_API_KEY=...  # 必須
-# チェック
+# 依存関係の確認
 deno check api/server.ts
-# 起動（デフォルト: :8000）
+
+# サーバー起動
 deno run -A api/server.ts
-# ルート
-curl http://localhost:8000/
-# Deep Research v1（セクション+引用JSON）
-curl -s -X POST http://localhost:8000/v1/deepresearch \
-  -H 'Content-Type: application/json' \
-  -d '{
-        "query":"電子B/Lの法改正",
-        "asOfDate":"2025-09-08",
-        "limit":20,
-        "providers":["kokkai-db"],
-        "seedUrls":[
-          "https://www.moj.go.jp/...",
-          "https://www.sangiin.go.jp/..."
-        ]
-      }' | jq '.sections.timeline'
+
+# 別のポートで起動
+PORT=443 deno run -A api/server.ts
 ```
 
-## 5) データベースダンプ（任意）
+### 1-b. Kokkai RAG API（検索専用）の起動（新規）
 
 ```bash
-# ./data にフルダンプを作成
-deno run -A scripts/dump-db.ts
+# 依存関係の確認
+deno check api/kokkai_rag.ts
+
+# Kokkai RAG API 起動（デフォルト :8001）
+deno run -A api/kokkai_rag.ts
+
+# 動作確認
+curl http://localhost:8001/v1/health
+
+# 検索例（結果のみ・要約なし）
+curl -s -X POST http://localhost:8001/v1/search \
+  -H "Content-Type: application/json" \
+  -d '{"query": "防衛費", "limit": 5}'
 ```
 
-## トラブルシュート
+### 2. API テスト
 
-- Ollama 未起動/モデル未取得 → `ollama pull bge-m3`、`OLLAMA_BASE_URL` を確認。
-- 8001/8000 が使用中 → `KOKKAI_RAG_PORT` / `PORT` で変更。
-- Deep Research は DB に直接接続しません（`KOKKAI_RAG_URL` 経由が必須）。
+```bash
+# 深層調査リクエスト
+curl -X POST http://localhost:8000/v1/deepresearch \
+  -H "Content-Type: application/json" \
+  -d '{
+        "query": "防衛費と子育て支援と消費税についての政策議論",
+        "limit": 10
+      }'
+```
+
+## アーキテクチャ
+
+```
+[Client Request] 
+    ↓
+[Hono Middleware] (CORS, Logger, Validator)
+    ↓  
+[RAG Pipeline]
+    ├── QueryPlanningService (クエリ計画)
+    ├── VectorSearchService (ベクトル検索)
+    ├── RelevanceEvaluationService (関連度評価)
+    └── AnswerGenerationService (回答生成)
+    ↓
+[JSON Response]
+```
+
+### マイクロサービス分離（段階的）
+
+- Kokkai RAG API: ベクトル検索と結果返却のみ（`api/kokkai_rag.ts`）。
+- Deep Research API: クエリ計画・複数プロバイダ統合・要約生成（`api/server.ts`）。
+  - 将来的に Deep Research から Kokkai RAG API を HTTP 経由で呼び出す構成へ移行予定。
+
+## 依存関係
+
+- **Hono**: 軽量Web フレームワーク
+- **pgvector**: ベクトル検索
+- **Ollama**: 埋め込みモデル（BGE-M3）
+- **OpenAI**: LLM推論
+- **PostgreSQL**: データベース
+
+## エラーハンドリング
+
+- **400**: リクエスト形式エラー
+- **404**: エンドポイント未存在
+- **500**: サーバー内部エラー
+- **503**: サービス利用不可（ヘルスチェック失敗時）
+
+## パフォーマンス
+
+- **並行処理**: 複数リクエストの同時処理対応
+- **エラー復旧**: 一時的な障害からの自動回復
+- **タイムアウト**: 適切なタイムアウト設定
+- **ログ**: 詳細なリクエストログ

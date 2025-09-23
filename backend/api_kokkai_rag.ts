@@ -12,11 +12,11 @@ import { validator } from "jsr:@hono/hono/validator";
 import { Pool } from "npm:pg";
 import pgvector from "npm:pgvector/pg";
 
-import { DEFAULT_TOP_K_RESULTS, MAX_DB_CONNECTIONS } from "../config/constants.ts";
-import type { DocumentResult } from "../types/knowledge.ts";
-import { VectorSearchService } from "../services/vector-search.ts";
-import { mapSpeechToDocument } from "../providers/kokkai-db.ts";
-import { ensureEnv } from "../utils/env.ts";
+import { DEFAULT_TOP_K_RESULTS, MAX_DB_CONNECTIONS } from "./config/constants.ts";
+import type { DocumentResult } from "./types/knowledge.ts";
+import { VectorSearchService } from "./services/vector-search.ts";
+import { mapSpeechToDocument } from "./providers/kokkai-db.ts";
+import { ensureEnv } from "./utils/env.ts";
 
 interface RagSearchRequest {
   query: string;

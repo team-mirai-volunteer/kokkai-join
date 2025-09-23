@@ -11,23 +11,23 @@ import { prettyJSON } from "jsr:@hono/hono/pretty-json";
 import { validator } from "jsr:@hono/hono/validator";
 
 // Local imports
-import type { SpeechResult } from "../types/kokkai.ts";
-import { DEFAULT_TOP_K_RESULTS } from "../config/constants.ts";
-import { QueryPlanningService } from "../services/query-planning.ts";
-import { RelevanceEvaluationService } from "../services/relevance-evaluation.ts";
-import { ProviderRegistry } from "../services/provider-registry.ts";
-import type { DocumentResult } from "../types/knowledge.ts";
-import { documentToSpeech } from "../providers/adapter.ts";
-import { HttpDocsProvider } from "../providers/http-docs.ts";
+import type { SpeechResult } from "./types/kokkai.ts";
+import { DEFAULT_TOP_K_RESULTS } from "./config/constants.ts";
+import { QueryPlanningService } from "./services/query-planning.ts";
+import { RelevanceEvaluationService } from "./services/relevance-evaluation.ts";
+import { ProviderRegistry } from "./services/provider-registry.ts";
+import type { DocumentResult } from "./types/knowledge.ts";
+import { documentToSpeech } from "./providers/adapter.ts";
+import { HttpDocsProvider } from "./providers/http-docs.ts";
 import type {
   DeepResearchRequest,
   DeepResearchResponse,
   EvidenceRecord,
-} from "../types/deepresearch.ts";
-import { toEvidenceRecord } from "../types/deepresearch.ts";
-import { convertDeepResearchToMarkdown } from "../utils/markdown-converter.ts";
-import { SectionSynthesisService } from "../services/section-synthesis.ts";
-import { DeepResearchOrchestrator } from "../services/deepresearch-orchestrator.ts";
+} from "./types/deepresearch.ts";
+import { toEvidenceRecord } from "./types/deepresearch.ts";
+import { convertDeepResearchToMarkdown } from "./utils/markdown-converter.ts";
+import { SectionSynthesisService } from "./services/section-synthesis.ts";
+import { DeepResearchOrchestrator } from "./services/deepresearch-orchestrator.ts";
 
 /**
  * Kokkai Deep Research API Server using Hono
