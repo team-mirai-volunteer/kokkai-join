@@ -11,14 +11,12 @@ import { prettyJSON } from "@hono/hono/pretty-json";
 import { vValidator } from "@hono/valibot-validator";
 
 // Local imports
-import type { SpeechResult } from "../types/kokkai.ts";
-import { DEFAULT_DATE_VALUE, DEFAULT_TOP_K_RESULTS, UNKNOWN_VALUE } from "../config/constants.ts";
+import { DEFAULT_TOP_K_RESULTS } from "../config/constants.ts";
 import {
   SECTION_ALLOWED_PROVIDERS,
   SECTION_TARGET_COUNTS,
 } from "../config/deepresearch-constants.ts";
 import { QueryPlanningService } from "../services/query-planning.ts";
-import { RelevanceEvaluationService } from "../services/relevance-evaluation.ts";
 import { ProviderRegistry } from "../providers/registry.ts";
 import type { DocumentResult } from "../types/knowledge.ts";
 import {
@@ -30,33 +28,14 @@ import { toEvidenceRecord } from "../types/deepresearch.ts";
 import { convertDeepResearchToMarkdown } from "../utils/markdown-converter.ts";
 import { SectionSynthesisService } from "../services/section-synthesis.ts";
 import { DeepResearchOrchestrator } from "../services/deepresearch-orchestrator.ts";
-
-/**
- * Convert DocumentResult to SpeechResult for compatibility
- */
-function documentToSpeech(doc: DocumentResult): SpeechResult {
-  const extras = doc.extras as Record<string, unknown> | undefined;
-  const speaker = (extras?.["speaker"] as string) || UNKNOWN_VALUE;
-  const party = (extras?.["party"] as string) || UNKNOWN_VALUE;
-  const meeting = (extras?.["meeting"] as string) || doc.title || UNKNOWN_VALUE;
-  return {
-    speechId: doc.id,
-    speaker,
-    party,
-    date: doc.date || DEFAULT_DATE_VALUE,
-    meeting,
-    content: doc.content || "",
-    url: doc.url || "",
-    score: typeof doc.score === "number" ? doc.score : 0,
-  };
-}
+import { DuplicationAnalyzer } from "../utils/duplication-analyzer.ts";
+import { AICacheManager } from "../utils/ai-cache-manager.ts";
 
 /**
  * Kokkai Deep Research API Server using Hono
  */
 class KokkaiDeepResearchAPI {
   private queryPlanningService!: QueryPlanningService;
-  private relevanceEvaluationService!: RelevanceEvaluationService;
   private providerRegistry!: ProviderRegistry;
   private sectionSynthesis!: SectionSynthesisService;
   private orchestrator!: DeepResearchOrchestrator;
@@ -171,11 +150,20 @@ class KokkaiDeepResearchAPI {
       throw new Error("OPENAI_API_KEY environment variable is required");
     }
     console.log("🚀 Initializing Kokkai Deep Research API (provider-based)...");
-    this.queryPlanningService = new QueryPlanningService();
-    this.relevanceEvaluationService = new RelevanceEvaluationService();
+
+    // Initialize cache manager first
+    const aiCache = new AICacheManager();
+
+    // Pass cache manager to services that need it
+    this.queryPlanningService = new QueryPlanningService(aiCache);
     this.providerRegistry = new ProviderRegistry();
-    this.sectionSynthesis = new SectionSynthesisService();
+    this.sectionSynthesis = new SectionSynthesisService(aiCache);
     this.orchestrator = new DeepResearchOrchestrator();
+
+    // Mock mode check
+    if (aiCache.isMockMode()) {
+      console.log("🎭 Mock mode enabled - will use cached AI responses");
+    }
     console.log("✅ Services initialized");
   }
 
@@ -196,15 +184,11 @@ class KokkaiDeepResearchAPI {
    *    - 複数のプロバイダーからの結果を統合
    *    - URLまたはID基準で重複を除去
    *
-   * 4. 関連度評価（AI処理）
-   *    - LLMを使用して各結果の関連度を評価
-   *    - クエリに最も関連する結果のみを保持
-   *
-   * 5. 証拠レコード生成
+   * 4. 証拠レコード生成
    *    - 各ドキュメントに一意のID（e1, e2, ...）を付与
    *    - どのセクションで使用されたかのヒント情報を追加
    *
-   * 6. セクション統合（AI処理）
+   * 5. セクション統合（AI処理）
    *    - 収集された証拠を基に、構造化されたセクションを生成
    *    - 最終的なレスポンス形式に整形
    *
@@ -231,6 +215,13 @@ class KokkaiDeepResearchAPI {
     let plan;
     try {
       plan = await this.queryPlanningService.createQueryPlan(body.query);
+      console.log(`📋 Query plan created:`);
+      console.log(`   Original Question: ${JSON.stringify(plan)}`);
+      console.log(`   Subqueries: ${plan.subqueries.length}`);
+      console.log(`   Speakers: ${plan.entities.speakers?.length || 0}`);
+      console.log(`   Topics: ${plan.entities.topics?.length || 0}`);
+      console.log(`   Strategies: ${plan.enabledStrategies.join(", ")}`);
+      console.log(`   Confidence: ${plan.confidence.toFixed(2)}`);
     } catch (e) {
       console.error("[DRV1][plan] error:", (e as Error).message);
       throw new Error(`[DRV1][plan] ${(e as Error).message}`);
@@ -249,37 +240,39 @@ class KokkaiDeepResearchAPI {
       limit,
     });
 
-    // Ensure uniqueness
-    console.log(`[DRV1] ▶ Merging & dedup totalDocs=${allDocs.length}`);
-    const finalDocs: DocumentResult[] = [];
-    const seen = new Set<string>();
-    for (const d of allDocs) {
-      const key = d.url || `${d.source.providerId}:${d.id}`;
-      if (seen.has(key)) continue;
-      seen.add(key);
-      finalDocs.push(d);
-    }
-    console.log(`[DRV1] ◀ After dedup finalDocs=${finalDocs.length}`);
+    // 重複分析（統計収集のみ）
+    console.log(`[DRV1] ▶ Analyzing duplicates totalDocs=${allDocs.length}`);
+    const analyzer = new DuplicationAnalyzer();
 
-    // 4) 関連度評価（LLM）用に SpeechResult に正規化して再ランク
-    console.log("[DRV1] ▶ Relevance evaluation...");
-    const speeches = finalDocs.map(documentToSpeech);
-    let relevant: SpeechResult[];
-    try {
-      relevant = await this.relevanceEvaluationService.evaluateRelevance(
-        body.query,
-        speeches,
-      );
-    } catch (e) {
-      console.error("[DRV1][relevance] error:", (e as Error).message);
-      throw new Error(`[DRV1][relevance] ${(e as Error).message}`);
+    // セクション情報付きドキュメントのリストを構築
+    const documentsWithSections: Array<{
+      section: string;
+      doc: DocumentResult;
+      key: string;
+    }> = [];
+
+    // 統計収集とセクション情報の整理
+    for (const doc of allDocs) {
+      analyzer.collectStatistics(doc, sectionHitMap);
+      const key = doc.url || `${doc.source.providerId}:${doc.id}`;
+      const sections = sectionHitMap.get(key) || new Set();
+      // 各セクションごとにドキュメントをリストに追加
+      for (const section of sections) {
+        documentsWithSections.push({ section, doc, key });
+      }
     }
-    const topRelevant = relevant.slice(0, limit);
+
+    // セクション内重複を除去
+    const finalDocs = analyzer.deduplicateWithinSections(documentsWithSections);
+
+    // 統計情報を生成して出力
+    const stats = analyzer.generateStatistics(allDocs.length);
+    analyzer.printStatistics(stats);
     console.log(
-      `[DRV1] ◀ Relevance kept=${relevant.length} top=${topRelevant.length}`,
+      `[DRV1] ◀ After section-aware dedup finalDocs=${finalDocs.length}`,
     );
 
-    // 5) e1.. の連番で EvidenceRecord を構築（セクションヒントを付与）
+    // 4) e1.. の連番で EvidenceRecord を構築（セクションヒントを付与）
     console.log("[DRV1] ▶ Building evidences...");
     const evidenceMap = new Map<string, EvidenceRecord>();
     const evidences: EvidenceRecord[] = [];
@@ -297,7 +290,7 @@ class KokkaiDeepResearchAPI {
     }
     console.log(`[DRV1] ◀ Evidences built count=${evidences.length}`);
 
-    // 6) セクション統合
+    // 5) セクション統合
     console.log("[DRV1] ▶ Section synthesize...");
     const sections = await this.sectionSynthesis.synthesize(
       body.query,

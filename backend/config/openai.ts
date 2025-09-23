@@ -8,7 +8,7 @@ export type LLMTask =
   | "section_synthesis"
   | "generic";
 
-const DEFAULT_MODEL = Deno.env.get("LLM_MODEL") ?? Deno.env.get("OPENAI_MODEL") ?? "gpt-4o-mini";
+const DEFAULT_MODEL = "gpt-4o-mini";
 const TASK_MODEL_ENV: Record<Exclude<LLMTask, "generic">, string[]> = {
   query_planning: ["LLM_MODEL_QUERY_PLANNING", "OPENAI_MODEL_QUERY_PLANNING"],
   relevance_evaluation: ["LLM_MODEL_RELEVANCE", "OPENAI_MODEL_RELEVANCE"],

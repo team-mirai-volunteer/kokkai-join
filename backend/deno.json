@@ -2,6 +2,9 @@
   "imports": {
     "@hono/valibot-validator": "jsr:@hono/valibot-validator@^0.5.3",
     "@std/dotenv": "jsr:@std/dotenv@^0.225.5",
+    "@std/fs": "jsr:@std/fs@^1.0.8",
+    "@std/path": "jsr:@std/path@^1.0.10",
+    "@std/crypto": "jsr:@std/crypto@^1.0.4",
     "@valibot/valibot": "jsr:@valibot/valibot@^1.1.0",
     "@hono/hono": "jsr:@hono/hono@^4.6.0",
     "openai": "npm:openai@^4.79.0",
