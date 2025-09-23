@@ -32,8 +32,13 @@ export class OpenAIWebProvider implements SearchProvider {
 
   /** サブクエリごとにOpenAIへ検索を投げ、結果をマージして返す */
   async search(q: ProviderQuery): Promise<DocumentResult[]> {
-    const subqs = q.subqueries?.length ? q.subqueries : [q.originalQuestion];
-    const tasks = subqs.map((s, i) => this.searchOne(s, this.maxPerSubquery, i));
+    const subqsAll = q.subqueries?.length ? q.subqueries : [q.originalQuestion];
+    const subqs = subqsAll.slice(0, 3);
+    const limitPer = Math.max(
+      1,
+      Math.min(this.maxPerSubquery, Math.floor((q.limit || 10) / subqs.length) || 1),
+    );
+    const tasks = subqs.map((s, i) => this.searchOne(s, limitPer, i));
     const arrays = await Promise.all(tasks);
     const merged = arrays.flat();
     // URL重複している検索結果を削除
@@ -62,7 +67,6 @@ export class OpenAIWebProvider implements SearchProvider {
         {
           model: this.model,
           tools: [{ type: "web_search_preview" }],
-          tool_choice: { type: "web_search_preview" },
           // 指示は簡潔に。モデルに結果JSONのみに集中させる（スキーマは口頭指定）
           input:
             `Search the web for: ${subq}. Return ONLY valid JSON (no prose) with shape {"results":[{"id":string,"title":string,"url":string,"date"?:string,"snippet"?:string,"score"?:number}]}. Limit to ${limit} items.`,

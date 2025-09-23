@@ -13,7 +13,7 @@ export class ProviderRegistry {
     this.providers.push(
       new OpenAIWebProvider({
         apiKey: ensureEnv("OPENAI_API_KEY"),
-        model: ensureEnv("OPENAI_MODEL"),
+        model: "gpt-4o-mini",
       }),
     );
   }

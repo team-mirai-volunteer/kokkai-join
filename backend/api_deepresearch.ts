@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno run -A
+#!/usr/bin/env -S deno run -A --watch
 
 // Standard library imports
 import { load } from "@std/dotenv";
@@ -19,7 +19,7 @@ import {
 } from "./config/deepresearch-constants.ts";
 import { QueryPlanningService } from "./services/query-planning.ts";
 import { RelevanceEvaluationService } from "./services/relevance-evaluation.ts";
-import { ProviderRegistry } from "./services/provider-registry.ts";
+import { ProviderRegistry } from "./providers/registry.ts";
 import type { DocumentResult } from "./types/knowledge.ts";
 import {
   DeepResearchRequestSchema,

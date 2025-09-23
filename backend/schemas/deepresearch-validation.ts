@@ -5,7 +5,7 @@ export const DeepResearchRequestSchema = v.object({
   query: v.pipe(
     v.string(),
     v.minLength(1, "query is required"),
-    v.transform((val) => val.trim()),
+    v.transform((val: string) => val.trim()),
     v.minLength(1, "query cannot be empty after trimming"),
   ),
   limit: v.optional(
