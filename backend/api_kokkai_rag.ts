@@ -112,14 +112,7 @@ class KokkaiRagApi {
       connectionString: databaseUrl,
       max: MAX_DB_CONNECTIONS,
     });
-    const client = await this.dbPool.connect();
-    try {
-      await pgvector.registerTypes(client);
-    } finally {
-      client.release();
-    }
     this.vectorSearch = new VectorSearchService(this.dbPool);
-    console.log("Initializing database connection pool...");
   }
 
   serve(port = parseInt(Deno.env.get("KOKKAI_RAG_PORT") || "8001")) {
