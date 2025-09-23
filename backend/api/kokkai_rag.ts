@@ -11,11 +11,11 @@ import { validator } from "@hono/hono/validator";
 
 import { Pool } from "pg";
 
-import { DEFAULT_TOP_K_RESULTS, MAX_DB_CONNECTIONS } from "./config/constants.ts";
-import type { DocumentResult } from "./types/knowledge.ts";
-import type { SpeechResult } from "./types/kokkai.ts";
-import { VectorSearchService } from "./services/vector-search.ts";
-import { ensureEnv } from "./utils/env.ts";
+import { DEFAULT_TOP_K_RESULTS, MAX_DB_CONNECTIONS } from "../config/constants.ts";
+import type { DocumentResult } from "../types/knowledge.ts";
+import type { SpeechResult } from "../types/kokkai.ts";
+import { VectorSearchService } from "../services/vector-search.ts";
+import { ensureEnv } from "../utils/env.ts";
 
 interface RagSearchRequest {
   query: string;

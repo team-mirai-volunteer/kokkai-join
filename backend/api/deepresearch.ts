@@ -11,25 +11,25 @@ import { prettyJSON } from "@hono/hono/pretty-json";
 import { vValidator } from "@hono/valibot-validator";
 
 // Local imports
-import type { SpeechResult } from "./types/kokkai.ts";
-import { DEFAULT_DATE_VALUE, DEFAULT_TOP_K_RESULTS, UNKNOWN_VALUE } from "./config/constants.ts";
+import type { SpeechResult } from "../types/kokkai.ts";
+import { DEFAULT_DATE_VALUE, DEFAULT_TOP_K_RESULTS, UNKNOWN_VALUE } from "../config/constants.ts";
 import {
   SECTION_ALLOWED_PROVIDERS,
   SECTION_TARGET_COUNTS,
-} from "./config/deepresearch-constants.ts";
-import { QueryPlanningService } from "./services/query-planning.ts";
-import { RelevanceEvaluationService } from "./services/relevance-evaluation.ts";
-import { ProviderRegistry } from "./providers/registry.ts";
-import type { DocumentResult } from "./types/knowledge.ts";
+} from "../config/deepresearch-constants.ts";
+import { QueryPlanningService } from "../services/query-planning.ts";
+import { RelevanceEvaluationService } from "../services/relevance-evaluation.ts";
+import { ProviderRegistry } from "../providers/registry.ts";
+import type { DocumentResult } from "../types/knowledge.ts";
 import {
   DeepResearchRequestSchema,
   type DeepResearchRequestValidated,
-} from "./schemas/deepresearch-validation.ts";
-import type { DeepResearchResponse, EvidenceRecord } from "./types/deepresearch.ts";
-import { toEvidenceRecord } from "./types/deepresearch.ts";
-import { convertDeepResearchToMarkdown } from "./utils/markdown-converter.ts";
-import { SectionSynthesisService } from "./services/section-synthesis.ts";
-import { DeepResearchOrchestrator } from "./services/deepresearch-orchestrator.ts";
+} from "../schemas/deepresearch-validation.ts";
+import type { DeepResearchResponse, EvidenceRecord } from "../types/deepresearch.ts";
+import { toEvidenceRecord } from "../types/deepresearch.ts";
+import { convertDeepResearchToMarkdown } from "../utils/markdown-converter.ts";
+import { SectionSynthesisService } from "../services/section-synthesis.ts";
+import { DeepResearchOrchestrator } from "../services/deepresearch-orchestrator.ts";
 
 /**
  * Convert DocumentResult to SpeechResult for compatibility
