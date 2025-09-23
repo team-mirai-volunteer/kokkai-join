@@ -5,9 +5,9 @@
  * allowing switching between different embedding providers (Ollama, OpenAI, etc.)
  */
 
-import { OllamaEmbedding } from "npm:@llamaindex/ollama";
-import { Settings } from "npm:llamaindex";
-import { OpenAI } from "npm:openai";
+import { OllamaEmbedding } from "@llamaindex/ollama";
+import { Settings } from "llamaindex";
+import { OpenAI } from "openai";
 import { ensureEnv } from "../utils/env.ts";
 
 /**
@@ -116,7 +116,9 @@ export class NovitaEmbeddingProvider implements EmbeddingProvider {
 /**
  * Configuration for embedding provider factory
  */
-export type EmbeddingProviderConfig = OllamaEmbeddingConfig | NovitaEmbeddingConfig;
+export type EmbeddingProviderConfig =
+  | OllamaEmbeddingConfig
+  | NovitaEmbeddingConfig;
 
 /**
  * Factory for creating embedding providers
@@ -127,9 +129,7 @@ export class EmbeddingProviderFactory {
    * @param config The provider configuration
    * @returns The embedding provider instance
    */
-  static create(
-    config: EmbeddingProviderConfig,
-  ): EmbeddingProvider {
+  static create(config: EmbeddingProviderConfig): EmbeddingProvider {
     switch (config.type) {
       case "ollama":
         return new OllamaEmbeddingProvider(config);
@@ -146,7 +146,9 @@ export class EmbeddingProviderFactory {
    */
   static createFromEnv(): EmbeddingProvider {
     const providerType = Deno.env.get("EMBEDDING_PROVIDER");
-    console.log(`Using embedding provider: ${providerType || "ollama (default)"}`);
+    console.log(
+      `Using embedding provider: ${providerType || "ollama (default)"}`,
+    );
 
     if (providerType === "novita") {
       // Novita provider (OpenAI-compatible)

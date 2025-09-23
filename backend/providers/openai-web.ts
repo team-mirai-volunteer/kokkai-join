@@ -1,6 +1,6 @@
 import type { DocumentResult, ProviderQuery } from "../types/knowledge.ts";
 import type { SearchProvider } from "./base.ts";
-import OpenAI from "npm:openai";
+import OpenAI from "openai";
 
 interface OpenAIWebConfig {
   id?: string; // default: "openai-web"
@@ -29,7 +29,9 @@ export class OpenAIWebProvider implements SearchProvider {
   constructor(cfg?: OpenAIWebConfig) {
     this.id = cfg?.id ?? "openai-web";
     const key = cfg?.apiKey ?? Deno.env.get("OPENAI_API_KEY");
-    if (!key) throw new Error("OPENAI_API_KEY is required for OpenAIWebProvider");
+    if (!key) {
+      throw new Error("OPENAI_API_KEY is required for OpenAIWebProvider");
+    }
     this.apiKey = key;
     this.model = cfg?.model ?? "gpt-4o-mini";
     this.timeoutMs = cfg?.timeoutMs ?? 20000;
@@ -45,7 +47,10 @@ export class OpenAIWebProvider implements SearchProvider {
     const subqs = subqsAll.slice(0, Math.max(1, this.maxQueriesPerCall));
     const limitPer = Math.max(
       1,
-      Math.min(this.maxPerSubquery, Math.floor((q.limit || 10) / subqs.length) || 1),
+      Math.min(
+        this.maxPerSubquery,
+        Math.floor((q.limit || 10) / subqs.length) || 1,
+      ),
     );
     const tasks = subqs.map((s, i) => this.searchOne(s, limitPer, i));
     const arrays = await Promise.all(tasks);
@@ -63,19 +68,26 @@ export class OpenAIWebProvider implements SearchProvider {
   }
 
   /** 1サブクエリ分の検索を実行し、結果を DocumentResult に変換 */
-  private async searchOne(subq: string, limit: number, idx: number): Promise<DocumentResult[]> {
+  private async searchOne(
+    subq: string,
+    limit: number,
+    idx: number,
+  ): Promise<DocumentResult[]> {
     // SDKでResponses APIを呼び、web_search_previewツールを有効化。JSONスキーマで構造化結果を要求
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), this.timeoutMs);
     try {
-      const resp = await this.client.responses.create({
-        model: this.model,
-        tools: [{ type: "web_search_preview" }],
-        tool_choice: { type: "web_search_preview" },
-        // 指示は簡潔に。モデルに結果JSONのみに集中させる（スキーマは口頭指定）
-        input:
-          `Search the web for: ${subq}. Return ONLY valid JSON (no prose) with shape {"results":[{"id":string,"title":string,"url":string,"date"?:string,"snippet"?:string,"score"?:number}]}. Limit to ${limit} items.`,
-      }, { signal: controller.signal });
+      const resp = await this.client.responses.create(
+        {
+          model: this.model,
+          tools: [{ type: "web_search_preview" }],
+          tool_choice: { type: "web_search_preview" },
+          // 指示は簡潔に。モデルに結果JSONのみに集中させる（スキーマは口頭指定）
+          input:
+            `Search the web for: ${subq}. Return ONLY valid JSON (no prose) with shape {"results":[{"id":string,"title":string,"url":string,"date"?:string,"snippet"?:string,"score"?:number}]}. Limit to ${limit} items.`,
+        },
+        { signal: controller.signal },
+      );
       const raw = resp.output_text?.trim();
       if (!raw) return [];
       let parsed: { results?: Array<Record<string, unknown>> } = {};
@@ -89,9 +101,15 @@ export class OpenAIWebProvider implements SearchProvider {
         const id = String(it.id ?? `${this.id}:${idx}:${j}`);
         const title = typeof it.title === "string" ? it.title : undefined;
         const url = typeof it.url === "string" ? it.url : undefined;
-        const date = typeof (it as any).date === "string" ? (it as any).date : undefined;
-        const snippet = typeof (it as any).snippet === "string" ? (it as any).snippet : undefined;
-        const score = typeof (it as any).score === "number" ? (it as any).score : undefined;
+        const date = typeof (it as Record<string, unknown>).date === "string"
+          ? ((it as Record<string, unknown>).date as string)
+          : undefined;
+        const snippet = typeof (it as Record<string, unknown>).snippet === "string"
+          ? ((it as Record<string, unknown>).snippet as string)
+          : undefined;
+        const score = typeof (it as Record<string, unknown>).score === "number"
+          ? ((it as Record<string, unknown>).score as number)
+          : undefined;
         return {
           id,
           title,

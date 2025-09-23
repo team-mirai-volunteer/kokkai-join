@@ -1,7 +1,7 @@
 // Vector search service for Kokkai RAG system
 
-import { Pool } from "npm:pg";
-import pgvector from "npm:pgvector/pg";
+import { Pool } from "pg";
+import pgvector from "pgvector/pg";
 import type {
   KokkaiEntities,
   QueryParameter,

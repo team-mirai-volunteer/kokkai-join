@@ -2,14 +2,14 @@
 
 // Kokkai RAG Service (検索専用: DBベクトル検索の結果のみ返す)
 
-import { load } from "jsr:@std/dotenv";
-import { Hono } from "jsr:@hono/hono";
-import { cors } from "jsr:@hono/hono/cors";
-import { logger } from "jsr:@hono/hono/logger";
-import { prettyJSON } from "jsr:@hono/hono/pretty-json";
-import { validator } from "jsr:@hono/hono/validator";
+import { load } from "@std/dotenv";
+import { Hono } from "@hono/hono";
+import { cors } from "@hono/hono/cors";
+import { logger } from "@hono/hono/logger";
+import { prettyJSON } from "@hono/hono/pretty-json";
+import { validator } from "@hono/hono/validator";
 
-import { Pool } from "npm:pg";
+import { Pool } from "pg";
 
 import { DEFAULT_TOP_K_RESULTS, MAX_DB_CONNECTIONS } from "./config/constants.ts";
 import type { DocumentResult } from "./types/knowledge.ts";
