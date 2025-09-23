@@ -1,4 +1,4 @@
-import { openaiClient } from "../config/openai.ts";
+import { getOpenAIClient } from "../config/openai.ts";
 import type { DeepResearchSections, EvidenceRecord } from "../types/deepresearch.ts";
 import { createSectionSynthesisPrompt, getSectionSynthesisSystemPrompt } from "../utils/prompt.ts";
 
@@ -14,25 +14,9 @@ export class SectionSynthesisService {
     asOfDate: string | undefined,
     evidences: EvidenceRecord[],
   ): Promise<DeepResearchSections> {
-    const debugPayload = {
-      userQuery,
-      asOfDate,
-      evidences,
-      generatedAt: new Date().toISOString(),
-    };
-    try {
-      await Deno.mkdir("./debug", { recursive: true });
-      await Deno.writeTextFile(
-        "./debug/section-synthesis-input.json",
-        JSON.stringify(debugPayload, null, 2),
-      );
-    } catch (error) {
-      console.warn("[SYN][debug] Failed to write debug payload:", error);
-    }
-
     const user = createSectionSynthesisPrompt(userQuery, asOfDate, evidences);
-    const completion = await openaiClient.chat.completions.create({
-      task: "section_synthesis",
+    const client = getOpenAIClient();
+    const completion = await client.chat.completions.create({
       messages: [
         { role: "system", content: getSectionSynthesisSystemPrompt() },
         { role: "user", content: user },
@@ -41,8 +25,7 @@ export class SectionSynthesisService {
       max_completion_tokens: 8000,
       stream: false,
     });
-    // deno-lint-ignore no-explicit-any
-    const jsonText = (completion as any).choices[0]?.message?.content?.trim();
+    const jsonText = completion.choices[0]?.message?.content?.trim();
     if (!jsonText) throw new Error("[SYN][llm] Empty synthesis response");
     try {
       return JSON.parse(jsonText) as DeepResearchSections;

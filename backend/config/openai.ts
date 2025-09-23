@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import { ensureEnv } from "../utils/env.ts";
 
 export type LLMTask =
   | "query_planning"
@@ -17,18 +18,18 @@ const TASK_MODEL_ENV: Record<Exclude<LLMTask, "generic">, string[]> = {
 
 let client: OpenAI | null = null;
 
-function getClient(): OpenAI {
+export function getOpenAIClient(): OpenAI {
   if (!client) {
-    const apiKey = Deno.env.get("OPENAI_API_KEY");
-    if (!apiKey) {
-      throw new Error("OPENAI_API_KEY environment variable is required");
-    }
+    const apiKey = ensureEnv("OPENAI_API_KEY");
     client = new OpenAI({ apiKey });
   }
   return client;
 }
 
-function resolveModel(task: LLMTask | undefined, override?: string): string {
+export function resolveModel(
+  task: LLMTask | undefined,
+  override?: string,
+): string {
   if (override && override.trim().length > 0) return override;
   if (task && task !== "generic") {
     const envKeys = TASK_MODEL_ENV[task];
@@ -70,7 +71,7 @@ async function createChatCompletion(
     model: resolveModel(task, model),
   };
   try {
-    return await getClient().chat.completions.create(payload);
+    return await getOpenAIClient().chat.completions.create(payload);
   } catch (error) {
     if (error instanceof Error) {
       throw new Error(`[OpenAI] ${error.message}`);
