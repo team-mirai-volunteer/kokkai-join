@@ -35,7 +35,6 @@ class KokkaiRagApi {
   constructor() {
     this.setupMiddleware();
     this.setupRoutes();
-    this.initialize();
   }
 
   private setupMiddleware() {
@@ -142,5 +141,6 @@ class KokkaiRagApi {
 
 if (import.meta.main) {
   const api = new KokkaiRagApi();
+  await api.initialize();
   api.serve();
 }
