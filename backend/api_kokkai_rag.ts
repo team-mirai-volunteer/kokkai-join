@@ -10,7 +10,6 @@ import { prettyJSON } from "jsr:@hono/hono/pretty-json";
 import { validator } from "jsr:@hono/hono/validator";
 
 import { Pool } from "npm:pg";
-import pgvector from "npm:pgvector/pg";
 
 import { DEFAULT_TOP_K_RESULTS, MAX_DB_CONNECTIONS } from "./config/constants.ts";
 import type { DocumentResult } from "./types/knowledge.ts";
@@ -111,6 +110,8 @@ class KokkaiRagApi {
     this.dbPool = new Pool({
       connectionString: databaseUrl,
       max: MAX_DB_CONNECTIONS,
+      query_timeout: 10000,
+      statement_timeout: 10000,
     });
     this.vectorSearch = new VectorSearchService(this.dbPool);
   }
