@@ -12,7 +12,7 @@ import { vValidator } from "@hono/valibot-validator";
 
 // Local imports
 import type { SpeechResult } from "./types/kokkai.ts";
-import { DEFAULT_TOP_K_RESULTS } from "./config/constants.ts";
+import { DEFAULT_DATE_VALUE, DEFAULT_TOP_K_RESULTS, UNKNOWN_VALUE } from "./config/constants.ts";
 import {
   SECTION_ALLOWED_PROVIDERS,
   SECTION_TARGET_COUNTS,
@@ -21,7 +21,6 @@ import { QueryPlanningService } from "./services/query-planning.ts";
 import { RelevanceEvaluationService } from "./services/relevance-evaluation.ts";
 import { ProviderRegistry } from "./services/provider-registry.ts";
 import type { DocumentResult } from "./types/knowledge.ts";
-import { documentToSpeech } from "./providers/adapter.ts";
 import {
   DeepResearchRequestSchema,
   type DeepResearchRequestValidated,
@@ -31,6 +30,26 @@ import { toEvidenceRecord } from "./types/deepresearch.ts";
 import { convertDeepResearchToMarkdown } from "./utils/markdown-converter.ts";
 import { SectionSynthesisService } from "./services/section-synthesis.ts";
 import { DeepResearchOrchestrator } from "./services/deepresearch-orchestrator.ts";
+
+/**
+ * Convert DocumentResult to SpeechResult for compatibility
+ */
+function documentToSpeech(doc: DocumentResult): SpeechResult {
+  const extras = doc.extras as Record<string, unknown> | undefined;
+  const speaker = (extras?.["speaker"] as string) || UNKNOWN_VALUE;
+  const party = (extras?.["party"] as string) || UNKNOWN_VALUE;
+  const meeting = (extras?.["meeting"] as string) || doc.title || UNKNOWN_VALUE;
+  return {
+    speechId: doc.id,
+    speaker,
+    party,
+    date: doc.date || DEFAULT_DATE_VALUE,
+    meeting,
+    content: doc.content || "",
+    url: doc.url || "",
+    score: typeof doc.score === "number" ? doc.score : 0,
+  };
+}
 
 /**
  * Kokkai Deep Research API Server using Hono
