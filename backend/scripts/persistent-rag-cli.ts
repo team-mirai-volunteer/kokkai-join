@@ -41,14 +41,14 @@ class RefactoredKokkaiRAGCLI {
 
     const databaseUrl = Deno.env.get("DATABASE_URL");
     const ollamaBaseUrl = Deno.env.get("OLLAMA_BASE_URL") || DEFAULT_OLLAMA_BASE_URL;
-    const cerebrasApiKey = Deno.env.get("CEREBRAS_API_KEY");
+    const openaiApiKey = Deno.env.get("OPENAI_API_KEY");
 
     if (!databaseUrl) {
       throw new Error("DATABASE_URL environment variable is required");
     }
 
-    if (!cerebrasApiKey) {
-      throw new Error("CEREBRAS_API_KEY environment variable is required");
+    if (!openaiApiKey) {
+      throw new Error("OPENAI_API_KEY environment variable is required");
     }
 
     // Ollama埋め込みモデル設定（埋め込みは引き続きOllamaを使用）
@@ -59,7 +59,7 @@ class RefactoredKokkaiRAGCLI {
           host: ollamaBaseUrl,
         },
       });
-      // Settings.llmは削除（Cerebrasを直接使用）
+      // Settings.llmは未設定（LLM呼び出しはOpenAIクライアントに直接委譲）
     } catch (error) {
       throw new Error(
         `Failed to initialize Ollama embedding: ${(error as Error).message}`,
@@ -86,7 +86,7 @@ class RefactoredKokkaiRAGCLI {
     this.answerGenerationService = new AnswerGenerationService();
     this.relevanceEvaluationService = new RelevanceEvaluationService();
 
-    console.log("🚀 Kokkai RAG CLI with Cerebras initialized successfully");
+    console.log("🚀 Kokkai RAG CLI with OpenAI initialized successfully");
   }
 
   /**

@@ -1,11 +1,11 @@
-import { cerebrasClient, CEREBRAS_MODEL } from "../config/cerebras.ts";
+import { openaiClient } from "../config/openai.ts";
 import type { DeepResearchSections, EvidenceRecord } from "../types/deepresearch.ts";
 import { createSectionSynthesisPrompt, getSectionSynthesisSystemPrompt } from "../utils/prompt.ts";
 
 /**
  * セクション統合サービス。
  *
- * - 役割: 収集した Evidence を根拠として、固定スキーマのセクションJSONをLLM（Cerebras）で生成する。
+ * - 役割: 収集した Evidence を根拠として、固定スキーマのセクションJSONをLLM（OpenAI経由）で生成する。
  * - 失敗時: JSONパースに失敗した場合はエラーにする（フォールバックは行わない方針）。
  */
 export class SectionSynthesisService {
@@ -14,15 +14,31 @@ export class SectionSynthesisService {
     asOfDate: string | undefined,
     evidences: EvidenceRecord[],
   ): Promise<DeepResearchSections> {
+    const debugPayload = {
+      userQuery,
+      asOfDate,
+      evidences,
+      generatedAt: new Date().toISOString(),
+    };
+    try {
+      await Deno.mkdir("./debug", { recursive: true });
+      await Deno.writeTextFile(
+        "./debug/section-synthesis-input.json",
+        JSON.stringify(debugPayload, null, 2),
+      );
+    } catch (error) {
+      console.warn("[SYN][debug] Failed to write debug payload:", error);
+    }
+
     const user = createSectionSynthesisPrompt(userQuery, asOfDate, evidences);
-    const completion = await cerebrasClient.chat.completions.create({
+    const completion = await openaiClient.chat.completions.create({
+      task: "section_synthesis",
       messages: [
         { role: "system", content: getSectionSynthesisSystemPrompt() },
         { role: "user", content: user },
       ],
-      model: CEREBRAS_MODEL,
-      max_tokens: 8000,
-      temperature: 0.2,
+      model: "gpt-5",
+      max_completion_tokens: 8000,
       stream: false,
     });
     // deno-lint-ignore no-explicit-any
@@ -32,7 +48,9 @@ export class SectionSynthesisService {
       return JSON.parse(jsonText) as DeepResearchSections;
     } catch (e) {
       const snippet = jsonText.slice(0, 400).replace(/\n/g, " ");
-      throw new Error(`[SYN][llm-parse] Failed to parse JSON: ${(e as Error).message}; snippet="${snippet}..."`);
+      throw new Error(
+        `[SYN][llm-parse] Failed to parse JSON: ${(e as Error).message}; snippet="${snippet}..."`,
+      );
     }
   }
 }

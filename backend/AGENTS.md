@@ -4,16 +4,16 @@
 - `api/` — Hono server entry (`server.ts`).
 - `services/` — core RAG pipeline: `query-planning.ts`, `vector-search.ts`, `relevance-evaluation.ts`, `answer-generation.ts`.
 - `utils/` — helpers (`database.ts`, `prompt.ts`).
-- `config/` — runtime config (`constants.ts`, `cerebras.ts`).
+- `config/` — runtime config (`constants.ts`, `openai.ts`).
 - `scripts/` — CLIs for data and RAG (`persistent-embed-speeches.ts`, `persistent-rag-cli.ts`, `sync-missing-embeddings.ts`).
 - `types/` — shared TypeScript types.
 - `data/` — DB dumps/backups; mounted by Docker compose.
 
 ## Build, Test, and Development Commands
 - Setup DB (PostgreSQL + pgvector): `docker compose up -d` (uses `compose.yaml`).
-- Env: `cp .env.example .env` then set `DATABASE_URL`, `CEREBRAS_API_KEY`, optional `OLLAMA_BASE_URL`, `PORT`.
+- Env: `cp .env.example .env` then set `DATABASE_URL`, `OPENAI_API_KEY`, optional `LLM_MODEL`, `OLLAMA_BASE_URL`, `PORT`.
 - Run API: `deno run -A api/server.ts` (check: `curl localhost:8000/`).
-- Search API example: `curl -X POST localhost:8000/search -H 'Content-Type: application/json' -d '{"query":"防衛費", "limit":10}'`.
+- Deep research example: `curl -X POST localhost:8000/v1/deepresearch -H 'Content-Type: application/json' -d '{"query":"防衛費", "limit":10}'`.
 - Embed speeches: `deno run -A scripts/persistent-embed-speeches.ts --batch-size 20 --start-date 2023-01-01`.
 - RAG CLI: `deno run -A scripts/persistent-rag-cli.ts "岸田総理 防衛費"`.
 - Format / Lint: `deno fmt` and `deno lint`.

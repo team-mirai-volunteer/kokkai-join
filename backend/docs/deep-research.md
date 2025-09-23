@@ -10,7 +10,7 @@
   - L216 からの `executeDeepResearchPipeline()` が検索パイプライン本体。
   - 流れ: QueryPlanning → MultiSource(=Provider) 検索 → RelevanceEvaluation → AnswerGeneration。
 - プランニング: `services/query-planning.ts`
-  - Cerebras でサブクエリとエンティティ抽出（JSON）を生成。
+  - OpenAI 経由でサブクエリとエンティティ抽出（JSON）を生成。
 - 検索: `services/multi-source-search.ts` + `services/provider-registry.ts`
   - 現状 `ProviderRegistry` は `HttpRagProvider`（`KOKKAI_RAG_URL:/v1/search`）のみ登録。
   - `HttpRagProvider` は `ProviderQuery.originalQuestion`（単一文字列）しか使わない。`subqueries` は未活用。
@@ -225,4 +225,3 @@ POST /search
 ## 11. まとめ
 
 現状の `/search` は「単回RAG + 要約」の段階です。上記の `Research Orchestrator` と `Evidence/Citation` レイヤを導入し、サブクエリ活用・多ソース化・反復探索・ギャップ充足・引用一体の回答生成を実装することで、Deep Research に必要な要件を段階的に満たせます。まずは Phase 1（破壊的変更なし）から着手し、テストで品質を確保しながら拡張していくのが安全です。
-

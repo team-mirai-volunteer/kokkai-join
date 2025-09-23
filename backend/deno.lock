@@ -4,7 +4,6 @@
     "jsr:@hono/hono@*": "4.8.3",
     "jsr:@std/dotenv@*": "0.225.5",
     "jsr:@std/dotenv@~0.225.5": "0.225.5",
-    "npm:@cerebras/cerebras_cloud_sdk@*": "1.46.0",
     "npm:@llamaindex/community@*": "0.0.102",
     "npm:@llamaindex/ollama@*": "0.1.21_@llamaindex+core@0.6.20__zod@3.25.76_@llamaindex+env@0.1.30",
     "npm:llamaindex@*": "0.11.27_@llamaindex+core@0.6.20__zod@3.25.76_@llamaindex+env@0.1.30",
@@ -515,18 +514,6 @@
       "dependencies": [
         "@smithy/types",
         "tslib"
-      ]
-    },
-    "@cerebras/cerebras_cloud_sdk@1.46.0": {
-      "integrity": "sha512-5IFlD9jvZr5fRsHd4pL4sFkzDPSvHxzM0dmk3mJG2/biRBl+3EV6CdXCabf7J8kr8hyQyK67N0rQLnYy6NSh9w==",
-      "dependencies": [
-        "@types/node@18.19.123",
-        "@types/node-fetch",
-        "abort-controller",
-        "agentkeepalive",
-        "form-data-encoder",
-        "formdata-node",
-        "node-fetch"
       ]
     },
     "@llama-flow/core@0.4.4_p-retry@6.2.1_zod@3.25.76": {

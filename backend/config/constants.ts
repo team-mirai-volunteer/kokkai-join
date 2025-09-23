@@ -3,7 +3,6 @@
 // Ollama Configuration
 export const DEFAULT_OLLAMA_BASE_URL = "http://localhost:11434";
 export const EMBEDDING_MODEL_NAME = "bge-m3";
-export const LLM_MODEL_NAME = "gpt-oss:20b";
 
 // Database Configuration
 export const MAX_DB_CONNECTIONS = 10;

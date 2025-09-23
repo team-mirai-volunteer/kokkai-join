@@ -15,8 +15,9 @@ cd backend
 cp .env.example .env
 # .env を編集して以下を設定
 # DATABASE_URL=postgresql://kokkai_user:kokkai_pass@localhost:5432/kokkai_db
-# CEREBRAS_API_KEY=...
 # OLLAMA_BASE_URL=http://localhost:11434
+# OPENAI_API_KEY=...
+# LLM_MODEL=gpt-4o-mini
 ```
 
 ## 1) データベース起動（pgvector）
@@ -51,19 +52,14 @@ curl -s -X POST http://localhost:8001/v1/search \
 ## 4) Deep Research API（要約・統合）
 ```bash
 export KOKKAI_RAG_URL=http://localhost:8001/v1/search
-export CEREBRAS_API_KEY=...  # 必須
+export OPENAI_API_KEY=...  # 必須
 # チェック
 deno check api/server.ts
 # 起動（デフォルト: :8000）
 deno run -A api/server.ts
 # ルート
 curl http://localhost:8000/
-# 旧パイプライン（参考）
-curl -s -X POST http://localhost:8000/search \
-  -H 'Content-Type: application/json' \
-  -d '{"query":"防衛費と子育て支援","limit":10}'
-
-# 新: Deep Research v1（セクション+引用JSON）
+# Deep Research v1（セクション+引用JSON）
 curl -s -X POST http://localhost:8000/v1/deepresearch \
   -H 'Content-Type: application/json' \
   -d '{

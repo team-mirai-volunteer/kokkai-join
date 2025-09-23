@@ -61,7 +61,7 @@
 ┌─────────────────────────────────────────────────────┐
 │               External APIs                         │
 │  ┌─────────────────┐    ┌─────────────────────────┐  │
-│  │   Cerebras AI   │    │      Ollama (bge-m3)   │  │
+│  │   OpenAI AI   │    │      Ollama (bge-m3)   │  │
 │  │  • 自然言語処理   │    │  • 埋め込み生成         │  │
 │  │  • 要約生成      │    │                        │  │
 │  │  • 関連性評価    │    │                        │  │
@@ -102,7 +102,7 @@ interface QueryPlan {
 }
 ```
 
-**AI統合**: Cerebras APIを使用したプロンプトベース処理
+**AI統合**: OpenAI APIを使用したプロンプトベース処理
 
 ### 2. Search Layer
 
@@ -136,7 +136,7 @@ KOKKAI_RAG_URL=http://localhost:8001/v1/search
 **責務**: 検索結果の関連性評価とノイズフィルタリング
 
 **評価プロセス**:
-1. 各検索結果に対してCerebras APIで関連性評価
+1. 各検索結果に対してOpenAI APIで関連性評価
 2. 4段階評価: 高/中/低/無関係
 3. スコア調整: 高(1.0x), 中(0.8x), 低(0.5x), 無関係(除外)
 4. 結果の再ソート
@@ -194,7 +194,7 @@ Output: Markdown形式の構造化回答
 2. バリデーション (query, limit)
     ↓
 3. QueryPlanning
-   • Cerebras APIでクエリ解析
+   • OpenAI APIでクエリ解析
    • サブクエリ・エンティティ抽出
     ↓
 4. MultiSourceSearch
@@ -265,7 +265,7 @@ SearchResponse (JSON)
 ```
 
 ### スケーラビリティ考慮事項
-- Cerebras API依存によるレート制限
+- OpenAI API依存によるレート制限
 - データベース接続プール設定
 - メモリ使用量の最適化が必要
 
@@ -312,7 +312,7 @@ class NewsApiProvider implements SearchProvider {
 ### 必要な外部依存
 - PostgreSQL + pgvector
 - Ollama (bge-m3モデル)
-- Cerebras API
+- OpenAI API
 - Deno Runtime
 
 ### 環境変数
@@ -331,13 +331,13 @@ KOKKAI_RAG_PORT=8001
 ### ヘルスチェック
 - `GET /` - API情報取得
 - Deep Research API依存性:
-  - Cerebras API接続
+  - OpenAI API接続
   - Kokkai RAG API接続
 
 ## 制約事項
 
 ### 技術的制約
-- Cerebras APIのレート制限
+- OpenAI APIのレート制限
 - 単一スレッド処理（Deno）
 - メモリ使用量（大量データ処理時）
 

@@ -9,7 +9,7 @@
 ## 機能
 
 - **国会議事録深層調査**: ベクトル検索による類似発言の抽出と分析
-- **AI深層分析**: Cerebras LLMによる多角的分析と回答生成
+- **AI深層分析**: OpenAI API を用いた多角的分析と回答生成
 - **ヘルスチェック**: サービス状態の確認
 - **CORS対応**: ブラウザからの直接アクセス可能
 
@@ -19,36 +19,46 @@
 API情報とエンドポイント一覧を返します。
 
 
-### POST /search
-国会議事録を深層調査して多角的分析を実行します。
+### POST /v1/deepresearch
+国会議事録や追加ドキュメントを横断的に調査し、セクション別の要約と引用リストを返します。
 
 **リクエスト:**
 ```json
 {
-  "query": "防衛費と子育て支援と消費税についての最近の議論",
-  "limit": 20
+  "query": "電子帳簿保存法 2024年改正の国会議論",
+  "limit": 15,
+  "asOfDate": "2025-09-01",
+  "providers": ["kokkai-db"],
+  "seedUrls": [
+    "https://www.soumu.go.jp/main_content/000900000.pdf"
+  ]
 }
 ```
 
-**レスポンス:**
+**レスポンス（抜粋）:**
 ```json
 {
-  "query": "防衛費の増額について",
-  "answer": "## 全体のまとめ\n\n- 防衛費の増額について複数の観点から議論が展開されており...\n- 子育て支援政策では財源確保の課題が指摘されている...\n- 消費税に関しては減税と社会保障の両面での議論が活発化している...",
-  "sources": [
+  "query": "電子帳簿保存法 2024年改正の国会議論",
+  "sections": {
+    "purpose_overview": {
+      "summary": "2024年改正では電子取引データ保存の猶予終了が主要論点となった...",
+      "citations": ["e1", "e3"]
+    },
+    "timeline": { "summary": "2023年末の附則改正案提出から2024年6月の施行まで..." }
+  },
+  "evidences": [
     {
-      "speaker": "岸田文雄",
-      "party": "自由民主党",
-      "date": "2023-03-15",
-      "content": "防衛費について...",
+      "id": "e1",
+      "title": "第213回国会 財務金融委員会",
       "url": "https://kokkai.ndl.go.jp/...",
-      "similarity_score": 0.85
+      "source": { "providerId": "kokkai-db" }
     }
   ],
   "metadata": {
-    "totalResults": 15,
-    "processingTime": 2500,
-    "timestamp": "2025-09-01T12:00:00.000Z"
+    "usedProviders": ["kokkai-db"],
+    "totalResults": 28,
+    "timestamp": "2025-09-16T12:34:56.000Z",
+    "version": "deepresearch-v1"
   }
 }
 ```
@@ -59,9 +69,10 @@ API情報とエンドポイント一覧を返します。
 
 ```bash
 DATABASE_URL=postgresql://user:pass@localhost:5432/kokkai_db
-CEREBRAS_API_KEY=your_cerebras_api_key
-OLLAMA_BASE_URL=http://localhost:11434  # オプション（デフォルト値）
-PORT=8000  # オプション（デフォルト値）
+OPENAI_API_KEY=your_openai_api_key
+LLM_MODEL=gpt-4o-mini  # オプション（デフォルト値）
+OLLAMA_BASE_URL=http://localhost:11434  # オプション
+PORT=8000  # オプション
 ```
 
 ## 使用方法
@@ -106,10 +117,13 @@ curl -s -X POST http://localhost:8001/v1/search \
 ### 2. API テスト
 
 ```bash
-# 検索リクエスト
-curl -X POST http://localhost:8000/search \
+# 深層調査リクエスト
+curl -X POST http://localhost:8000/v1/deepresearch \
   -H "Content-Type: application/json" \
-  -d '{"query": "防衛費と子育て支援と消費税についての政策議論", "limit": 10}'
+  -d '{
+        "query": "防衛費と子育て支援と消費税についての政策議論",
+        "limit": 10
+      }'
 ```
 
 ## アーキテクチャ
@@ -139,7 +153,7 @@ curl -X POST http://localhost:8000/search \
 - **Hono**: 軽量Web フレームワーク
 - **pgvector**: ベクトル検索
 - **Ollama**: 埋め込みモデル（BGE-M3）
-- **Cerebras**: LLM推論
+- **OpenAI**: LLM推論
 - **PostgreSQL**: データベース
 
 ## エラーハンドリング

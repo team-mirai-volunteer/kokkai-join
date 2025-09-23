@@ -12,7 +12,7 @@
 
 #### 実装済みサービス
 1. **QueryPlanningService** (`services/query-planning.ts`)
-   - Cerebras AIを使った高度なクエリ計画
+   - OpenAI AIを使った高度なクエリ計画
    - サブクエリ分解、エンティティ抽出、戦略選択
    - 信頼度と複雑度の評価
 
@@ -22,7 +22,7 @@
    - エラーハンドリング付き
 
 3. **RelevanceEvaluationService** (`services/relevance-evaluation.ts`)
-   - Cerebras AIによる関連性評価
+   - OpenAI AIによる関連性評価
    - スコア調整とノイズフィルタリング
    - 段階的関連性判定（高/中/低/無関係）
 
@@ -130,7 +130,7 @@
 - **Runtime**: Deno 1.45+
 - **Framework**: Hono
 - **Database**: PostgreSQL + pgvector
-- **AI**: Cerebras API
+- **AI**: OpenAI API
 - **Embedding**: Ollama (bge-m3)
 - **Testing**: Deno Test（実装予定）
 

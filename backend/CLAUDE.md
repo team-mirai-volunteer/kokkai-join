@@ -14,7 +14,7 @@ This is the **kokkai-join backend**, a Deno-based TypeScript application providi
 - **Web Framework**: Hono (lightweight web framework)
 - **Database**: PostgreSQL with pgvector extension (vector similarity search)
 - **Embedding Model**: Ollama with bge-m3 (1024-dimensional embeddings)
-- **LLM**: Cerebras API for query planning and answer generation
+- **LLM**: OpenAI (selectable models) for query planning and answer generation
 - **Vector Search**: LlamaIndex for embedding management
 
 ## Common Development Commands
@@ -28,7 +28,8 @@ docker compose up -d postgres
 cp .env.example .env
 # Edit .env with required values:
 # DATABASE_URL=postgresql://kokkai_user:kokkai_pass@localhost:5432/kokkai_db
-# CEREBRAS_API_KEY=<your-api-key>
+# OPENROUTER_API_KEY=<your-api-key>
+# LLM_MODEL=gpt-4o-mini
 # OLLAMA_BASE_URL=http://localhost:11434
 ```
 
@@ -86,7 +87,7 @@ The backend implements a layered architecture with clear separation of concerns:
 
 2. **Service Layer** (`services/`)
    - `vector-search.ts`: Core vector similarity search with pgvector
-   - `query-planning.ts`: AI-powered query decomposition using Cerebras
+- `query-planning.ts`: AI-powered query decomposition via OpenAI LLMs
    - `answer-generation.ts`: Comprehensive answer synthesis from search results
    - `relevance-evaluation.ts`: Result filtering and ranking
    - `provider-registry.ts`: Multi-source provider management system
@@ -114,7 +115,8 @@ The system uses PostgreSQL with a single main table:
 ### Environment Variables
 Required configuration in `.env`:
 - `DATABASE_URL`: PostgreSQL connection string
-- `CEREBRAS_API_KEY`: Required for AI features (query planning, answer generation)
+- `OPENROUTER_API_KEY`: Required for AI features (query planning, answer generation)
+- `LLM_MODEL`: Default OpenAI model (override with LLM_MODEL_* per stage)
 - `OLLAMA_BASE_URL`: Ollama server for embeddings (default: http://localhost:11434)
 - `PORT`: Deep Research API port (default: 8000)
 - `KOKKAI_RAG_PORT`: RAG API port (default: 8001)
@@ -139,11 +141,12 @@ Required configuration in `.env`:
 
 ### Deep Research API (port 8000)
 - `GET /`: API information and status
-- `POST /search`: AI-powered comprehensive search
+- `POST /v1/deepresearch`: AI-powered comprehensive search returning sections, evidences, and metadata
   ```json
   {
     "query": "防衛費と子育て支援の関係",
-    "limit": 10
+    "limit": 10,
+    "providers": ["kokkai-db"]
   }
   ```
 
@@ -186,4 +189,4 @@ The project uses Deno's built-in testing framework:
 - Deep Research API depends on Kokkai RAG API for data retrieval
 - Ensure Ollama is running with bge-m3 model loaded
 - PostgreSQL with pgvector extension is mandatory
-- Cerebras API key required for AI features
+- OpenAI API key required for AI features
