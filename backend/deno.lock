@@ -2,8 +2,10 @@
   "version": "5",
   "specifiers": {
     "jsr:@hono/hono@*": "4.8.3",
+    "jsr:@hono/hono@^4.6.0": "4.8.3",
     "jsr:@std/dotenv@*": "0.225.5",
     "jsr:@std/dotenv@~0.225.5": "0.225.5",
+    "jsr:@valibot/valibot@^1.1.0": "1.1.0",
     "npm:@llamaindex/community@*": "0.0.102",
     "npm:@llamaindex/ollama@*": "0.1.21_@llamaindex+core@0.6.20__zod@3.25.76_@llamaindex+env@0.1.30",
     "npm:llamaindex@*": "0.11.27_@llamaindex+core@0.6.20__zod@3.25.76_@llamaindex+env@0.1.30",
@@ -17,6 +19,9 @@
     },
     "@std/dotenv@0.225.5": {
       "integrity": "9ce6f9d0ec3311f74a32535aa1b8c62ed88b1ab91b7f0815797d77a6f60c922f"
+    },
+    "@valibot/valibot@1.1.0": {
+      "integrity": "2617f02b532011b8140926899d420a3e1bbb0fcb7cdf8e7b669df89e7edd7f5f"
     }
   },
   "npm": {
@@ -1479,7 +1484,9 @@
   },
   "workspace": {
     "dependencies": [
-      "jsr:@std/dotenv@~0.225.5"
+      "jsr:@hono/hono@^4.6.0",
+      "jsr:@std/dotenv@~0.225.5",
+      "jsr:@valibot/valibot@^1.1.0"
     ]
   }
 }
