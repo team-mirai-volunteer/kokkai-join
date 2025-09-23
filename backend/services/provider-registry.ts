@@ -1,21 +1,21 @@
-import { HttpRagProvider } from "../providers/http-rag.ts";
+import { KokkaiRagProvider } from "../providers/kokkai-rag.ts";
 import type { SearchProvider } from "../providers/base.ts";
-import { OpenAIWebProvider } from "../providers/openai-web.ts";
+import { OpenAIWebProvider } from "../providers/websearch.ts";
+import { ensureEnv } from "../utils/env.ts";
 
 export class ProviderRegistry {
   private providers: SearchProvider[] = [];
 
   constructor() {
-    // 最小構成: 環境変数から Kokkai RAG を登録
-    const kokkaiUrl = Deno.env.get("KOKKAI_RAG_URL") || "http://localhost:8001/v1/search";
-    this.providers.push(new HttpRagProvider({ id: "kokkai-db", endpoint: kokkaiUrl }));
+    // Kokkai RAG Provider: 国会議事録のベクトル検索API
+    this.providers.push(new KokkaiRagProvider({ endpoint: ensureEnv("KOKKAI_RAG_URL") }));
     // OpenAI Web Search（前提: OPENAI_API_KEY が必須）
-    // ここでキー未設定の場合は OpenAIWebProvider のコンストラクタで例外となり、起動時に検出される。
-    this.providers.push(new OpenAIWebProvider({ id: "openai-web" }));
-  }
-
-  all(): SearchProvider[] {
-    return this.providers;
+    this.providers.push(
+      new OpenAIWebProvider({
+        apiKey: ensureEnv("OPENAI_API_KEY"),
+        model: ensureEnv("OPENAI_MODEL"),
+      }),
+    );
   }
 
   byIds(ids?: string[]): SearchProvider[] {

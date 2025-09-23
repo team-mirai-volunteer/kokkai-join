@@ -22,14 +22,18 @@
     "semiColons": true,
     "singleQuote": false,
     "proseWrap": "preserve",
-    "include": ["scripts/", "src/"],
-    "exclude": []
+    "exclude": [
+      "**/node_modules/**"
+    ]
   },
   "lint": {
-    "include": ["scripts/", "src/"],
-    "exclude": [],
+    "exclude": [
+      "**/node_modules/**"
+    ],
     "rules": {
-      "tags": ["recommended"]
+      "tags": [
+        "recommended"
+      ]
     }
   }
 }

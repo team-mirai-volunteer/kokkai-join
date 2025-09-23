@@ -53,7 +53,6 @@ export class DeepResearchOrchestrator {
       allowBySection,
       targets,
       limit,
-      seedUrls,
       docsProvider,
     } = params;
     const sectionKeys = Object.keys(allowBySection);
@@ -98,7 +97,6 @@ export class DeepResearchOrchestrator {
           originalQuestion: userQuery,
           subqueries: fups,
           limit: Math.max(3, Math.floor(limit / 2)),
-          seedUrls,
         };
         try {
           const docs = await this.multiSource.searchAcross(pList, pq);

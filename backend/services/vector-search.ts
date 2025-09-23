@@ -14,7 +14,7 @@ import {
   buildVectorSearchQuery,
   convertDatabaseRowToSpeechResult,
 } from "../utils/database.ts";
-import { EmbeddingProvider, EmbeddingProviderFactory } from "./embedding-provider.ts";
+import { EmbeddingProvider, EmbeddingProviderFactory } from "../providers/embedding.ts";
 import {
   DEFAULT_TOP_K_RESULTS,
   STRUCTURED_FILTER_LIMIT,

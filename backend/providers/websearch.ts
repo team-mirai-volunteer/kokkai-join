@@ -3,12 +3,8 @@ import type { SearchProvider } from "./base.ts";
 import OpenAI from "openai";
 
 interface OpenAIWebConfig {
-  id?: string; // default: "openai-web"
-  apiKey?: string; // from env OPENAI_API_KEY if omitted
-  model?: string; // default: gpt-4o-mini
-  timeoutMs?: number; // default: 20000
-  maxPerSubquery?: number; // default: 5
-  maxQueriesPerCall?: number; // default: 3 (subquery数の上限)
+  apiKey: string; // from env OPENAI_API_KEY if omitted
+  model: string; // default: gpt-4o-mini
 }
 
 /**
@@ -23,39 +19,24 @@ export class OpenAIWebProvider implements SearchProvider {
   private model: string;
   private timeoutMs: number;
   private maxPerSubquery: number;
-  private maxQueriesPerCall: number;
   private client: OpenAI;
 
-  constructor(cfg?: OpenAIWebConfig) {
-    this.id = cfg?.id ?? "openai-web";
-    const key = cfg?.apiKey ?? Deno.env.get("OPENAI_API_KEY");
-    if (!key) {
-      throw new Error("OPENAI_API_KEY is required for OpenAIWebProvider");
-    }
-    this.apiKey = key;
-    this.model = cfg?.model ?? "gpt-4o-mini";
-    this.timeoutMs = cfg?.timeoutMs ?? 20000;
-    this.maxPerSubquery = cfg?.maxPerSubquery ?? 5;
-    this.maxQueriesPerCall = cfg?.maxQueriesPerCall ??
-      parseInt(Deno.env.get("OPENAI_WEB_MAX_SUBQS") || "3");
+  constructor(cfg: OpenAIWebConfig) {
+    this.id = "openai-web";
+    this.apiKey = cfg.apiKey;
+    this.model = cfg.model;
+    this.timeoutMs = 20000;
+    this.maxPerSubquery = 5;
     this.client = new OpenAI({ apiKey: this.apiKey });
   }
 
   /** サブクエリごとにOpenAIへ検索を投げ、結果をマージして返す */
   async search(q: ProviderQuery): Promise<DocumentResult[]> {
-    const subqsAll = q.subqueries?.length ? q.subqueries : [q.originalQuestion];
-    const subqs = subqsAll.slice(0, Math.max(1, this.maxQueriesPerCall));
-    const limitPer = Math.max(
-      1,
-      Math.min(
-        this.maxPerSubquery,
-        Math.floor((q.limit || 10) / subqs.length) || 1,
-      ),
-    );
-    const tasks = subqs.map((s, i) => this.searchOne(s, limitPer, i));
+    const subqs = q.subqueries?.length ? q.subqueries : [q.originalQuestion];
+    const tasks = subqs.map((s, i) => this.searchOne(s, this.maxPerSubquery, i));
     const arrays = await Promise.all(tasks);
     const merged = arrays.flat();
-    // Dedup by URL
+    // URL重複している検索結果を削除
     const seen = new Set<string>();
     const out: DocumentResult[] = [];
     for (const d of merged) {
