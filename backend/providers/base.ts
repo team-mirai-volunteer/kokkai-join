@@ -4,4 +4,3 @@ export interface SearchProvider {
   id: string;
   search(query: ProviderQuery): Promise<DocumentResult[]>;
 }
-

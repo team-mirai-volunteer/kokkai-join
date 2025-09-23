@@ -1,4 +1,4 @@
-import type { ProviderQuery, DocumentResult } from "../types/knowledge.ts";
+import type { DocumentResult, ProviderQuery } from "../types/knowledge.ts";
 import type { SearchProvider } from "./base.ts";
 
 interface HttpDocsConfig {
@@ -95,7 +95,10 @@ function concat(chunks: Uint8Array[]): Uint8Array {
   const total = chunks.reduce((s, c) => s + c.byteLength, 0);
   const out = new Uint8Array(total);
   let offset = 0;
-  for (const c of chunks) { out.set(c, offset); offset += c.byteLength; }
+  for (const c of chunks) {
+    out.set(c, offset);
+    offset += c.byteLength;
+  }
   return out;
 }
 
@@ -108,7 +111,7 @@ function detectEncoding(_buf: Uint8Array, contentType: string): string {
 function stripHtml(html: string): string {
   // Best-effort HTML to text: remove scripts/styles, tags, collapse whitespace
   const noScript = html.replace(/<script[\s\S]*?<\/script>/gi, " ")
-                       .replace(/<style[\s\S]*?<\/style>/gi, " ");
+    .replace(/<style[\s\S]*?<\/style>/gi, " ");
   const noTags = noScript.replace(/<[^>]+>/g, " ");
   return noTags.replace(/[\t\r\n]+/g, "\n").replace(/\u00A0/g, " ").trim();
 }

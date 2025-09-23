@@ -6,28 +6,28 @@ import type { PromptText, SpeechResult } from "../types/kokkai.ts";
  * Format speech results for prompt context
  */
 export function formatSpeechResultsForPrompt(results: SpeechResult[]): string {
-	return results
-		.map(
-			(result) =>
-				`【発言 ${result.speechId}】
+  return results
+    .map(
+      (result) =>
+        `【発言 ${result.speechId}】
 議員: ${result.speaker} (${result.party})
 日付: ${result.date}
 会議: ${result.meeting}
 内容: ${result.content}
 出典: ${result.url}
 関連度: ${result.score.toFixed(3)}`,
-		)
-		.join("\n\n");
+    )
+    .join("\n\n");
 }
 
 /**
  * Create sub-summary prompt for Chain of Agents
  */
 export function createSubSummaryPrompt(
-	query: string,
-	context: string,
+  query: string,
+  context: string,
 ): PromptText {
-	return `質問: ${query}
+  return `質問: ${query}
 
 発言リスト:
 ${context}`;
@@ -37,7 +37,7 @@ ${context}`;
  * Get system prompt for sub-summary generation
  */
 export function getSubSummarySystemPrompt(): string {
-	return `あなたは国会議事録の要約専門家です。与えられた発言リストから、質問に関連する重要な情報を要約してください。
+  return `あなたは国会議事録の要約専門家です。与えられた発言リストから、質問に関連する重要な情報を要約してください。
 
 ## タスク
 各発言について、適切な観点を判断し、要約を作成してください。
@@ -96,10 +96,10 @@ export function getSubSummarySystemPrompt(): string {
  * Create mid-consolidation prompt for combining summaries
  */
 export function createMidConsolidationPrompt(
-	query: string,
-	summaryList: string,
+  query: string,
+  summaryList: string,
 ): PromptText {
-	return `質問: ${query}
+  return `質問: ${query}
 
 要約リスト:
 ${summaryList}`;
@@ -109,7 +109,7 @@ ${summaryList}`;
  * Get system prompt for mid-consolidation
  */
 export function getMidConsolidationSystemPrompt(): string {
-	return `あなたは国会議事録の統合要約専門家です。複数の発言要約を観点別に統合してください。
+  return `あなたは国会議事録の統合要約専門家です。複数の発言要約を観点別に統合してください。
 
 ## タスク
 同じ観点の発言をグループ化し、各観点の要約を作成してください。
@@ -148,14 +148,14 @@ export function getMidConsolidationSystemPrompt(): string {
  * Create query planning prompt
  */
 export function createQueryPlanPrompt(userQuestion: string): PromptText {
-	return `質問: "${userQuestion}"`;
+  return `質問: "${userQuestion}"`;
 }
 
 /**
  * Get system prompt for query planning
  */
 export function getQueryPlanSystemPrompt(): string {
-	return `あなたは国会議事録検索システムのプランナーです。与えられた質問を分析して、効果的な検索計画を作成してください。
+  return `あなたは国会議事録検索システムのプランナーです。与えられた質問を分析して、効果的な検索計画を作成してください。
 
 ## 出力形式
 以下のJSON形式で出力してください（\`\`\`json等は不要）：
@@ -195,10 +195,10 @@ export function getQueryPlanSystemPrompt(): string {
  * Create final answer generation prompt
  */
 export function createFinalAnswerPrompt(
-	query: string,
-	finalContext: string,
+  query: string,
+  finalContext: string,
 ): PromptText {
-	return `質問: ${query}
+  return `質問: ${query}
 
 要約情報:
 ${finalContext}`;
@@ -208,7 +208,7 @@ ${finalContext}`;
  * Get system prompt for final answer generation
  */
 export function getFinalAnswerSystemPrompt(): string {
-	return `あなたは国会議事録の分析専門家です。観点別の要約から全体のまとめを作成してください。
+  return `あなたは国会議事録の分析専門家です。観点別の要約から全体のまとめを作成してください。
 
 ## タスク
 提供された観点別要約を基に、質問に対する全体的な結論をリスト形式で作成してください。
@@ -236,10 +236,10 @@ export function getFinalAnswerSystemPrompt(): string {
  * Create simple answer prompt (fallback)
  */
 export function createSimpleAnswerPrompt(
-	query: string,
-	context: string,
+  query: string,
+  context: string,
 ): PromptText {
-	return `質問: ${query}
+  return `質問: ${query}
 
 国会議事録:
 ${context}`;
@@ -249,7 +249,7 @@ ${context}`;
  * Get system prompt for simple answer generation
  */
 export function getSimpleAnswerSystemPrompt(): string {
-	return `あなたは国会議事録の分析専門家です。以下の要件に従って正確で詳細な回答を作成してください。
+  return `あなたは国会議事録の分析専門家です。以下の要件に従って正確で詳細な回答を作成してください。
 
 ## 回答要件
 1. 発言者名と所属政党を明記する
@@ -270,10 +270,10 @@ export function getSimpleAnswerSystemPrompt(): string {
  * Create relevance evaluation prompt
  */
 export function createRelevanceEvaluationPrompt(
-	query: string,
-	result: SpeechResult,
+  query: string,
+  result: SpeechResult,
 ): PromptText {
-	return `質問: ${query}
+  return `質問: ${query}
 
 発言者: ${result.speaker}
 発言内容: ${result.content}`;
@@ -283,7 +283,7 @@ export function createRelevanceEvaluationPrompt(
  * Get system prompt for relevance evaluation
  */
 export function getRelevanceEvaluationSystemPrompt(): string {
-	return `あなたは関連性評価の専門家です。与えられた国会議事録の内容が質問に関連しているか評価してください。
+  return `あなたは関連性評価の専門家です。与えられた国会議事録の内容が質問に関連しているか評価してください。
 
 ## 出力形式
 以下の形式で回答してください：
@@ -295,7 +295,7 @@ export function getRelevanceEvaluationSystemPrompt(): string {
 - 中: 質問に関連する話題だが、直接的な答えではない
 - 低: わずかに関連するキーワードを含むが、文脈が異なる
 - 無関係: 質問とは関係ない内容`;
-} 
+}
 
 // --- Deep Research section synthesis prompts ---
 import type { EvidenceRecord } from "../types/deepresearch.ts";
@@ -352,13 +352,17 @@ ${sectionsDesc}
 出力は必ず次のJSONオブジェクトのみ：
 {
   "purpose_overview": {"title":"法案の目的や概要","type":"text","content":"...","citations":["eX"]},
-  "current_status": {"title":"現在の審議状況${asOfDate ? `（${asOfDate}時点、検索ベース）` : "（検索ベース）"}","type":"text","content":"...","citations":["eX"]},
+  "current_status": {"title":"現在の審議状況${
+    asOfDate ? `（${asOfDate}時点、検索ベース）` : "（検索ベース）"
+  }","type":"text","content":"...","citations":["eX"]},
   "timeline": {"title":"審議プロセスのタイムライン","type":"timeline","items":[{"date":"YYYY-MM-DD","text":"...","citations":["eX"]}]},
   "key_points": {"title":"法改正の重要ポイント","type":"list","items":[{"text":"...","citations":["eX"]}]},
   "background": {"title":"法案提出までの経緯（背景）","type":"text","content":"...","citations":["eX"]},
   "main_issues": {"title":"主要な論点（審議・実務で指摘された主なポイント）","type":"list","items":[{"text":"...","citations":["eX"]}]},
   "past_debates_summary": {"title":"過去の議論の要約","type":"text","content":"...","citations":["eX"]},
-  "status_notes": {"title":"現在の審議状況の確認メモ${asOfDate ? `（${asOfDate}時点）` : ""}","type":"text","content":"...","citations":["eX"]},
+  "status_notes": {"title":"現在の審議状況の確認メモ${
+    asOfDate ? `（${asOfDate}時点）` : ""
+  }","type":"text","content":"...","citations":["eX"]},
   "related_links": {"title":"関連リンク（一次・準一次情報）","type":"links","links":[{"label":"...","url":"https://...","citations":["eX"]}]}
 }`;
 }

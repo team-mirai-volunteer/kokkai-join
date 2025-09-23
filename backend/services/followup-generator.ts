@@ -22,7 +22,11 @@ export interface FollowupContext {
   seenEntities?: Set<string>; // 生成済みエンティティ語の記録
 }
 
-export interface Entities { speakers: Set<string>; parties: Set<string>; meetings: Set<string> }
+export interface Entities {
+  speakers: Set<string>;
+  parties: Set<string>;
+  meetings: Set<string>;
+}
 
 export class FollowupGeneratorService {
   generate(ctx: FollowupContext): string[] {
@@ -62,7 +66,12 @@ export class FollowupGeneratorService {
     return final;
   }
 
-  private templateExpansions(section: string, q: string, asOfDate: string | undefined, _iter: number): string[] {
+  private templateExpansions(
+    section: string,
+    q: string,
+    asOfDate: string | undefined,
+    _iter: number,
+  ): string[] {
     // ドメイングループによる絞り込みは一旦無効化
     const s = (v?: string) => (v ? ` ${v}` : "");
     const site = "";
@@ -150,7 +159,12 @@ export class FollowupGeneratorService {
 function dedupStrings(arr: string[]): string[] {
   const s = new Set<string>();
   const out: string[] = [];
-  for (const v of arr) { if (!s.has(v)) { s.add(v); out.push(v); } }
+  for (const v of arr) {
+    if (!s.has(v)) {
+      s.add(v);
+      out.push(v);
+    }
+  }
   return out;
 }
 
@@ -176,7 +190,14 @@ function dedupByJaccard(arr: string[], tau: number): string[] {
   return out;
 }
 
-function mmrSelectQueries(cands: string[], userQuery: string, state: OrchestratorState, k: number, lambda: number, alpha: number): string[] {
+function mmrSelectQueries(
+  cands: string[],
+  userQuery: string,
+  state: OrchestratorState,
+  k: number,
+  lambda: number,
+  alpha: number,
+): string[] {
   const selected: string[] = [];
   const rel = (q: string) => jaccard(q, userQuery);
   const overlapAxes = (q: string) => {
@@ -195,7 +216,10 @@ function mmrSelectQueries(cands: string[], userQuery: string, state: Orchestrato
       const q = pool[i];
       const div = selected.length ? Math.max(...selected.map((s) => sim(q, s))) : 0;
       const val = lambda * rel(q) - (1 - lambda) * Math.max(div, alpha * overlapAxes(q));
-      if (val > bestVal) { bestVal = val; bestIdx = i; }
+      if (val > bestVal) {
+        bestVal = val;
+        bestIdx = i;
+      }
     }
     selected.push(pool.splice(bestIdx, 1)[0]);
   }

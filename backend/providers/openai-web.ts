@@ -1,4 +1,4 @@
-import type { ProviderQuery, DocumentResult } from "../types/knowledge.ts";
+import type { DocumentResult, ProviderQuery } from "../types/knowledge.ts";
 import type { SearchProvider } from "./base.ts";
 import OpenAI from "npm:openai";
 
@@ -34,7 +34,8 @@ export class OpenAIWebProvider implements SearchProvider {
     this.model = cfg?.model ?? "gpt-4o-mini";
     this.timeoutMs = cfg?.timeoutMs ?? 20000;
     this.maxPerSubquery = cfg?.maxPerSubquery ?? 5;
-    this.maxQueriesPerCall = cfg?.maxQueriesPerCall ?? parseInt(Deno.env.get("OPENAI_WEB_MAX_SUBQS") || "3");
+    this.maxQueriesPerCall = cfg?.maxQueriesPerCall ??
+      parseInt(Deno.env.get("OPENAI_WEB_MAX_SUBQS") || "3");
     this.client = new OpenAI({ apiKey: this.apiKey });
   }
 
@@ -42,7 +43,10 @@ export class OpenAIWebProvider implements SearchProvider {
   async search(q: ProviderQuery): Promise<DocumentResult[]> {
     const subqsAll = q.subqueries?.length ? q.subqueries : [q.originalQuestion];
     const subqs = subqsAll.slice(0, Math.max(1, this.maxQueriesPerCall));
-    const limitPer = Math.max(1, Math.min(this.maxPerSubquery, Math.floor((q.limit || 10) / subqs.length) || 1));
+    const limitPer = Math.max(
+      1,
+      Math.min(this.maxPerSubquery, Math.floor((q.limit || 10) / subqs.length) || 1),
+    );
     const tasks = subqs.map((s, i) => this.searchOne(s, limitPer, i));
     const arrays = await Promise.all(tasks);
     const merged = arrays.flat();
@@ -69,12 +73,17 @@ export class OpenAIWebProvider implements SearchProvider {
         tools: [{ type: "web_search_preview" }],
         tool_choice: { type: "web_search_preview" },
         // 指示は簡潔に。モデルに結果JSONのみに集中させる（スキーマは口頭指定）
-        input: `Search the web for: ${subq}. Return ONLY valid JSON (no prose) with shape {"results":[{"id":string,"title":string,"url":string,"date"?:string,"snippet"?:string,"score"?:number}]}. Limit to ${limit} items.`,
+        input:
+          `Search the web for: ${subq}. Return ONLY valid JSON (no prose) with shape {"results":[{"id":string,"title":string,"url":string,"date"?:string,"snippet"?:string,"score"?:number}]}. Limit to ${limit} items.`,
       }, { signal: controller.signal });
       const raw = resp.output_text?.trim();
       if (!raw) return [];
       let parsed: { results?: Array<Record<string, unknown>> } = {};
-      try { parsed = JSON.parse(raw); } catch { return []; }
+      try {
+        parsed = JSON.parse(raw);
+      } catch {
+        return [];
+      }
       const items = Array.isArray(parsed.results) ? parsed.results : [];
       const docs: DocumentResult[] = items.map((it, j) => {
         const id = String(it.id ?? `${this.id}:${idx}:${j}`);

@@ -1,4 +1,4 @@
-import type { ProviderQuery, DocumentResult } from "../types/knowledge.ts";
+import type { DocumentResult, ProviderQuery } from "../types/knowledge.ts";
 import type { SearchProvider } from "./base.ts";
 
 interface HttpRagConfig {
@@ -45,4 +45,3 @@ export class HttpRagProvider implements SearchProvider {
     }
   }
 }
-

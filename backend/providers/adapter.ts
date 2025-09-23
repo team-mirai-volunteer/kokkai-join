@@ -1,6 +1,6 @@
 import type { DocumentResult } from "../types/knowledge.ts";
 import type { SpeechResult } from "../types/kokkai.ts";
-import { UNKNOWN_VALUE, DEFAULT_DATE_VALUE } from "../config/constants.ts";
+import { DEFAULT_DATE_VALUE, UNKNOWN_VALUE } from "../config/constants.ts";
 
 export function documentToSpeech(doc: DocumentResult): SpeechResult {
   const extras = doc.extras as Record<string, unknown> | undefined;
@@ -18,4 +18,3 @@ export function documentToSpeech(doc: DocumentResult): SpeechResult {
     score: typeof doc.score === "number" ? doc.score : 0,
   };
 }
-

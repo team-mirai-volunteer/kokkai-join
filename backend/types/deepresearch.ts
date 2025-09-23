@@ -19,21 +19,32 @@ export interface SectionText {
   citations: string[]; // evidence ids
 }
 
-export interface SectionListItem { text: string; citations: string[] }
+export interface SectionListItem {
+  text: string;
+  citations: string[];
+}
 export interface SectionList {
   title: string;
   type: "list";
   items: SectionListItem[];
 }
 
-export interface SectionTimelineItem { date: string; text: string; citations: string[] }
+export interface SectionTimelineItem {
+  date: string;
+  text: string;
+  citations: string[];
+}
 export interface SectionTimeline {
   title: string;
   type: "timeline";
   items: SectionTimelineItem[];
 }
 
-export interface SectionLinkItem { label: string; url: string; citations: string[] }
+export interface SectionLinkItem {
+  label: string;
+  url: string;
+  citations: string[];
+}
 export interface SectionLinks {
   title: string;
   type: "links";
@@ -52,7 +63,10 @@ export interface DeepResearchSections {
   related_links: SectionLinks;
 }
 
-export interface EvidenceSourceRef { providerId: string; type: string }
+export interface EvidenceSourceRef {
+  providerId: string;
+  type: string;
+}
 export interface EvidenceRecord {
   id: string; // e.g., e1
   source: EvidenceSourceRef;

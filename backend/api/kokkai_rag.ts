@@ -1,3 +1,5 @@
+#!/usr/bin/env -S deno run -A --watch
+
 // Kokkai RAG Service (検索専用: DBベクトル検索の結果のみ返す)
 
 import { load } from "jsr:@std/dotenv";

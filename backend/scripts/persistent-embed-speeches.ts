@@ -4,14 +4,13 @@
 import { load } from "@std/dotenv";
 
 // Third-party library imports
-import { Settings } from "npm:llamaindex";
-import { OllamaEmbedding } from "npm:@llamaindex/ollama";
 import { Pool } from "npm:pg";
 import pgvector from "npm:pgvector/pg";
 
+// Local imports
+import { type EmbeddingProvider, getEmbeddingProvider } from "../services/embedding-provider.ts";
+
 // Constants
-const DEFAULT_OLLAMA_BASE_URL = "http://localhost:11434";
-const EMBEDDING_MODEL_NAME = "bge-m3";
 const EMBEDDING_DIMENSION = 1024;
 const MAX_DB_CONNECTIONS = 20;
 const MIN_SPEECH_LENGTH = 50;
@@ -68,6 +67,7 @@ interface ProcessedSpeechEmbedding {
 
 class PersistentSpeechEmbedder {
   private dbPool: Pool | null = null;
+  private embedProvider: EmbeddingProvider | null = null;
   private progress: EmbeddingProgress = {
     processed: 0,
     total: 0,
@@ -99,7 +99,10 @@ class PersistentSpeechEmbedder {
     recordIndex: number,
   ): Promise<ProcessedSpeechEmbedding> {
     // 埋め込み生成
-    const textEmbedding = await Settings.embedModel!.getTextEmbedding(
+    if (!this.embedProvider) {
+      this.embedProvider = await getEmbeddingProvider();
+    }
+    const textEmbedding = await this.embedProvider.getTextEmbedding(
       speech.speech,
     );
 
@@ -151,24 +154,20 @@ class PersistentSpeechEmbedder {
     await load({ export: true });
 
     const databaseUrl = Deno.env.get("DATABASE_URL");
-    const ollamaBaseUrl = Deno.env.get("OLLAMA_BASE_URL") || DEFAULT_OLLAMA_BASE_URL;
 
     if (!databaseUrl) {
       throw new Error("DATABASE_URL environment variable is required");
     }
 
-    // Ollama埋め込み設定
+    // Initialize embedding provider
     try {
-      Settings.embedModel = new OllamaEmbedding({
-        model: EMBEDDING_MODEL_NAME,
-        config: {
-          host: ollamaBaseUrl,
-        },
-      });
-      console.log("🤖 Ollama BGE-M3 embedding model initialized");
+      this.embedProvider = await getEmbeddingProvider();
+      console.log(
+        `🤖 Embedding provider initialized: ${this.embedProvider.getModelName()}`,
+      );
     } catch (error) {
       throw new Error(
-        `Failed to initialize Ollama: ${(error as Error).message}`,
+        `Failed to initialize embedding provider: ${(error as Error).message}`,
       );
     }
 
@@ -364,8 +363,8 @@ class PersistentSpeechEmbedder {
   }
 
   async embedAndStoreSpeechBatch(speechBatch: SpeechData[]): Promise<void> {
-    if (!this.dbPool || !Settings.embedModel) {
-      throw new Error("Database or embedding model not initialized");
+    if (!this.dbPool || !this.embedProvider) {
+      throw new Error("Database or embedding provider not initialized");
     }
 
     console.log(
@@ -592,12 +591,12 @@ class PersistentSpeechEmbedder {
     query: string,
     limit: number = SEARCH_RESULT_LIMIT,
   ): Promise<SearchResult[]> {
-    if (!this.dbPool || !Settings.embedModel) {
-      throw new Error("Database or embedding model not initialized");
+    if (!this.dbPool || !this.embedProvider) {
+      throw new Error("Database or embedding provider not initialized");
     }
 
     // クエリの埋め込み生成
-    const queryEmbedding = await Settings.embedModel.getTextEmbedding(query);
+    const queryEmbedding = await this.embedProvider.getTextEmbedding(query);
 
     const searchQuery = `
 			SELECT 

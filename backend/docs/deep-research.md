@@ -20,6 +20,7 @@
   - 「Chain of Agents」的な分割要約→統合要約はあるが、探索の反復やギャップ充足は行っていない。
 
 要点:
+
 - 現在の `/search` は「(1) プラン生成 → (2) 単回のベクトル検索（実体は下流のRAG API呼び出し）→ (3) 関連度評価 → (4) 要約生成」。
 - 実質、検索は一度きりで、サブクエリや再探索、ギャップ充足、反証検証などの「Deep Research ループ」は未実装。
 
@@ -27,12 +28,12 @@
 
 Deep Research とは、以下を満たす反復型の調査ワークフローを指します。
 
-1) 問いをサブタスク化（仮説/情報要求の明確化）
-2) 複数ソース（Kokkai DB, ウェブ, PDF, 省庁資料など）を横断探索
-3) 証拠（evidence）抽出・正規化・重複排除・スコアリング
-4) ギャップ分析（何がまだ不足か）と再探索の計画更新
-5) 反証・矛盾検出（主張 vs 出典の突合）
-6) 収束条件（予算/反復回数/網羅率）で停止し、引用付きで統合回答を生成
+1. 問いをサブタスク化（仮説/情報要求の明確化）
+2. 複数ソース（Kokkai DB, ウェブ, PDF, 省庁資料など）を横断探索
+3. 証拠（evidence）抽出・正規化・重複排除・スコアリング
+4. ギャップ分析（何がまだ不足か）と再探索の計画更新
+5. 反証・矛盾検出（主張 vs 出典の突合）
+6. 収束条件（予算/反復回数/網羅率）で停止し、引用付きで統合回答を生成
 
 このループにより、「一度取りに行った結果を要約するだけ」ではなく、「不足があれば掘り下げて取りに行く」行動が可能になります。
 
@@ -141,6 +142,7 @@ return { answer, sources: store.topSources(), evidences: store.all(), trace }
 ```
 
 収束条件は以下のいずれかで停止:
+
 - 反復上限到達 / 予算超過
 - 充足率（coverage）到達
 - 情報価値の限界（新規有用証拠が増えない）
@@ -168,10 +170,10 @@ POST /search
 {
   "query": "...",
   "answer": "...（各段落に[1][2]など引用）",
-  "sources": [ { "title": "...", "url": "...", "date": "..." } ],
-  "evidences": [ { "id": "e1", "source": {"providerId":"kokkai-db"}, "content": "..." } ],
-  "claims": [ { "id": "c1", "text": "...", "citations": ["e1","e3"], "confidence": 0.72 } ],
-  "trace": [ { "step": "search", "input": "subq1", "output": {"hits": 12}, "tookMs": 420 } ],
+  "sources": [{ "title": "...", "url": "...", "date": "..." }],
+  "evidences": [{ "id": "e1", "source": { "providerId": "kokkai-db" }, "content": "..." }],
+  "claims": [{ "id": "c1", "text": "...", "citations": ["e1", "e3"], "confidence": 0.72 }],
+  "trace": [{ "step": "search", "input": "subq1", "output": { "hits": 12 }, "tookMs": 420 }],
   "metadata": { "totalResults": 18, "processingTime": 5321, "timestamp": "..." }
 }
 ```
@@ -179,6 +181,7 @@ POST /search
 ## 7. 段階的実装計画（安全に差分を進める）
 
 ### Phase 1（サブクエリ活用と多ソース化、MVP）
+
 - [api] `/search` に `depth`, `maxIters`, `providers`, `returnTrace` を受け付けるが、まずは `depth=0/1` の固定動作に。
 - [providers] `HttpRagProvider` に `subqueries` 順次実行モードを追加（ユニーク化 + スコア統合）。
 - [services] `multi-source-search.ts` を「(プロバイダ×サブクエリ)」で実行→マージに拡張。
@@ -187,6 +190,7 @@ POST /search
 - [tests] モックプロバイダで「サブクエリ分割→統合」一連のユニットテスト。
 
 ### Phase 2（反復ループとギャップ充足）
+
 - [services] `research-orchestrator.ts` を追加し、ループ（計画→探索→評価→再計画）を実装。
 - [services] `evidence-store.ts` を導入し、重複排除と多様性（MMR）を組込み。
 - [services] `claim-extractor.ts` で主張抽出、`citation-graph.ts` で引用グラフを構築。
@@ -194,6 +198,7 @@ POST /search
 - [tests] ループの停止条件（iters/budget/coverage）と再現性のテスト。
 
 ### Phase 3（ウェブ/省庁資料）
+
 - [providers] `web-search.ts` + `web-fetch.ts` を追加（APIキー/ユーザエージェントは環境変数）。
 - [utils] HTML/PDF 抽出の安定化（タイムアウト・文字化け対策・正規化）。
 - [services] 反証・矛盾検出の導入、信頼度スコアの再評価。
@@ -202,6 +207,7 @@ POST /search
 ## 8. 設定・セキュリティ
 
 環境変数（追加想定）:
+
 - `KOKKAI_RAG_URL`（既存）
 - `WEB_SEARCH_API_KEY`（任意）
 - `WEB_SEARCH_ENDPOINT`（任意）

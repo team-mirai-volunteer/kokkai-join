@@ -1,4 +1,4 @@
-import type { ProviderQuery, DocumentResult } from "../types/knowledge.ts";
+import type { DocumentResult, ProviderQuery } from "../types/knowledge.ts";
 import type { SearchProvider } from "../providers/base.ts";
 import { MultiSourceSearchService } from "./multi-source-search.ts";
 import { FollowupGeneratorService, type OrchestratorState } from "./followup-generator.ts";
@@ -45,9 +45,17 @@ export class DeepResearchOrchestrator {
    * @param seedUrls 取得専用URL（HttpDocsProvider用）
    * @param docsProvider seedUrlsに対応するドキュメントフェッチ用プロバイダ（任意）
    */
-  async run(params: OrchestratorRunParams): Promise<OrchestratorRunResult>
-  {
-    const { userQuery, baseSubqueries, providers, allowBySection, targets, limit, seedUrls, docsProvider } = params;
+  async run(params: OrchestratorRunParams): Promise<OrchestratorRunResult> {
+    const {
+      userQuery,
+      baseSubqueries,
+      providers,
+      allowBySection,
+      targets,
+      limit,
+      seedUrls,
+      docsProvider,
+    } = params;
     const sectionKeys = Object.keys(allowBySection);
     const allDocs: DocumentResult[] = [];
     const sectionHitMap = new Map<string, Set<string>>();
@@ -103,7 +111,7 @@ export class DeepResearchOrchestrator {
             const dom = extractDomain(d.url);
             if (dom) state.seen.domains.add(dom);
           }
-          console.log(`[DRV1][${sKey}] +${docs.length} (${pList.map((p)=>p.id).join(',')})`);
+          console.log(`[DRV1][${sKey}] +${docs.length} (${pList.map((p) => p.id).join(",")})`);
         } catch (e) {
           console.error(`[DRV1][${sKey}] retrieval error:`, (e as Error).message);
         }
@@ -112,7 +120,9 @@ export class DeepResearchOrchestrator {
       // 充足度を計算して未達がなければ早期終了
       const cov = this.computeCoverage(sectionKeys, targets, sectionHitMap);
       const unmet = Object.entries(cov.missing).filter(([, v]) => v > 0);
-      console.log(`[DRV1] coverage=${JSON.stringify(cov.current)} unmet=${JSON.stringify(cov.missing)}`);
+      console.log(
+        `[DRV1] coverage=${JSON.stringify(cov.current)} unmet=${JSON.stringify(cov.missing)}`,
+      );
       if (unmet.length === 0) return { allDocs, sectionHitMap, iterations: iter };
     }
 
@@ -181,5 +191,9 @@ export class DeepResearchOrchestrator {
 
 function extractDomain(url?: string): string | undefined {
   if (!url) return undefined;
-  try { return new URL(url).hostname; } catch { return undefined; }
+  try {
+    return new URL(url).hostname;
+  } catch {
+    return undefined;
+  }
 }

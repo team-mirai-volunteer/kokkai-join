@@ -4,19 +4,13 @@
 import { load } from "jsr:@std/dotenv";
 
 // Third-party library imports
-import { Settings } from "npm:llamaindex";
-import { OllamaEmbedding } from "npm:@llamaindex/ollama";
 import { Pool } from "npm:pg";
 import pgvector from "npm:pgvector/pg";
 
 // Local imports
 import type { SpeechResult } from "../types/kokkai.ts";
-import {
-  DEFAULT_OLLAMA_BASE_URL,
-  DEFAULT_TOP_K_RESULTS,
-  EMBEDDING_MODEL_NAME,
-  MAX_DB_CONNECTIONS,
-} from "../config/constants.ts";
+import { DEFAULT_TOP_K_RESULTS, MAX_DB_CONNECTIONS } from "../config/constants.ts";
+import { type EmbeddingProvider, getEmbeddingProvider } from "../services/embedding-provider.ts";
 import { QueryPlanningService } from "../services/query-planning.ts";
 import { VectorSearchService } from "../services/vector-search.ts";
 import { AnswerGenerationService } from "../services/answer-generation.ts";
@@ -40,7 +34,6 @@ class RefactoredKokkaiRAGCLI {
     await load({ export: true });
 
     const databaseUrl = Deno.env.get("DATABASE_URL");
-    const ollamaBaseUrl = Deno.env.get("OLLAMA_BASE_URL") || DEFAULT_OLLAMA_BASE_URL;
     const openaiApiKey = Deno.env.get("OPENAI_API_KEY");
 
     if (!databaseUrl) {
@@ -51,18 +44,13 @@ class RefactoredKokkaiRAGCLI {
       throw new Error("OPENAI_API_KEY environment variable is required");
     }
 
-    // Ollama埋め込みモデル設定（埋め込みは引き続きOllamaを使用）
+    // Initialize embedding provider
     try {
-      Settings.embedModel = new OllamaEmbedding({
-        model: EMBEDDING_MODEL_NAME,
-        config: {
-          host: ollamaBaseUrl,
-        },
-      });
-      // Settings.llmは未設定（LLM呼び出しはOpenAIクライアントに直接委譲）
+      await getEmbeddingProvider();
+      console.log("🤖 Embedding provider initialized");
     } catch (error) {
       throw new Error(
-        `Failed to initialize Ollama embedding: ${(error as Error).message}`,
+        `Failed to initialize embedding provider: ${(error as Error).message}`,
       );
     }
 

@@ -1,4 +1,4 @@
-import type { ProviderQuery, DocumentResult } from "../types/knowledge.ts";
+import type { DocumentResult, ProviderQuery } from "../types/knowledge.ts";
 import type { SearchProvider } from "../providers/base.ts";
 
 /**
@@ -49,11 +49,12 @@ export class MultiSourceSearchService {
       let bestVal = -Infinity;
       for (let i = 0; i < candidates.length; i++) {
         const d = candidates[i];
-        const diversityPenalty = selected.length
-          ? Math.max(...selected.map((s) => sim(d, s)))
-          : 0;
+        const diversityPenalty = selected.length ? Math.max(...selected.map((s) => sim(d, s))) : 0;
         const val = lambda * rel(d) - (1 - lambda) * diversityPenalty;
-        if (val > bestVal) { bestVal = val; bestIdx = i; }
+        if (val > bestVal) {
+          bestVal = val;
+          bestIdx = i;
+        }
       }
       selected.push(candidates.splice(bestIdx, 1)[0]);
     }
@@ -65,7 +66,10 @@ export class MultiSourceSearchService {
     const out: DocumentResult[] = [];
     for (const d of docs) {
       const t = textOf(d);
-      if (!t) { out.push(d); continue; }
+      if (!t) {
+        out.push(d);
+        continue;
+      }
       const dup = out.some((o) => jaccardSim(t, textOf(o)) >= threshold);
       if (!dup) out.push(d);
     }

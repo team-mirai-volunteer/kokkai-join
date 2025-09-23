@@ -7,9 +7,11 @@
 ## システム概要
 
 ### 目的
+
 日本の国会会議録データを活用し、高度な調査・分析機能を提供するDeep Research APIシステム。単純な検索機能を超え、複数の観点からの分析、関連性評価、そして包括的な回答生成を実現する。
 
 ### 全体アーキテクチャ
+
 ```
 ┌─────────────────────────────────────────────────────┐
 │                Frontend                             │
@@ -74,9 +76,11 @@
 ### 1. Query Planning Layer
 
 #### QueryPlanningService
+
 **責務**: ユーザークエリの構造化と検索戦略の決定
 
 **主要機能**:
+
 - サブクエリへの分解
 - エンティティ抽出（発言者、政党、トピック、会議、役職、日付）
 - 検索戦略の選択
@@ -84,6 +88,7 @@
 
 **入力**: `string` (ユーザーの自然言語クエリ)
 **出力**: `QueryPlan`
+
 ```typescript
 interface QueryPlan {
   originalQuestion: string;
@@ -107,9 +112,11 @@ interface QueryPlan {
 ### 2. Search Layer
 
 #### MultiSourceSearchService
+
 **責務**: 複数検索プロバイダーからの並列検索と結果統合
 
 **主要機能**:
+
 - プロバイダー間の並列検索実行
 - エラーハンドリング（プロバイダー単位）
 - 重複排除（URL基準、フォールバックはproviderId:id）
@@ -118,14 +125,17 @@ interface QueryPlan {
 **入力**: `SearchProvider[]`, `ProviderQuery`
 **出力**: `DocumentResult[]`
 
-**プロバイダー拡張性**: 
+**プロバイダー拡張性**:
+
 - `SearchProvider`インターフェース準拠で新プロバイダー追加可能
 - 現在実装: `HttpRagProvider` (Kokkai RAG API接続)
 
 #### ProviderRegistry
+
 **責務**: 検索プロバイダーの管理と設定
 
 **設定方式**: 環境変数ベース
+
 ```bash
 KOKKAI_RAG_URL=http://localhost:8001/v1/search
 ```
@@ -133,9 +143,11 @@ KOKKAI_RAG_URL=http://localhost:8001/v1/search
 ### 3. Evaluation Layer
 
 #### RelevanceEvaluationService
+
 **責務**: 検索結果の関連性評価とノイズフィルタリング
 
 **評価プロセス**:
+
 1. 各検索結果に対してOpenAI APIで関連性評価
 2. 4段階評価: 高/中/低/無関係
 3. スコア調整: 高(1.0x), 中(0.8x), 低(0.5x), 無関係(除外)
@@ -146,9 +158,11 @@ KOKKAI_RAG_URL=http://localhost:8001/v1/search
 ### 4. Answer Generation Layer
 
 #### AnswerGenerationService
+
 **責務**: Chain of Agentsアプローチによる段階的要約と回答生成
 
 **処理フロー**:
+
 ```
 Input: SpeechResult[] 
     ↓
@@ -166,28 +180,36 @@ Output: Markdown形式の構造化回答
 ```
 
 **アルゴリズム特徴**:
+
 - 発言者単位でのグループ化により文脈保持
 - 段階的要約による大量データ処理
 - フォールバック機能による堅牢性確保
 
 **出力フォーマット**:
+
 ```markdown
 ## 全体のまとめ
+
 [要約内容]
 
 ## 観点別の詳細
+
 ### [観点名]
+
 #### 要約
+
 [観点別要約]
 
 #### 詳細
+
 | 発言者 | 所属 | 日付 | 内容（要約） | 出典 |
-|--------|------|------|------------|------|
+| ------ | ---- | ---- | ------------ | ---- |
 ```
 
 ## データフロー設計
 
 ### リクエスト処理フロー
+
 ```
 1. POST /search
     ↓
@@ -217,6 +239,7 @@ Output: Markdown形式の構造化回答
 ```
 
 ### データ変換チェーン
+
 ```
 string (user query)
     ↓ QueryPlanning
@@ -236,11 +259,13 @@ SearchResponse (JSON)
 ## セキュリティ設計
 
 ### 現在の実装
+
 - CORS設定: オリジン制限なし（開発環境）
 - 入力バリデーション: クエリ長・形式・リミット値
 - エラーハンドリング: 内部エラーの詳細隠蔽
 
 ### 推奨強化事項
+
 - API認証機能の追加
 - レート制限の実装
 - 入力サニタイゼーション強化
@@ -249,12 +274,14 @@ SearchResponse (JSON)
 ## 性能設計
 
 ### 現在の最適化
+
 - 並列プロバイダー検索
 - 直列関連性評価（レート制限対策）
 - 段階的要約によるメモリ効率化
 - チャンク処理による大量データ対応
 
 ### 性能特性
+
 ```
 推定処理時間（10件検索の場合）:
 - QueryPlanning: ~1-2秒
@@ -265,6 +292,7 @@ SearchResponse (JSON)
 ```
 
 ### スケーラビリティ考慮事項
+
 - OpenAI API依存によるレート制限
 - データベース接続プール設定
 - メモリ使用量の最適化が必要
@@ -272,11 +300,13 @@ SearchResponse (JSON)
 ## 保守性設計
 
 ### 現在の構造
+
 - レイヤー分離による責務明確化
 - 依存性注入によるテスタビリティ
 - 型安全性の確保
 
 ### 改善が必要な領域
+
 - テストコードの不在
 - 設定の外部化
 - ログレベル制御
@@ -285,6 +315,7 @@ SearchResponse (JSON)
 ## 今後の拡張性
 
 ### プロバイダー拡張
+
 ```typescript
 // 新プロバイダー例
 class WikipediaProvider implements SearchProvider {
@@ -301,6 +332,7 @@ class NewsApiProvider implements SearchProvider {
 ```
 
 ### 機能拡張の方向性
+
 1. **マルチモーダル対応**: 画像・音声データの統合
 2. **リアルタイム分析**: WebSocket対応
 3. **キャッシュ層**: Redis統合
@@ -310,12 +342,14 @@ class NewsApiProvider implements SearchProvider {
 ## 運用要件
 
 ### 必要な外部依存
+
 - PostgreSQL + pgvector
 - Ollama (bge-m3モデル)
 - OpenAI API
 - Deno Runtime
 
 ### 環境変数
+
 ```bash
 # 必須
 DATABASE_URL=postgresql://...
@@ -329,6 +363,7 @@ KOKKAI_RAG_PORT=8001
 ```
 
 ### ヘルスチェック
+
 - `GET /` - API情報取得
 - Deep Research API依存性:
   - OpenAI API接続
@@ -337,11 +372,13 @@ KOKKAI_RAG_PORT=8001
 ## 制約事項
 
 ### 技術的制約
+
 - OpenAI APIのレート制限
 - 単一スレッド処理（Deno）
 - メモリ使用量（大量データ処理時）
 
 ### ビジネス的制約
+
 - 国会会議録データのみ対応
 - 日本語処理のみ
 - リアルタイム性は限定的
@@ -349,6 +386,7 @@ KOKKAI_RAG_PORT=8001
 ## 品質保証
 
 ### 現在の状況
+
 ❌ テストコード: 未実装
 ❌ コードカバレッジ: 未測定
 ❌ パフォーマンステスト: 未実装
@@ -356,6 +394,7 @@ KOKKAI_RAG_PORT=8001
 ✅ 静的解析: Deno lint使用
 
 ### 推奨実装
+
 1. 単体テスト（各サービス）
 2. 統合テスト（エンドツーエンド）
 3. パフォーマンステスト

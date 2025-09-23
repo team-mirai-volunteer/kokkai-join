@@ -20,4 +20,3 @@ export function mapSpeechToDocument(r: SpeechResult): DocumentResult {
     },
   };
 }
-
