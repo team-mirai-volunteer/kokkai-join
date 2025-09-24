@@ -149,18 +149,6 @@ export function convertDeepResearchToMarkdown(
     lines.push("");
   }
 
-  // Related links
-  if (sections.related_links) {
-    lines.push(`## ${sections.related_links.title}`);
-    lines.push("");
-    for (const link of sections.related_links.links) {
-      lines.push(
-        `- [${link.label}](${link.url})${formatCitations(link.citations)}`,
-      );
-    }
-    lines.push("");
-  }
-
   // Add footnotes section if there are any citations
   if (citationMap.size > 0) {
     lines.push("---");

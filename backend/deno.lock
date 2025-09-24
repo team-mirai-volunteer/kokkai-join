@@ -5,10 +5,12 @@
     "jsr:@hono/hono@^4.6.0": "4.8.3",
     "jsr:@hono/hono@^4.8.3": "4.8.3",
     "jsr:@hono/valibot-validator@~0.5.3": "0.5.3",
+    "jsr:@std/assert@1.0.10": "1.0.10",
     "jsr:@std/dotenv@*": "0.225.5",
     "jsr:@std/dotenv@~0.225.5": "0.225.5",
     "jsr:@std/fs@^1.0.8": "1.0.19",
     "jsr:@std/internal@^1.0.10": "1.0.10",
+    "jsr:@std/internal@^1.0.5": "1.0.10",
     "jsr:@std/internal@^1.0.9": "1.0.10",
     "jsr:@std/path@^1.0.10": "1.1.2",
     "jsr:@std/path@^1.1.1": "1.1.2",
@@ -31,6 +33,12 @@
       "dependencies": [
         "jsr:@hono/hono@^4.8.3",
         "jsr:@valibot/valibot"
+      ]
+    },
+    "@std/assert@1.0.10": {
+      "integrity": "59b5cbac5bd55459a19045d95cc7c2ff787b4f8527c0dd195078ff6f9481fbb3",
+      "dependencies": [
+        "jsr:@std/internal@^1.0.5"
       ]
     },
     "@std/dotenv@0.225.5": {

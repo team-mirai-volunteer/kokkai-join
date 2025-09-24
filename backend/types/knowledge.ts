@@ -18,7 +18,6 @@ export interface DocumentResult {
 }
 
 export interface ProviderQuery {
-  originalQuestion: string;
-  subqueries: string[];
+  query: string;
   limit: number;
 }

@@ -100,7 +100,6 @@ export interface DeepResearchResponse {
     totalResults: number;
     processingTime: number;
     timestamp: string;
-    version: string;
   };
 }
 

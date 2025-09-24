@@ -18,7 +18,7 @@ export class KokkaiRagProvider implements SearchProvider {
     const t = setTimeout(() => controller.abort(), 15000);
     try {
       const body = JSON.stringify({
-        query: q.originalQuestion,
+        query: q.query,
         limit: q.limit,
       });
       const resp = await fetch(this.endpoint, {
@@ -30,12 +30,8 @@ export class KokkaiRagProvider implements SearchProvider {
         signal: controller.signal,
       });
       if (!resp.ok) throw new Error(`HTTP ${resp.status}, Details: ${await resp.text()}`);
-      const data = await resp.json();
-      const docs: DocumentResult[] = data?.results ?? [];
-      return docs.map((d) => ({
-        ...d,
-        source: d.source ?? { providerId: this.id, type: this.id },
-      }));
+      const { results }: { results: DocumentResult[] } = await resp.json();
+      return results;
     } finally {
       clearTimeout(t);
     }

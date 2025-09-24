@@ -1,133 +1,149 @@
 import type { DocumentResult, ProviderQuery } from "../types/knowledge.ts";
 import type { SearchProvider } from "../providers/base.ts";
 import { MultiSourceSearchService } from "./multi-source-search.ts";
-import { FollowupGeneratorService, type OrchestratorState } from "./followup-generator.ts";
-import type { Entities } from "./followup-generator.ts";
+import { DuplicationAnalyzer, type SectionDocumentTracker } from "../utils/duplication-analyzer.ts";
+
+const SECTION_KEYWORD_HINTS: Record<string, string[]> = {
+  purpose_overview: ["概要", "目的", "趣旨"],
+  current_status: ["現状", "進捗", "最新"],
+  timeline: ["年表", "タイムライン", "経緯"],
+  key_points: ["要点", "ポイント"],
+  background: ["背景", "狙い", "経緯"],
+  main_issues: ["論点", "課題", "争点"],
+  past_debates_summary: ["国会議事録", "質疑応答"],
+  status_notes: ["注意点", "確認"],
+};
 
 /**
  * DeepResearchOrchestrator
  *
  * 役割:
- * - セクション別のターゲット探索と、ギャップ充足ループ（最大3反復）の制御を担当。
- * - Provider の選択（セクションごとの許可 ID）と、セクションに最適化したフォローアップサブクエリ生成を行う。
- * - 取得結果のドキュメント配列と、ドキュメント→どのセクションでヒットしたかの対応関係を返す。
+ * - セクションごとに許可されたプロバイダーへシンプルなサブクエリで検索を実行。
+ * - 取得した結果をセクション単位で追跡し、 coverage ログを出力。
+ * - 収集したドキュメント一覧と sectionHitMap を返す。
  */
 export interface OrchestratorRunParams {
-  userQuery: string;
   baseSubqueries: string[];
   providers: SearchProvider[];
   allowBySection: Record<string, string[]>;
   targets: Record<string, number>;
   limit: number;
   seedUrls?: string[];
-  docsProvider?: SearchProvider | null;
 }
 
 export interface OrchestratorRunResult {
-  allDocs: DocumentResult[];
+  finalDocs: DocumentResult[]; // 重複除去後の最終ドキュメント
   sectionHitMap: Map<string, Set<string>>;
   iterations: number;
 }
 
 export class DeepResearchOrchestrator {
   private multiSource = new MultiSourceSearchService();
-  private followups = new FollowupGeneratorService();
 
   /**
    * 探索を実行する。
    *
-   * @param userQuery ユーザの元質問
    * @param baseSubqueries プランナーが生成したベースのサブクエリ
    * @param providers 使用可能なプロバイダ一覧
    * @param allowBySection セクションごとの許可プロバイダID
    * @param targets セクションごとの最低目標件数
    * @param limit 各呼び出しあたりの上限目安
    * @param seedUrls 取得専用URL（HttpDocsProvider用）
-   * @param docsProvider seedUrlsに対応するドキュメントフェッチ用プロバイダ（任意）
    */
   async run(params: OrchestratorRunParams): Promise<OrchestratorRunResult> {
-    const {
-      userQuery,
-      baseSubqueries,
-      providers,
-      allowBySection,
-      targets,
-      limit,
-      docsProvider,
-    } = params;
+    const { baseSubqueries, providers, allowBySection, targets, limit } = params;
     const sectionKeys = Object.keys(allowBySection);
     const allDocs: DocumentResult[] = [];
     const sectionHitMap = new Map<string, Set<string>>();
-    const state: OrchestratorState = {
-      seen: {
-        queryStrings: new Set<string>(),
-        urls: new Set<string>(),
-        domains: new Set<string>(),
-      },
-    };
-    const seenEntityStrings = new Set<string>();
+    const sectionQueryMap = new Map<string, Map<string, string>>(); // ドキュメントごとのセクション別検索クエリ
+    for (const sectionKey of sectionKeys) {
+      const allowedProviderIds = allowBySection[sectionKey] ?? [];
+      if (allowedProviderIds.length === 0) continue;
 
-    const iters = 3;
-    for (let iter = 1; iter <= iters; iter++) {
-      console.log(`[DRV1][loop ${iter}/${iters}] ▶ Section-targeted retrieval`);
-      for (const sKey of sectionKeys) {
-        const allowIds = allowBySection[sKey] || [];
-        if (allowIds.length === 0) continue;
+      const sectionProviders = providers.filter((p) => allowedProviderIds.includes(p.id));
+      if (!sectionProviders.length) continue;
 
-        // セクションで許可されたプロバイダのみ選択
-        const pList = providers.filter((p) => allowIds.includes(p.id));
-        if (docsProvider && allowIds.includes(docsProvider.id)) pList.push(docsProvider);
-        if (!pList.length) continue;
+      const query = this.buildSectionQuery(sectionKey, baseSubqueries);
+      const providerQuery: ProviderQuery = {
+        query,
+        limit: this.sectionLimit(limit),
+      };
 
-        // セクション向けフォローアップサブクエリを生成（多様化/MMR/負ヒント付与）
-        const entities = this.extractEntities(allDocs);
-        const fups = this.followups.generate({
-          sectionKey: sKey,
-          userQuery,
-          baseSubqueries,
-          asOfDate: undefined,
-          state,
-          iter,
-          k: 5,
-          entities,
-          seenEntities: seenEntityStrings,
-        });
-        fups.forEach((q) => state.seen.queryStrings.add(q));
-        const pq: ProviderQuery = {
-          originalQuestion: userQuery,
-          subqueries: fups,
-          limit: Math.max(3, Math.floor(limit / 2)),
-        };
-        try {
-          const docs = await this.multiSource.searchAcross(pList, pq);
-          for (const d of docs) {
-            allDocs.push(d);
-            const key = d.url || `${d.source.providerId}:${d.id}`;
-            if (!sectionHitMap.has(key)) sectionHitMap.set(key, new Set());
-            sectionHitMap.get(key)!.add(sKey);
-            if (d.url) state.seen.urls.add(d.url);
-            const dom = extractDomain(d.url);
-            if (dom) state.seen.domains.add(dom);
+      try {
+        const docs = await this.multiSource.searchAcross(
+          sectionProviders,
+          providerQuery,
+        );
+        for (const doc of docs) {
+          allDocs.push(doc);
+          const key = this.docKey(doc);
+          if (!sectionHitMap.has(key)) sectionHitMap.set(key, new Set());
+          sectionHitMap.get(key)!.add(sectionKey);
+
+          // 検索クエリ情報を保存
+          if (!sectionQueryMap.has(key)) {
+            sectionQueryMap.set(key, new Map());
           }
-          console.log(`[DRV1][${sKey}] +${docs.length} (${pList.map((p) => p.id).join(",")})`);
-        } catch (e) {
-          console.error(`[DRV1][${sKey}] retrieval error:`, (e as Error).message);
+          sectionQueryMap.get(key)!.set(sectionKey, query);
         }
+        const providerList = sectionProviders.map((p) => p.id).join(",");
+        console.log(
+          `[DRV1][${sectionKey}] +${docs.length} providers=${providerList} subqueries=${query}`,
+        );
+      } catch (e) {
+        console.error(
+          `[DRV1][${sectionKey}] retrieval error:`,
+          (e as Error).message,
+        );
       }
-
-      // 充足度を計算して未達がなければ早期終了
-      const cov = this.computeCoverage(sectionKeys, targets, sectionHitMap);
-      const unmet = Object.entries(cov.missing).filter(([, v]) => v > 0);
-      console.log(
-        `[DRV1] coverage=${JSON.stringify(cov.current)} unmet=${JSON.stringify(cov.missing)}`,
-      );
-      if (unmet.length === 0) return { allDocs, sectionHitMap, iterations: iter };
     }
 
-    return { allDocs, sectionHitMap, iterations: 3 };
-  }
+    const coverage = this.computeCoverage(sectionKeys, targets, sectionHitMap);
+    console.log(
+      `[DRV1] coverage=${JSON.stringify(coverage.current)} unmet=${
+        JSON.stringify(
+          coverage.missing,
+        )
+      }`,
+    );
 
-  // フォローアップ生成は FollowupGeneratorService に委譲
+    // 重複分析と除去
+    console.log(`[DRV1] ▶ Analyzing duplicates totalDocs=${allDocs.length}`);
+    const analyzer = new DuplicationAnalyzer();
+
+    // セクション情報付きドキュメントのリストを構築
+    const documentsWithSections: SectionDocumentTracker[] = [];
+
+    // 統計収集とセクション情報の整理
+    for (const doc of allDocs) {
+      analyzer.collectStatistics(doc, sectionHitMap);
+      const key = doc.url || `${doc.source.providerId}:${doc.id}`;
+      const sections = sectionHitMap.get(key) || new Set();
+      // 各セクションごとにドキュメントをリストに追加
+      for (const section of sections) {
+        // セクションの検索コンテキスト（どのクエリでヒットしたか）を取得
+        const sectionQueries = sectionQueryMap.get(key);
+        const searchContext = sectionQueries?.get(section);
+        documentsWithSections.push({ section, doc, key, searchContext });
+      }
+    }
+
+    // セクション内重複を除去
+    const finalDocs = analyzer.deduplicateWithinSections(documentsWithSections);
+
+    // 統計情報を生成して出力
+    const stats = analyzer.generateStatistics(allDocs.length);
+    analyzer.printStatistics(stats);
+    console.log(
+      `[DRV1] ◀ After section-aware dedup finalDocs=${finalDocs.length}`,
+    );
+
+    return {
+      finalDocs,
+      sectionHitMap,
+      iterations: 1,
+    };
+  }
 
   /**
    * セクションの充足状況を計算
@@ -169,29 +185,44 @@ export class DeepResearchOrchestrator {
     return { current, missing };
   }
 
-  /** 取得済みドキュメントから簡易にエンティティを抽出する（話者/会議名など） */
-  private extractEntities(docs: DocumentResult[]): Entities {
-    const speakers = new Set<string>();
-    const parties = new Set<string>();
-    const meetings = new Set<string>();
-    for (const d of docs) {
-      const ex = d.extras as Record<string, unknown> | undefined;
-      const sp = typeof ex?.speaker === "string" ? (ex!.speaker as string).trim() : undefined;
-      const pt = typeof ex?.party === "string" ? (ex!.party as string).trim() : undefined;
-      const mt = typeof ex?.meeting === "string" ? (ex!.meeting as string).trim() : undefined;
-      if (sp) speakers.add(sp);
-      if (pt) parties.add(pt);
-      if (mt) meetings.add(mt);
-    }
-    return { speakers, parties, meetings };
-  }
-}
+  /*
+   * シンプル化: サブクエリを統合し、セクションヒントを追加
+   * 例:
+   *   buildSectionSubqueries(
+   *     "timeline",
+   *     "防衛費 増額",
+   *     ["防衛費 財源", "防衛費 審議"],
+   *   ) ⇒ [
+   *     "防衛費 増額 財源 審議 年表 タイムライン 経緯",  // すべて統合
+   *   ]
+   */
+  buildSectionQuery(sectionKey: string, baseSubqueries: string[]): string {
+    // すべてのクエリを統合
+    const allQueries = [...baseSubqueries];
 
-function extractDomain(url?: string): string | undefined {
-  if (!url) return undefined;
-  try {
-    return new URL(url).hostname;
-  } catch {
-    return undefined;
+    // 重複するキーワードを除去
+    const uniqueWords = new Set<string>();
+    for (const query of allQueries) {
+      const words = query.split(/\s+/).filter((w) => w.length > 0);
+      words.forEach((w) => uniqueWords.add(w));
+    }
+
+    // セクション固有のヒントを追加
+    const hints = SECTION_KEYWORD_HINTS[sectionKey] ?? [];
+    hints.forEach((hint) => uniqueWords.add(hint));
+
+    // 1つの統合クエリとして返す
+    const combinedQuery = Array.from(uniqueWords).join(" ");
+    return combinedQuery;
+  }
+
+  private sectionLimit(limit: number): number {
+    if (!Number.isFinite(limit) || limit <= 0) return 10;
+    // 各セクションでより多くの結果を取得（重複は後で除去される）
+    return Math.max(10, Math.floor(limit * 0.7));
+  }
+
+  private docKey(doc: DocumentResult): string {
+    return doc.url || `${doc.source.providerId}:${doc.id}`;
   }
 }

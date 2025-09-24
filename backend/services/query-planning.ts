@@ -3,50 +3,21 @@
 import { getOpenAIClient, resolveModel } from "../config/openai.ts";
 import type { QueryPlan } from "../types/kokkai.ts";
 import { createQueryPlanPrompt, getQueryPlanSystemPrompt } from "../utils/prompt.ts";
-import { AICacheManager } from "../utils/ai-cache-manager.ts";
 
 /**
  * クエリプランニングサービス。
  *
  * - 役割: ユーザ質問を解析し、検索に適したサブクエリやエンティティ（話者/政党/期間など）を抽出。
  * - 本実装: OpenAI 経由で選択した LLM にプロンプトして JSON 形式のプランを生成する。
- * - キャッシュ: AI応答をJSONファイルにキャッシュし、モックモードで再利用可能。
  */
 export class QueryPlanningService {
-  private cacheManager: AICacheManager;
-
-  constructor(cacheManager?: AICacheManager) {
-    this.cacheManager = cacheManager || new AICacheManager();
-  }
+  constructor() {}
 
   /** ユーザ質問からクエリプラン（サブクエリ等）を生成 */
   async createQueryPlan(userQuestion: string): Promise<QueryPlan> {
     console.log("🧠 Planning query strategy...");
 
     const userPrompt = createQueryPlanPrompt(userQuestion);
-    const cacheInput = {
-      userQuestion,
-      userPrompt,
-      systemPrompt: getQueryPlanSystemPrompt(),
-      model: resolveModel("query_planning"),
-    };
-
-    // キャッシュチェック
-    const cachedPlan = await this.cacheManager.load<QueryPlan>(
-      "query-planning",
-      cacheInput,
-    );
-
-    if (cachedPlan) {
-      return cachedPlan;
-    }
-
-    // モックモードでキャッシュがない場合はエラー
-    if (this.cacheManager.isMockMode()) {
-      throw new Error(
-        "Mock mode enabled but no cached query plan found for this input",
-      );
-    }
 
     let planText: string | undefined;
     try {
@@ -99,9 +70,6 @@ export class QueryPlanningService {
       confidence: planData.confidence || 0.5,
       estimatedComplexity: planData.estimatedComplexity || 2,
     };
-
-    // QueryPlanオブジェクトをキャッシュに保存
-    await this.cacheManager.save("query-planning", cacheInput, plan);
 
     return plan;
   }

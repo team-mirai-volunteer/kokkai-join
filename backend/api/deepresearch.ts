@@ -18,7 +18,6 @@ import {
 } from "../config/deepresearch-constants.ts";
 import { QueryPlanningService } from "../services/query-planning.ts";
 import { ProviderRegistry } from "../providers/registry.ts";
-import type { DocumentResult } from "../types/knowledge.ts";
 import {
   DeepResearchRequestSchema,
   type DeepResearchRequestValidated,
@@ -28,8 +27,6 @@ import { toEvidenceRecord } from "../types/deepresearch.ts";
 import { convertDeepResearchToMarkdown } from "../utils/markdown-converter.ts";
 import { SectionSynthesisService } from "../services/section-synthesis.ts";
 import { DeepResearchOrchestrator } from "../services/deepresearch-orchestrator.ts";
-import { DuplicationAnalyzer } from "../utils/duplication-analyzer.ts";
-import { AICacheManager } from "../utils/ai-cache-manager.ts";
 
 /**
  * Kokkai Deep Research API Server using Hono
@@ -151,19 +148,12 @@ class KokkaiDeepResearchAPI {
     }
     console.log("🚀 Initializing Kokkai Deep Research API (provider-based)...");
 
-    // Initialize cache manager first
-    const aiCache = new AICacheManager();
-
-    // Pass cache manager to services that need it
-    this.queryPlanningService = new QueryPlanningService(aiCache);
+    // Initialize services
+    this.queryPlanningService = new QueryPlanningService();
     this.providerRegistry = new ProviderRegistry();
-    this.sectionSynthesis = new SectionSynthesisService(aiCache);
+    this.sectionSynthesis = new SectionSynthesisService();
     this.orchestrator = new DeepResearchOrchestrator();
 
-    // Mock mode check
-    if (aiCache.isMockMode()) {
-      console.log("🎭 Mock mode enabled - will use cached AI responses");
-    }
     console.log("✅ Services initialized");
   }
 
@@ -226,51 +216,19 @@ class KokkaiDeepResearchAPI {
       console.error("[DRV1][plan] error:", (e as Error).message);
       throw new Error(`[DRV1][plan] ${(e as Error).message}`);
     }
+
     const subqueries = plan.subqueries && plan.subqueries.length > 0
       ? plan.subqueries
       : [body.query];
 
-    // 2)+3) DeepResearchOrchestrator に委譲
-    const { allDocs, sectionHitMap, iterations } = await this.orchestrator.run({
-      userQuery: body.query,
+    // 2)+3) DeepResearchOrchestrator に委譲（重複除去も含む）
+    const { finalDocs, sectionHitMap, iterations } = await this.orchestrator.run({
       baseSubqueries: subqueries,
       providers,
       allowBySection: SECTION_ALLOWED_PROVIDERS,
       targets: SECTION_TARGET_COUNTS,
       limit,
     });
-
-    // 重複分析（統計収集のみ）
-    console.log(`[DRV1] ▶ Analyzing duplicates totalDocs=${allDocs.length}`);
-    const analyzer = new DuplicationAnalyzer();
-
-    // セクション情報付きドキュメントのリストを構築
-    const documentsWithSections: Array<{
-      section: string;
-      doc: DocumentResult;
-      key: string;
-    }> = [];
-
-    // 統計収集とセクション情報の整理
-    for (const doc of allDocs) {
-      analyzer.collectStatistics(doc, sectionHitMap);
-      const key = doc.url || `${doc.source.providerId}:${doc.id}`;
-      const sections = sectionHitMap.get(key) || new Set();
-      // 各セクションごとにドキュメントをリストに追加
-      for (const section of sections) {
-        documentsWithSections.push({ section, doc, key });
-      }
-    }
-
-    // セクション内重複を除去
-    const finalDocs = analyzer.deduplicateWithinSections(documentsWithSections);
-
-    // 統計情報を生成して出力
-    const stats = analyzer.generateStatistics(allDocs.length);
-    analyzer.printStatistics(stats);
-    console.log(
-      `[DRV1] ◀ After section-aware dedup finalDocs=${finalDocs.length}`,
-    );
 
     // 4) e1.. の連番で EvidenceRecord を構築（セクションヒントを付与）
     console.log("[DRV1] ▶ Building evidences...");
@@ -309,7 +267,6 @@ class KokkaiDeepResearchAPI {
         totalResults: finalDocs.length,
         processingTime: Date.now() - start,
         timestamp: new Date().toISOString(),
-        version: "deepresearch-v1",
       },
     };
     return resp;

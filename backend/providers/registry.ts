@@ -9,6 +9,7 @@ export class ProviderRegistry {
   constructor() {
     // Kokkai RAG Provider: 国会議事録のベクトル検索API
     this.providers.push(new KokkaiRagProvider({ endpoint: ensureEnv("KOKKAI_RAG_URL") }));
+
     // OpenAI Web Search（前提: OPENAI_API_KEY が必須）
     this.providers.push(
       new OpenAIWebProvider({

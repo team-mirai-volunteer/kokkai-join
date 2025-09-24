@@ -86,29 +86,20 @@ for (let iter = 1; iter <= 3; iter++) {
 | status_notes         | ["kokkai-db", "openai-web"] | 1              | 状況メモ         |
 | related_links        | ["openai-web", "kokkai-db"] | 3              | 関連リンク       |
 
-#### 3.3 フォローアップクエリ生成
+#### 3.3 セクション別サブクエリ構成
 
-FollowupGeneratorService が各セクションに特化したクエリを動的生成:
+DeepResearchOrchestrator はシンプルな規則でセクション向けサブクエリを構成します。
 
 ```typescript
-generate({
-  sectionKey, // 現在のセクション
-  userQuery, // 元のクエリ
-  baseSubqueries, // プランナーからのサブクエリ
-  state, // 既出情報の状態
-  iter, // 反復回数
-  entities, // 抽出済みエンティティ
-  seenEntities, // 使用済みエンティティ
-});
+buildSectionSubqueries(sectionKey, userQuery, baseSubqueries) {
+  // 1. 元クエリを必ず含める
+  // 2. プランナーが提案したサブクエリを順番通りに追加
+  // 3. セクション固有のキーワードヒント（例: "概要", "年表"）を付与した派生クエリを追加
+  // 4. 重複を除外し、最大10件にクリップ
+}
 ```
 
-**クエリ生成戦略:**
-
-1. **テンプレート拡張**: セクション別のクエリテンプレート適用
-2. **エンティティ拡張**: 発見済みの話者・会議名等を活用
-3. **重複除去**: Jaccard係数0.7での近似重複除去
-4. **MMR選択**: 最大限の多様性を保ちつつ関連性を維持
-5. **負のヒント注入**: 既出ドメインを除外するヒント追加
+kokkai-rag と Web 検索へ同じ観点のクエリを投げつつ、セクション固有の視点を軽量に補強することに集中しています。
 
 ### 4. 状態管理とトラッキング
 
@@ -126,17 +117,10 @@ Map<string, Set<string>>;
 - 各ドキュメントがどのセクションに貢献したかを追跡
 - 充足度計算の基礎データ
 
-#### 4.2 OrchestratorState
+#### 4.2 状態管理の簡素化
 
-```typescript
-{
-  seen: {
-    queryStrings: Set<string>,  // 実行済みクエリ
-    urls: Set<string>,          // 取得済みURL
-    domains: Set<string>        // アクセス済みドメイン
-  }
-}
-```
+反復探索の状態管理は撤廃し、オーケストレータが保持するのは `sectionHitMap` のみです。
+重複抑制や多様化は MultiSourceSearchService の MMR と後段の重複解析ユーティリティが担います。
 
 ### 5. 充足度計算アルゴリズム
 

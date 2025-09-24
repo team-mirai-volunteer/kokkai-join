@@ -11,55 +11,36 @@ interface OpenAIWebConfig {
  * OpenAI Web 検索プロバイダ。
  *
  * - OpenAI Responses API + web_search_preview を利用して Web 検索結果を取得。
- * - 返却は DocumentResult の配列（title/url/snippet/date など）に正規化。
+ * - 返却は DocumentResult の配列（title/url/content/date など）に正規化。
  */
 export class OpenAIWebProvider implements SearchProvider {
   id: string;
   private apiKey: string;
   private model: string;
   private timeoutMs: number;
-  private maxPerSubquery: number;
   private client: OpenAI;
 
   constructor(cfg: OpenAIWebConfig) {
     this.id = "openai-web";
     this.apiKey = cfg.apiKey;
     this.model = cfg.model;
-    this.timeoutMs = 20000;
-    this.maxPerSubquery = 5;
+    this.timeoutMs = 120000;
     this.client = new OpenAI({ apiKey: this.apiKey });
   }
 
-  /** サブクエリごとにOpenAIへ検索を投げ、結果をマージして返す */
+  /** サブクエリを統合して効率的に検索を実行 */
   async search(q: ProviderQuery): Promise<DocumentResult[]> {
-    const subqsAll = q.subqueries?.length ? q.subqueries : [q.originalQuestion];
-    const subqs = subqsAll.slice(0, 3);
-    const limitPer = Math.max(
-      1,
-      Math.min(this.maxPerSubquery, Math.floor((q.limit || 10) / subqs.length) || 1),
-    );
-    const tasks = subqs.map((s, i) => this.searchOne(s, limitPer, i));
-    const arrays = await Promise.all(tasks);
-    const merged = arrays.flat();
-    // URL重複している検索結果を削除
-    const seen = new Set<string>();
-    const out: DocumentResult[] = [];
-    for (const d of merged) {
-      const key = d.url || `${d.source.providerId}:${d.id}`;
-      if (seen.has(key)) continue;
-      seen.add(key);
-      out.push(d);
-    }
-    return out;
+    // 統合クエリで1回だけ検索（重複を避け、効率的に）
+    const limit = q.limit || 10;
+    const docs = await this.searchOne(q.query, limit);
+    return docs;
   }
 
   /** 1サブクエリ分の検索を実行し、結果を DocumentResult に変換 */
   private async searchOne(
     subq: string,
     limit: number,
-    idx: number,
   ): Promise<DocumentResult[]> {
-    // SDKでResponses APIを呼び、web_search_previewツールを有効化。JSONスキーマで構造化結果を要求
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), this.timeoutMs);
     try {
@@ -67,9 +48,18 @@ export class OpenAIWebProvider implements SearchProvider {
         {
           model: this.model,
           tools: [{ type: "web_search_preview" }],
-          // 指示は簡潔に。モデルに結果JSONのみに集中させる（スキーマは口頭指定）
-          input:
-            `Search the web for: ${subq}. Return ONLY valid JSON (no prose) with shape {"results":[{"id":string,"title":string,"url":string,"date"?:string,"snippet"?:string,"score"?:number}]}. Limit to ${limit} items.`,
+          input: `以下のクエリについてウェブを包括的に検索してください: "${subq}"
+
+指示:
+1. 異なる観点をカバーする最も関連性が高く多様な結果を見つける
+2. 利用可能な場合は最新情報（2023-2025年）を含める
+3. 信頼できる情報源（政府、ニュース、学術機関）を優先する
+4. 情報源の多様性を確保 - 同一ドメインからの複数の結果を避ける
+
+以下の形式の有効なJSONのみを返してください:
+{"results":[{"id":string,"title":string,"url":string,"date"?:string,"content":string,"score":number}]}
+
+最大${limit}件の高品質でユニークな結果を返してください。`,
         },
         { signal: controller.signal },
       );
@@ -82,26 +72,19 @@ export class OpenAIWebProvider implements SearchProvider {
         return [];
       }
       const items = Array.isArray(parsed.results) ? parsed.results : [];
-      const docs: DocumentResult[] = items.map((it, j) => {
-        const id = String(it.id ?? `${this.id}:${idx}:${j}`);
+      const docs: DocumentResult[] = items.map((it, idx) => {
+        const id = String(it.id ?? `${this.id}:${idx}`);
         const title = typeof it.title === "string" ? it.title : undefined;
         const url = typeof it.url === "string" ? it.url : undefined;
-        const date = typeof (it as Record<string, unknown>).date === "string"
-          ? ((it as Record<string, unknown>).date as string)
-          : undefined;
-        const snippet = typeof (it as Record<string, unknown>).snippet === "string"
-          ? ((it as Record<string, unknown>).snippet as string)
-          : undefined;
-        const score = typeof (it as Record<string, unknown>).score === "number"
-          ? ((it as Record<string, unknown>).score as number)
-          : undefined;
+        const date = typeof it.date === "string" ? it.date : undefined;
+        const content = typeof it.content === "string" ? it.content : "";
+        const score = typeof it.score === "number" ? it.score : undefined;
         return {
           id,
           title,
           url,
           date,
-          content: snippet ?? "",
-          author: undefined,
+          content,
           score,
           source: { providerId: this.id, type: this.id },
           extras: { subquery: subq },

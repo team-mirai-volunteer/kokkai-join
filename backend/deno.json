@@ -15,8 +15,8 @@
   },
   "nodeModulesDir": "auto",
   "tasks": {
-    "kokkai-rag": "deno run -A ./api/kokkai_rag.ts",
-    "deepresearch": "deno run -A ./api/deepresearch.ts",
+    "kokkai-rag": "deno run -A --watch ./api/kokkai_rag.ts",
+    "deepresearch": "deno run -A --watch ./api/deepresearch.ts",
     "search": "deno run -A scripts/search-cli.ts"
   },
   "fmt": {
