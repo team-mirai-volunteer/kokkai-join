@@ -1,12 +1,4 @@
 import type { EvidenceRecord } from "../types/deepresearch.ts";
-import type { PromptText } from "../types/kokkai.ts";
-
-/**
- * Create query planning prompt
- */
-export function createQueryPlanPrompt(userQuestion: string): PromptText {
-  return `質問: "${userQuestion}"`;
-}
 
 /**
  * Get system prompt for query planning
