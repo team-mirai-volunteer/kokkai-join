@@ -28,12 +28,6 @@ export const SECTION_ALLOWED_PROVIDERS: Record<string, string[]> = {
 
   // 過去の議論サマリー: 国会DBを優先
   past_debates_summary: ["kokkai-db"],
-
-  // 状況メモ: 両ソースから最新状況を収集
-  status_notes: ["kokkai-db", "openai-web"],
-
-  // 関連リンク: Web検索と国会DBから収集
-  related_links: ["openai-web", "kokkai-db"],
 };
 
 /**
@@ -48,6 +42,4 @@ export const SECTION_TARGET_COUNTS: Record<string, number> = {
   background: 2, // 背景は2件
   main_issues: 3, // 論点は3件
   past_debates_summary: 3, // 過去の議論は3件
-  status_notes: 1, // 状況メモは1件
-  related_links: 3, // 関連リンクは3件
 };

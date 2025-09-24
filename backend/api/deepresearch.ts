@@ -1,5 +1,3 @@
-#!/usr/bin/env -S deno run -A --watch
-
 // Standard library imports
 import { load } from "@std/dotenv";
 

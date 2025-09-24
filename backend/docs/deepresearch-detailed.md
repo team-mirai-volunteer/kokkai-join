@@ -83,8 +83,6 @@ for (let iter = 1; iter <= 3; iter++) {
 | background           | ["openai-web", "kokkai-db"] | 2              | 背景情報         |
 | main_issues          | ["openai-web", "kokkai-db"] | 3              | 主要論点         |
 | past_debates_summary | ["kokkai-db"]               | 3              | 過去の議論       |
-| status_notes         | ["kokkai-db", "openai-web"] | 1              | 状況メモ         |
-| related_links        | ["openai-web", "kokkai-db"] | 3              | 関連リンク       |
 
 #### 3.3 セクション別サブクエリ構成
 

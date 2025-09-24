@@ -55,7 +55,7 @@ export function getSectionSynthesisSystemPrompt(): string {
 - 他セクションは内容ごとに適切な evidence の id を citations に含める。
 - timeline は items の各要素に date(YYYY-MM-DD) と text と citations を付ける。
 - list は items の各要素に text と citations を付ける。
-- JSONキーは固定: purpose_overview, current_status, timeline, key_points, background, main_issues, past_debates_summary, status_notes。
+- JSONキーは固定: purpose_overview, current_status, timeline, key_points, background, main_issues, past_debates_summary。
 - 事実に確信が持てない場合は曖昧表現を避け、記載しないか「不明」とする。
 `;
 }
@@ -65,17 +65,19 @@ export function createSectionSynthesisPrompt(
   asOfDate: string | undefined,
   evidences: EvidenceRecord[],
 ): string {
-  const evLines = evidences.map((e) => {
-    const parts = [
-      `id:${e.id}`,
-      e.url ? `url:${e.url}` : undefined,
-      e.date ? `date:${e.date}` : undefined,
-      e.title ? `title:${e.title}` : undefined,
-      e.excerpt ? `excerpt:${e.excerpt}` : undefined,
-      `provider:${e.source.providerId}`,
-    ].filter(Boolean);
-    return `- ${parts.join(" | ")}`;
-  }).join("\n");
+  const evLines = evidences
+    .map((e) => {
+      const parts = [
+        `id:${e.id}`,
+        e.url ? `url:${e.url}` : undefined,
+        e.date ? `date:${e.date}` : undefined,
+        e.title ? `title:${e.title}` : undefined,
+        e.excerpt ? `excerpt:${e.excerpt}` : undefined,
+        `provider:${e.source.providerId}`,
+      ].filter(Boolean);
+      return `- ${parts.join(" | ")}`;
+    })
+    .join("\n");
 
   const sectionsDesc = `生成するセクション:
 - purpose_overview (text)
@@ -85,7 +87,6 @@ export function createSectionSynthesisPrompt(
 - background (text)
 - main_issues (list)
 - past_debates_summary (text)
-- status_notes (text)
 `;
 
   return `質問: ${userQuery}
@@ -106,10 +107,7 @@ ${sectionsDesc}
   "key_points": {"title":"法改正の重要ポイント","type":"list","items":[{"text":"...","citations":["eX"]}]},
   "background": {"title":"法案提出までの経緯（背景）","type":"text","content":"...","citations":["eX"]},
   "main_issues": {"title":"主要な論点（審議・実務で指摘された主なポイント）","type":"list","items":[{"text":"...","citations":["eX"]}]},
-  "past_debates_summary": {"title":"過去の議論の要約","type":"text","content":"...","citations":["eX"]},
-  "status_notes": {"title":"現在の審議状況の確認メモ${
-    asOfDate ? `（${asOfDate}時点）` : ""
-  }","type":"text","content":"...","citations":["eX"]}
+  "past_debates_summary": {"title":"過去の議論の要約","type":"text","content":"...","citations":["eX"]}
   }
 }`;
 }

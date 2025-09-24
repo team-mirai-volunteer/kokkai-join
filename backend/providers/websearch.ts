@@ -48,6 +48,7 @@ export class OpenAIWebProvider implements SearchProvider {
         {
           model: this.model,
           tools: [{ type: "web_search_preview" }],
+          max_output_tokens: 16000,
           input: `以下のクエリについてウェブを包括的に検索してください: "${subq}"
 
 指示:

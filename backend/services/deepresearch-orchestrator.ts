@@ -11,7 +11,6 @@ const SECTION_KEYWORD_HINTS: Record<string, string[]> = {
   background: ["背景", "狙い", "経緯"],
   main_issues: ["論点", "課題", "争点"],
   past_debates_summary: ["国会議事録", "質疑応答"],
-  status_notes: ["注意点", "確認"],
 };
 
 /**
@@ -28,7 +27,6 @@ export interface OrchestratorRunParams {
   allowBySection: Record<string, string[]>;
   targets: Record<string, number>;
   limit: number;
-  seedUrls?: string[];
 }
 
 export interface OrchestratorRunResult {
@@ -48,7 +46,6 @@ export class DeepResearchOrchestrator {
    * @param allowBySection セクションごとの許可プロバイダID
    * @param targets セクションごとの最低目標件数
    * @param limit 各呼び出しあたりの上限目安
-   * @param seedUrls 取得専用URL（HttpDocsProvider用）
    */
   async run(params: OrchestratorRunParams): Promise<OrchestratorRunResult> {
     const { baseSubqueries, providers, allowBySection, targets, limit } = params;

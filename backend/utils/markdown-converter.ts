@@ -133,18 +133,10 @@ export function convertDeepResearchToMarkdown(
     lines.push("");
     lines.push(
       `${sections.past_debates_summary.content}${
-        formatCitations(sections.past_debates_summary.citations)
+        formatCitations(
+          sections.past_debates_summary.citations,
+        )
       }`,
-    );
-    lines.push("");
-  }
-
-  // Status notes
-  if (sections.status_notes) {
-    lines.push(`## ${sections.status_notes.title}`);
-    lines.push("");
-    lines.push(
-      `${sections.status_notes.content}${formatCitations(sections.status_notes.citations)}`,
     );
     lines.push("");
   }
