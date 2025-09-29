@@ -22,11 +22,9 @@ function App() {
     key: "deepresearch_cache",
   });
 
-  // キャッシュからクエリと結果を取得
   const result = cachedData?.result || "";
   const cachedQuery = cachedData?.query || "";
 
-  // キャッシュされたクエリがある場合、初期表示時にセット
   if (cachedQuery && !query) {
     setQuery(cachedQuery);
   }
@@ -35,7 +33,7 @@ function App() {
     e.preventDefault();
 
     if (!query.trim()) {
-      setError("クエリを入力してください");
+      setError("キーワードを入力してください");
       return;
     }
 
@@ -87,7 +85,7 @@ function App() {
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="検索クエリを入力してください..."
+              placeholder="検索キーワードを入力してください..."
               disabled={loading}
               className="query-input"
             />
