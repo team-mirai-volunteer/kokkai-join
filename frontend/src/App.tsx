@@ -78,7 +78,6 @@ function App() {
   return (
     <div className="app-container">
       <div className="input-section">
-        <h1>Deep Research Query</h1>
         <form onSubmit={handleSubmit} className="search-form">
           <div className="form-group">
             <input
@@ -98,11 +97,6 @@ function App() {
       </div>
 
       <div className="output-section">
-        <div className="result-header">
-          <h2>
-            Result
-          </h2>
-        </div>
         <div className="markdown-output">
           {loading ? (
             <div className="loading">処理中...</div>

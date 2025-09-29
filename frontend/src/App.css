@@ -143,13 +143,6 @@ body {
   background-color: #f8f9fa;
 }
 
-.result-header h2 {
-  margin: 0;
-  color: #212529;
-  font-size: 20px;
-  font-weight: 600;
-}
-
 .cache-indicator {
   font-size: 14px;
   color: #6c757d;
