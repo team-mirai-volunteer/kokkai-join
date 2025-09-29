@@ -29,6 +29,9 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 24.9.0
+      - name: Check node version
+        run:
+          node --version
       - uses: oven-sh/setup-bun@735343b667d3e6f658f44d0eca948eb6282f2b76 # v2.0.2
         with:
           bun-version-file: "frontend/.bun-version"
