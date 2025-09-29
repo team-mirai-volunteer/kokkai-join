@@ -1,7 +1,7 @@
 // Database utility functions
 
 import type { DatabaseRow, EmbeddingThreshold, SpeechResult, SqlQuery } from "../types/kokkai.ts";
-import { DEFAULT_DATE_VALUE, UNKNOWN_VALUE } from "../config/constants.ts";
+import { UNKNOWN_VALUE } from "../config/constants.ts";
 
 /**
  * Build vector search SQL query with optional structured filtering
@@ -41,7 +41,7 @@ export function convertDatabaseRowToSpeechResult(
     speechId: row.speech_id,
     speaker: row.speaker || UNKNOWN_VALUE,
     party: row.speaker_group || UNKNOWN_VALUE,
-    date: row.date || DEFAULT_DATE_VALUE,
+    date: row.date || "",
     meeting: row.meeting_name || UNKNOWN_VALUE,
     content: row.speech_text || "",
     url: row.speech_url || "",
