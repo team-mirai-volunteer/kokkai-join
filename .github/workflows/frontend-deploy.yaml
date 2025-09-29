@@ -4,6 +4,13 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/frontend-deploy.yaml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   frontend-deploy:
@@ -19,7 +26,7 @@ jobs:
         with:
           sparse-checkout: frontend
           sparse-checkout-cone-mode: true
-      - uses: oven-sh/setup-bun@v2
+      - uses: oven-sh/setup-bun@735343b667d3e6f658f44d0eca948eb6282f2b76 # v2.0.2
         with:
           bun-version-file: "frontend/.bun-version"
       - name: Install dependencies
@@ -29,7 +36,7 @@ jobs:
         run: npm run build
         working-directory: frontend
       - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v4
         with:
           path: frontend/dist
       - name: Deploy
