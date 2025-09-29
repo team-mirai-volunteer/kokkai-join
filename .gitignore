@@ -1,4 +1,8 @@
 node_modules
-backend/data/*.sql.gz
+data/*.sql.gz
 backend/.env
+frontend/.env
+frontend/.env.local
+frontend/.env.production
+frontend/.env.development
 .DS_Store

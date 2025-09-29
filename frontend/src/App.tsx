@@ -1,35 +1,128 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { useLocalStorageCache } from "./hooks/useLocalStorageCache";
+import "./App.css";
 
-function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+interface SearchResult {
+	query: string;
+	result: string;
 }
 
-export default App
+function App() {
+	const [query, setQuery] = useState("");
+	const [loading, setLoading] = useState(false);
+	const [error, setError] = useState("");
+
+	// カスタムフックでlocalStorageを管理
+	const {
+		data: cachedData,
+		setData: setCachedData,
+		isCached,
+	} = useLocalStorageCache<SearchResult>({
+		key: "deepresearch_cache",
+	});
+
+	// キャッシュからクエリと結果を取得
+	const result = cachedData?.result || "";
+	const cachedQuery = cachedData?.query || "";
+
+	// キャッシュされたクエリがある場合、初期表示時にセット
+	if (cachedQuery && !query) {
+		setQuery(cachedQuery);
+	}
+
+	const handleSubmit = async (e: React.FormEvent) => {
+		e.preventDefault();
+
+		if (!query.trim()) {
+			setError("クエリを入力してください");
+			return;
+		}
+
+		setLoading(true);
+		setError("");
+
+		try {
+			const response = await fetch(
+				`${import.meta.env.VITE_API_ENDPOINT}/v1/deepresearch`,
+				{
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({
+						query: query.trim(),
+						limit: 10,
+					}),
+				},
+			);
+
+			if (!response.ok) {
+				throw new Error(`HTTP error! status: ${response.status}`);
+			}
+
+			const markdown = await response.text();
+
+			// 結果をキャッシュに保存
+			setCachedData({
+				query: query.trim(),
+				result: markdown,
+			});
+		} catch (err) {
+			setError(
+				`エラーが発生しました: ${
+					err instanceof Error ? err.message : "不明なエラー"
+				}`,
+			);
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	return (
+		<div className="app-container">
+			<div className="input-section">
+				<h1>Deep Research Query</h1>
+				<form onSubmit={handleSubmit} className="search-form">
+					<div className="form-group">
+						<input
+							type="text"
+							value={query}
+							onChange={(e) => setQuery(e.target.value)}
+							placeholder="検索クエリを入力してください..."
+							disabled={loading}
+							className="query-input"
+						/>
+						<button type="submit" disabled={loading} className="submit-button">
+							{loading ? "検索中..." : "検索"}
+						</button>
+					</div>
+				</form>
+				{error && <div className="error-message">{error}</div>}
+			</div>
+
+			<div className="output-section">
+				<div className="result-header">
+					<h2>
+						Result{" "}
+						{isCached && result && (
+							<span className="cache-indicator">(cached)</span>
+						)}
+					</h2>
+				</div>
+				<div className="markdown-output">
+					{loading ? (
+						<div className="loading">処理中...</div>
+					) : result ? (
+						<ReactMarkdown remarkPlugins={[remarkGfm]}>{result}</ReactMarkdown>
+					) : (
+						<div className="placeholder">検索結果がここに表示されます</div>
+					)}
+				</div>
+			</div>
+		</div>
+	);
+}
+
+export default App;
