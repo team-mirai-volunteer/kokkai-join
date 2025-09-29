@@ -55,45 +55,72 @@ export class DeepResearchOrchestrator {
     const allDocs: DocumentResult[] = [];
     const sectionHitMap = new Map<string, Set<string>>();
     const sectionQueryMap = new Map<string, Map<string, string>>(); // ドキュメントごとのセクション別検索クエリ
-    for (const sectionKey of sectionKeys) {
-      const allowedProviderIds = allowBySection[sectionKey] ?? [];
-      if (allowedProviderIds.length === 0) continue;
 
-      const sectionProviders = providers.filter((p) => allowedProviderIds.includes(p.id));
-      if (!sectionProviders.length) continue;
+    // 各セクションの検索タスクを準備
+    const searchTasks = sectionKeys
+      .map((sectionKey) => {
+        const allowedProviderIds = allowBySection[sectionKey] ?? [];
+        if (allowedProviderIds.length === 0) return null;
 
-      const query = this.buildSectionQuery(sectionKey, baseSubqueries);
-      const providerQuery: ProviderQuery = {
-        query,
-        limit: this.sectionLimit(limit),
-      };
+        const sectionProviders = providers.filter((p) => allowedProviderIds.includes(p.id));
+        if (!sectionProviders.length) return null;
 
-      try {
-        const docs = await this.multiSource.searchAcross(
-          sectionProviders,
-          providerQuery,
-        );
-        for (const doc of docs) {
-          allDocs.push(doc);
-          const key = this.docKey(doc);
-          if (!sectionHitMap.has(key)) sectionHitMap.set(key, new Set());
-          sectionHitMap.get(key)!.add(sectionKey);
+        const query = this.buildSectionQuery(sectionKey, baseSubqueries);
+        const providerQuery: ProviderQuery = {
+          query,
+          limit: this.sectionLimit(limit),
+        };
 
-          // 検索クエリ情報を保存
-          if (!sectionQueryMap.has(key)) {
-            sectionQueryMap.set(key, new Map());
+        // 非同期検索タスクを返す
+        return async () => {
+          try {
+            const docs = await this.multiSource.searchAcross(
+              sectionProviders,
+              providerQuery,
+            );
+            const providerList = sectionProviders.map((p) => p.id).join(",");
+            console.log(
+              `[DRV1][${sectionKey}] +${docs.length} providers=${providerList} subqueries=${query}`,
+            );
+            return { sectionKey, docs, query };
+          } catch (e) {
+            console.error(
+              `[DRV1][${sectionKey}] retrieval error:`,
+              (e as Error).message,
+            );
+            return { sectionKey, docs: [], query };
           }
-          sectionQueryMap.get(key)!.set(sectionKey, query);
+        };
+      })
+      .filter(
+        (
+          task,
+        ): task is () => Promise<{
+          sectionKey: string;
+          docs: DocumentResult[];
+          query: string;
+        }> => task !== null,
+      );
+
+    // 並列実行
+    console.log(
+      `[DRV1] ▶ Starting parallel search for ${searchTasks.length} sections`,
+    );
+    const results = await Promise.all(searchTasks.map((task) => task()));
+
+    // 結果を統合
+    for (const { sectionKey, docs, query } of results) {
+      for (const doc of docs) {
+        allDocs.push(doc);
+        const key = this.docKey(doc);
+        if (!sectionHitMap.has(key)) sectionHitMap.set(key, new Set());
+        sectionHitMap.get(key)!.add(sectionKey);
+
+        // 検索クエリ情報を保存
+        if (!sectionQueryMap.has(key)) {
+          sectionQueryMap.set(key, new Map());
         }
-        const providerList = sectionProviders.map((p) => p.id).join(",");
-        console.log(
-          `[DRV1][${sectionKey}] +${docs.length} providers=${providerList} subqueries=${query}`,
-        );
-      } catch (e) {
-        console.error(
-          `[DRV1][${sectionKey}] retrieval error:`,
-          (e as Error).message,
-        );
+        sectionQueryMap.get(key)!.set(sectionKey, query);
       }
     }
 

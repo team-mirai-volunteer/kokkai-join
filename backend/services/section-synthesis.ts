@@ -26,7 +26,7 @@ export class SectionSynthesisService {
         { role: "user", content: user },
       ],
       model: "openai/gpt-5",
-      max_completion_tokens: 8000,
+      max_completion_tokens: 160000,
       stream: false,
     });
 

@@ -129,8 +129,8 @@ class KokkaiRagApi {
     this.dbPool = new Pool({
       connectionString: databaseUrl,
       max: MAX_DB_CONNECTIONS,
-      query_timeout: 10000,
-      statement_timeout: 10000,
+      query_timeout: 25000,
+      statement_timeout: 25000,
     });
     this.vectorSearch = new VectorSearchService(this.dbPool);
   }
