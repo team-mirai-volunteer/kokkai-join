@@ -64,7 +64,6 @@ export interface SubSummaryResult {
 }
 
 // Type aliases for better readability
-export type PromptText = string;
 export type SqlQuery = string;
 export type QueryParameter = string | number;
 export type EmbeddingThreshold = number;

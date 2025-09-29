@@ -18,10 +18,6 @@ export interface DocumentResult {
 }
 
 export interface ProviderQuery {
-  originalQuestion: string;
-  subqueries: string[];
+  query: string;
   limit: number;
-  // Optional structured fields left generic for now
-  // entities?: { speakers?: string[]; parties?: string[]; dateRange?: { start: string; end: string } };
-  seedUrls?: string[]; // Optional seed URLs for HttpDocsProvider
 }

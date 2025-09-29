@@ -1,7 +1,7 @@
 // Vector search service for Kokkai RAG system
 
-import { Pool } from "npm:pg";
-import pgvector from "npm:pgvector/pg";
+import { Pool } from "pg";
+import pgvector from "pgvector/pg";
 import type {
   KokkaiEntities,
   QueryParameter,
@@ -14,7 +14,7 @@ import {
   buildVectorSearchQuery,
   convertDatabaseRowToSpeechResult,
 } from "../utils/database.ts";
-import { EmbeddingProvider, EmbeddingProviderFactory } from "./embedding-provider.ts";
+import { EmbeddingProvider, EmbeddingProviderFactory } from "../providers/embedding.ts";
 import {
   DEFAULT_TOP_K_RESULTS,
   STRUCTURED_FILTER_LIMIT,

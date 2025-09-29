@@ -1,10 +1,22 @@
 {
   "imports": {
-    "@std/dotenv": "jsr:@std/dotenv@^0.225.5"
+    "@hono/valibot-validator": "jsr:@hono/valibot-validator@^0.5.3",
+    "@std/dotenv": "jsr:@std/dotenv@^0.225.5",
+    "@std/fs": "jsr:@std/fs@^1.0.8",
+    "@std/path": "jsr:@std/path@^1.0.10",
+    "@std/crypto": "jsr:@std/crypto@^1.0.4",
+    "@valibot/valibot": "jsr:@valibot/valibot@^1.1.0",
+    "@hono/hono": "jsr:@hono/hono@^4.6.0",
+    "openai": "npm:openai@^4.79.0",
+    "pg": "npm:pg@^8.13.1",
+    "pgvector/pg": "npm:pgvector@^0.2.0/pg",
+    "@llamaindex/ollama": "npm:@llamaindex/ollama@0.1.23",
+    "llamaindex": "npm:llamaindex@0.12.0"
   },
   "nodeModulesDir": "auto",
   "tasks": {
-    "rag": "deno run -A scripts/rag-cli.ts",
+    "kokkai-rag": "deno run -A --watch ./api/kokkai_rag.ts",
+    "deepresearch": "deno run -A --watch ./api/deepresearch.ts",
     "search": "deno run -A scripts/search-cli.ts"
   },
   "fmt": {
@@ -14,14 +26,18 @@
     "semiColons": true,
     "singleQuote": false,
     "proseWrap": "preserve",
-    "include": ["scripts/", "src/"],
-    "exclude": []
+    "exclude": [
+      "**/node_modules/**"
+    ]
   },
   "lint": {
-    "include": ["scripts/", "src/"],
-    "exclude": [],
+    "exclude": [
+      "**/node_modules/**"
+    ],
     "rules": {
-      "tags": ["recommended"]
+      "tags": [
+        "recommended"
+      ]
     }
   }
 }

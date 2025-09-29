@@ -1,22 +1,19 @@
-#!/usr/bin/env -S deno run -A --watch
-
 // Kokkai RAG Service (検索専用: DBベクトル検索の結果のみ返す)
 
-import { load } from "jsr:@std/dotenv";
-import { Hono } from "jsr:@hono/hono";
-import { cors } from "jsr:@hono/hono/cors";
-import { logger } from "jsr:@hono/hono/logger";
-import { prettyJSON } from "jsr:@hono/hono/pretty-json";
-import { validator } from "jsr:@hono/hono/validator";
+import { load } from "@std/dotenv";
+import { Hono } from "@hono/hono";
+import { cors } from "@hono/hono/cors";
+import { logger } from "@hono/hono/logger";
+import { prettyJSON } from "@hono/hono/pretty-json";
+import { validator } from "@hono/hono/validator";
 
-import { Pool } from "npm:pg";
-import pgvector from "npm:pgvector/pg";
+import { Pool } from "pg";
 
-import { DEFAULT_TOP_K_RESULTS, MAX_DB_CONNECTIONS } from "./config/constants.ts";
-import type { DocumentResult } from "./types/knowledge.ts";
-import { VectorSearchService } from "./services/vector-search.ts";
-import { mapSpeechToDocument } from "./providers/kokkai-db.ts";
-import { ensureEnv } from "./utils/env.ts";
+import { DEFAULT_TOP_K_RESULTS, MAX_DB_CONNECTIONS } from "../config/constants.ts";
+import type { DocumentResult } from "../types/knowledge.ts";
+import type { SpeechResult } from "../types/kokkai.ts";
+import { VectorSearchService } from "../services/vector-search.ts";
+import { ensureEnv } from "../utils/env.ts";
 
 interface RagSearchRequest {
   query: string;
@@ -27,6 +24,27 @@ interface RagSearchResponse {
   meta: { total: number; tookMs: number; timestamp: string };
 }
 
+/**
+ * Convert SpeechResult to DocumentResult for unified response format
+ */
+function mapSpeechToDocument(r: SpeechResult): DocumentResult {
+  return {
+    id: r.speechId,
+    title: r.meeting || undefined,
+    content: r.content,
+    url: r.url || undefined,
+    date: r.date || undefined,
+    author: r.speaker ? `${r.speaker} (${r.party})` : undefined,
+    score: r.score,
+    source: { providerId: "kokkai-db", type: "kokkai-db" },
+    extras: {
+      speaker: r.speaker,
+      party: r.party,
+      meeting: r.meeting,
+    },
+  };
+}
+
 class KokkaiRagApi {
   private dbPool: Pool;
   private vectorSearch!: VectorSearchService;
@@ -35,7 +53,6 @@ class KokkaiRagApi {
   constructor() {
     this.setupMiddleware();
     this.setupRoutes();
-    this.initialize();
   }
 
   private setupMiddleware() {
@@ -112,15 +129,10 @@ class KokkaiRagApi {
     this.dbPool = new Pool({
       connectionString: databaseUrl,
       max: MAX_DB_CONNECTIONS,
+      query_timeout: 10000,
+      statement_timeout: 10000,
     });
-    const client = await this.dbPool.connect();
-    try {
-      await pgvector.registerTypes(client);
-    } finally {
-      client.release();
-    }
     this.vectorSearch = new VectorSearchService(this.dbPool);
-    console.log("Initializing database connection pool...");
   }
 
   serve(port = parseInt(Deno.env.get("KOKKAI_RAG_PORT") || "8001")) {
@@ -142,5 +154,6 @@ class KokkaiRagApi {
 
 if (import.meta.main) {
   const api = new KokkaiRagApi();
+  await api.initialize();
   api.serve();
 }

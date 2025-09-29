@@ -117,22 +117,23 @@ Deep Research とは、以下を満たす反復型の調査ワークフローを
 plan = planner.createQueryPlan(userQuery)
 frontier = initFrontier(plan.subqueries)
 store = new EvidenceStore()
-iters = 0; deadline = now + budgetMs
+sections = Object.keys(SECTION_ALLOWED_PROVIDERS)
 
-while (iters < maxIters && now < deadline) {
-  subq = frontier.pop()
-  docs = multiSource.searchAcross(providers, { originalQuestion: subq, subqueries:[subq], limit })
-  evs  = extractEvidence(docs)           // 正規化・スコア付与
-  evs  = evaluateRelevance(subq, evs)    // 再ランク・多様性
-  store.add(evs)
+for (section of sections) {
+  providersForSection = selectProviders(section)
+  subqs = buildSectionSubqueries(section, userQuery, plannerSubqueries)
+  docs = multiSource.searchAcross(providersForSection, {
+    originalQuestion: userQuery,
+    subqueries: subqs,
+    limit,
+  })
 
-  gaps = analyzeGaps(plan, store)        // 情報要求に対する充足度
-  if (gaps.coverage >= coverageThreshold) break
-
-  nextSubqs = generateFollowups(gaps, store)
-  frontier.push(nextSubqs)
-  iters += 1
+  evs = extractEvidence(docs)            // 正規化・スコア付与
+  evs = evaluateRelevance(userQuery, evs) // 再ランク・多様性
+  store.add(section, evs)
 }
+
+coverage = computeCoverage(sections, SECTION_TARGET_COUNTS, store.sectionHitMap)
 
 claims = extractClaims(store)
 claims = checkContradictions(claims, store)

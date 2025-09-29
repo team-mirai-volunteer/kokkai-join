@@ -59,7 +59,6 @@ export interface DeepResearchSections {
   background: SectionText;
   main_issues: SectionList;
   past_debates_summary: SectionText;
-  status_notes: SectionText;
   related_links: SectionLinks;
 }
 
@@ -100,12 +99,14 @@ export interface DeepResearchResponse {
     totalResults: number;
     processingTime: number;
     timestamp: string;
-    version: string;
   };
 }
 
 // Helper converter: DocumentResult -> EvidenceRecord (id assigned separately)
-export function toEvidenceRecord(d: DocumentResult, id: string): EvidenceRecord {
+export function toEvidenceRecord(
+  d: DocumentResult,
+  id: string,
+): EvidenceRecord {
   return {
     id,
     source: d.source,

@@ -1,40 +1,36 @@
-#!/usr/bin/env -S deno run -A
-
 // Standard library imports
-import { load } from "jsr:@std/dotenv";
+import { load } from "@std/dotenv";
 
 // Third-party library imports
-import { Hono } from "jsr:@hono/hono";
-import { cors } from "jsr:@hono/hono/cors";
-import { logger } from "jsr:@hono/hono/logger";
-import { prettyJSON } from "jsr:@hono/hono/pretty-json";
-import { validator } from "jsr:@hono/hono/validator";
+import { Hono } from "@hono/hono";
+import { cors } from "@hono/hono/cors";
+import { logger } from "@hono/hono/logger";
+import { prettyJSON } from "@hono/hono/pretty-json";
+import { vValidator } from "@hono/valibot-validator";
 
 // Local imports
-import type { SpeechResult } from "./types/kokkai.ts";
-import { DEFAULT_TOP_K_RESULTS } from "./config/constants.ts";
-import { QueryPlanningService } from "./services/query-planning.ts";
-import { RelevanceEvaluationService } from "./services/relevance-evaluation.ts";
-import { ProviderRegistry } from "./services/provider-registry.ts";
-import type { DocumentResult } from "./types/knowledge.ts";
-import { documentToSpeech } from "./providers/adapter.ts";
-import { HttpDocsProvider } from "./providers/http-docs.ts";
-import type {
-  DeepResearchRequest,
-  DeepResearchResponse,
-  EvidenceRecord,
-} from "./types/deepresearch.ts";
-import { toEvidenceRecord } from "./types/deepresearch.ts";
-import { convertDeepResearchToMarkdown } from "./utils/markdown-converter.ts";
-import { SectionSynthesisService } from "./services/section-synthesis.ts";
-import { DeepResearchOrchestrator } from "./services/deepresearch-orchestrator.ts";
+import { DEFAULT_TOP_K_RESULTS } from "../config/constants.ts";
+import {
+  SECTION_ALLOWED_PROVIDERS,
+  SECTION_TARGET_COUNTS,
+} from "../config/deepresearch-constants.ts";
+import { QueryPlanningService } from "../services/query-planning.ts";
+import { ProviderRegistry } from "../providers/registry.ts";
+import {
+  DeepResearchRequestSchema,
+  type DeepResearchRequestValidated,
+} from "../schemas/deepresearch-validation.ts";
+import type { DeepResearchResponse, EvidenceRecord } from "../types/deepresearch.ts";
+import { toEvidenceRecord } from "../types/deepresearch.ts";
+import { convertDeepResearchToMarkdown } from "../utils/markdown-converter.ts";
+import { SectionSynthesisService } from "../services/section-synthesis.ts";
+import { DeepResearchOrchestrator } from "../services/deepresearch-orchestrator.ts";
 
 /**
  * Kokkai Deep Research API Server using Hono
  */
 class KokkaiDeepResearchAPI {
   private queryPlanningService!: QueryPlanningService;
-  private relevanceEvaluationService!: RelevanceEvaluationService;
   private providerRegistry!: ProviderRegistry;
   private sectionSynthesis!: SectionSynthesisService;
   private orchestrator!: DeepResearchOrchestrator;
@@ -74,50 +70,14 @@ class KokkaiDeepResearchAPI {
     // Deep Research v1 endpoint
     this.app.post(
       "/v1/deepresearch",
-      validator("json", (value, c) => {
-        const v = value as DeepResearchRequest;
-        if (
-          !v.query ||
-          typeof v.query !== "string" ||
-          v.query.trim().length === 0
-        ) {
-          return c.json({ error: "query is required" }, 400);
-        }
-        if (
-          v.limit !== undefined &&
-          (typeof v.limit !== "number" || v.limit < 1 || v.limit > 100)
-        ) {
-          return c.json({ error: "limit must be 1..100" }, 400);
-        }
-        if (
-          v.providers &&
-          (!Array.isArray(v.providers) ||
-            v.providers.some((p) => typeof p !== "string"))
-        ) {
-          return c.json({ error: "providers must be string[]" }, 400);
-        }
-        if (
-          v.seedUrls &&
-          (!Array.isArray(v.seedUrls) ||
-            v.seedUrls.some(
-              (u) => typeof u !== "string" || !/^https?:\/\//.test(u),
-            ))
-        ) {
-          return c.json({ error: "seedUrls must be http(s) URLs" }, 400);
-        }
-        return value;
-      }),
+      vValidator("json", DeepResearchRequestSchema),
       async (c) => {
         const start = Date.now();
         try {
-          const req = await c.req.json<DeepResearchRequest>();
+          const req = c.req.valid("json");
           const resp = await this.executeDeepResearchV1(req);
           console.log(
             `✅ /v1/deepresearch completed in ${Date.now() - start}ms`,
-          );
-          Deno.writeFileSync(
-            "./result.json",
-            new TextEncoder().encode(JSON.stringify(resp, null, 2)),
           );
           const markdown = convertDeepResearchToMarkdown(resp);
           return c.text(markdown, 200, {
@@ -181,29 +141,46 @@ class KokkaiDeepResearchAPI {
       throw new Error("OPENAI_API_KEY environment variable is required");
     }
     console.log("🚀 Initializing Kokkai Deep Research API (provider-based)...");
+
+    // Initialize services
     this.queryPlanningService = new QueryPlanningService();
-    this.relevanceEvaluationService = new RelevanceEvaluationService();
     this.providerRegistry = new ProviderRegistry();
     this.sectionSynthesis = new SectionSynthesisService();
     this.orchestrator = new DeepResearchOrchestrator();
+
     console.log("✅ Services initialized");
   }
 
   /**
    * Deep Research v1 のメイン実行関数。
    *
-   * 処理の概要（高レベル）
-   * - 1) プランニング: 質問からサブクエリを作成
-   * - 2) セクション別ターゲット探索: セクションごとに許可プロバイダを切り替えて取得
-   * - 3) ギャップ充足ループ: 充足状況を見ながら最大3回まで再探索（早期終了あり）
-   * - 4) マージ/重複排除 → 関連度評価（LLM）
-   * - 5) 証拠レコード（e1..）化（どのセクションでヒットしたかのヒントも付与）
-   * - 6) セクション統合（LLMで最終JSONを生成）
+   * 処理フロー:
+   * 1. クエリプランニング
+   *    - ユーザーのクエリを分析し、効果的なサブクエリに分解
+   *    - 各サブクエリは異なる観点から情報を収集するために設計される
    *
-   * 返却するレスポンスは agreed JSON（sections/sources/evidences/metadata）形式。
+   * 2. プロバイダー選択と検索実行
+   *    - 利用可能なプロバイダーから適切なものを選択
+   *    - DeepResearchOrchestratorに処理を委譲し、セクション別に検索を実行
+   *    - 各セクションごとに許可されたプロバイダーとターゲット件数が設定される
+   *
+   * 3. 結果のマージと重複排除
+   *    - 複数のプロバイダーからの結果を統合
+   *    - URLまたはID基準で重複を除去
+   *
+   * 4. 証拠レコード生成
+   *    - 各ドキュメントに一意のID（e1, e2, ...）を付与
+   *    - どのセクションで使用されたかのヒント情報を追加
+   *
+   * 5. セクション統合（AI処理）
+   *    - 収集された証拠を基に、構造化されたセクションを生成
+   *    - 最終的なレスポンス形式に整形
+   *
+   * @param body バリデーション済みのリクエストボディ
+   * @returns 構造化されたDeepResearchResponse（セクション、証拠、メタデータを含む）
    */
   private async executeDeepResearchV1(
-    body: DeepResearchRequest,
+    body: DeepResearchRequestValidated,
   ): Promise<DeepResearchResponse> {
     const start = Date.now();
     const limit = body.limit ?? DEFAULT_TOP_K_RESULTS;
@@ -215,90 +192,39 @@ class KokkaiDeepResearchAPI {
       : undefined;
     const providers = this.providerRegistry.byIds(providersRequested);
     const providerIds = providers.map((p) => p.id);
-    const docsProvider = body.seedUrls && body.seedUrls.length > 0 ? new HttpDocsProvider() : null;
-    if (docsProvider) providerIds.push(docsProvider.id);
-    console.log(
-      `[DRV1] Providers: ${providerIds.join(", ")} seedUrls=${body.seedUrls?.length ?? 0}`,
-    );
+    console.log(`[DRV1] Providers: ${providerIds.join(", ")}`);
 
     // 1) プランニング（サブクエリ生成）
     console.log("[DRV1] ▶ Planning subqueries...");
     let plan;
     try {
       plan = await this.queryPlanningService.createQueryPlan(body.query);
+      console.log(`📋 Query plan created:`);
+      console.log(`   Original Question: ${JSON.stringify(plan)}`);
+      console.log(`   Subqueries: ${plan.subqueries.length}`);
+      console.log(`   Speakers: ${plan.entities.speakers?.length || 0}`);
+      console.log(`   Topics: ${plan.entities.topics?.length || 0}`);
+      console.log(`   Strategies: ${plan.enabledStrategies.join(", ")}`);
+      console.log(`   Confidence: ${plan.confidence.toFixed(2)}`);
     } catch (e) {
       console.error("[DRV1][plan] error:", (e as Error).message);
       throw new Error(`[DRV1][plan] ${(e as Error).message}`);
     }
+
     const subqueries = plan.subqueries && plan.subqueries.length > 0
       ? plan.subqueries
       : [body.query];
 
-    // 2)+3) DeepResearchOrchestrator に委譲
-    const allowBySection: Record<string, string[]> = {
-      purpose_overview: ["openai-web"],
-      current_status: ["kokkai-db", "openai-web"],
-      timeline: ["kokkai-db", "openai-web"],
-      key_points: ["openai-web"],
-      background: ["openai-web", "kokkai-db"],
-      main_issues: ["openai-web", "kokkai-db"],
-      past_debates_summary: ["kokkai-db"],
-      status_notes: ["kokkai-db", "openai-web"],
-      related_links: ["openai-web", "kokkai-db"],
-    };
-    const targets: Record<string, number> = {
-      purpose_overview: 2,
-      current_status: 1,
-      timeline: 3,
-      key_points: 3,
-      background: 2,
-      main_issues: 3,
-      past_debates_summary: 3,
-      status_notes: 1,
-      related_links: 3,
-    };
-    const { allDocs, sectionHitMap, iterations } = await this.orchestrator.run({
-      userQuery: body.query,
+    // 2)+3) DeepResearchOrchestrator に委譲（重複除去も含む）
+    const { finalDocs, sectionHitMap, iterations } = await this.orchestrator.run({
       baseSubqueries: subqueries,
       providers,
-      allowBySection,
-      targets,
+      allowBySection: SECTION_ALLOWED_PROVIDERS,
+      targets: SECTION_TARGET_COUNTS,
       limit,
-      seedUrls: body.seedUrls,
-      docsProvider,
     });
 
-    // Ensure uniqueness
-    console.log(`[DRV1] ▶ Merging & dedup totalDocs=${allDocs.length}`);
-    const finalDocs: DocumentResult[] = [];
-    const seen = new Set<string>();
-    for (const d of allDocs) {
-      const key = d.url || `${d.source.providerId}:${d.id}`;
-      if (seen.has(key)) continue;
-      seen.add(key);
-      finalDocs.push(d);
-    }
-    console.log(`[DRV1] ◀ After dedup finalDocs=${finalDocs.length}`);
-
-    // 4) 関連度評価（LLM）用に SpeechResult に正規化して再ランク
-    console.log("[DRV1] ▶ Relevance evaluation...");
-    const speeches = finalDocs.map(documentToSpeech);
-    let relevant: SpeechResult[];
-    try {
-      relevant = await this.relevanceEvaluationService.evaluateRelevance(
-        body.query,
-        speeches,
-      );
-    } catch (e) {
-      console.error("[DRV1][relevance] error:", (e as Error).message);
-      throw new Error(`[DRV1][relevance] ${(e as Error).message}`);
-    }
-    const topRelevant = relevant.slice(0, limit);
-    console.log(
-      `[DRV1] ◀ Relevance kept=${relevant.length} top=${topRelevant.length}`,
-    );
-
-    // 5) e1.. の連番で EvidenceRecord を構築（セクションヒントを付与）
+    // 4) e1.. の連番で EvidenceRecord を構築（セクションヒントを付与）
     console.log("[DRV1] ▶ Building evidences...");
     const evidenceMap = new Map<string, EvidenceRecord>();
     const evidences: EvidenceRecord[] = [];
@@ -316,7 +242,7 @@ class KokkaiDeepResearchAPI {
     }
     console.log(`[DRV1] ◀ Evidences built count=${evidences.length}`);
 
-    // 6) セクション統合
+    // 5) セクション統合
     console.log("[DRV1] ▶ Section synthesize...");
     const sections = await this.sectionSynthesis.synthesize(
       body.query,
@@ -335,7 +261,6 @@ class KokkaiDeepResearchAPI {
         totalResults: finalDocs.length,
         processingTime: Date.now() - start,
         timestamp: new Date().toISOString(),
-        version: "deepresearch-v1",
       },
     };
     return resp;

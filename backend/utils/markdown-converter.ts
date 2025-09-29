@@ -133,31 +133,11 @@ export function convertDeepResearchToMarkdown(
     lines.push("");
     lines.push(
       `${sections.past_debates_summary.content}${
-        formatCitations(sections.past_debates_summary.citations)
+        formatCitations(
+          sections.past_debates_summary.citations,
+        )
       }`,
     );
-    lines.push("");
-  }
-
-  // Status notes
-  if (sections.status_notes) {
-    lines.push(`## ${sections.status_notes.title}`);
-    lines.push("");
-    lines.push(
-      `${sections.status_notes.content}${formatCitations(sections.status_notes.citations)}`,
-    );
-    lines.push("");
-  }
-
-  // Related links
-  if (sections.related_links) {
-    lines.push(`## ${sections.related_links.title}`);
-    lines.push("");
-    for (const link of sections.related_links.links) {
-      lines.push(
-        `- [${link.label}](${link.url})${formatCitations(link.citations)}`,
-      );
-    }
     lines.push("");
   }
 
