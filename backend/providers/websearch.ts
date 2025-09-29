@@ -1,11 +1,6 @@
+import { getOpenAIClient } from "../config/openai.ts";
 import type { DocumentResult, ProviderQuery } from "../types/knowledge.ts";
 import type { SearchProvider } from "./base.ts";
-import OpenAI from "openai";
-
-interface OpenAIWebConfig {
-  apiKey: string; // from env OPENAI_API_KEY if omitted
-  model: string; // default: gpt-4o-mini
-}
 
 /**
  * OpenAI Web 検索プロバイダ。
@@ -15,17 +10,11 @@ interface OpenAIWebConfig {
  */
 export class OpenAIWebProvider implements SearchProvider {
   id: string;
-  private apiKey: string;
-  private model: string;
   private timeoutMs: number;
-  private client: OpenAI;
 
-  constructor(cfg: OpenAIWebConfig) {
+  constructor() {
     this.id = "openai-web";
-    this.apiKey = cfg.apiKey;
-    this.model = cfg.model;
     this.timeoutMs = 120000;
-    this.client = new OpenAI({ apiKey: this.apiKey });
   }
 
   /** サブクエリを統合して効率的に検索を実行 */
@@ -43,13 +32,22 @@ export class OpenAIWebProvider implements SearchProvider {
   ): Promise<DocumentResult[]> {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), this.timeoutMs);
+    const client = getOpenAIClient();
     try {
-      const resp = await this.client.responses.create(
+      const resp = await client.chat.completions.create(
         {
-          model: this.model,
-          tools: [{ type: "web_search_preview" }],
-          max_output_tokens: 16000,
-          input: `以下のクエリについてウェブを包括的に検索してください: "${subq}"
+          model: "openai/o4-mini:online",
+          max_tokens: 16000,
+          stream: false,
+          messages: [
+            {
+              role: "system",
+              content:
+                "あなたはウェブ検索エンジンです。ユーザーのクエリに基づいて、関連性が高く多様なウェブ検索結果を見つけ出します。",
+            },
+            {
+              role: "user",
+              content: `以下のクエリについてウェブを包括的に検索してください: "${subq}"
 
 指示:
 1. 異なる観点をカバーする最も関連性が高く多様な結果を見つける
@@ -60,11 +58,15 @@ export class OpenAIWebProvider implements SearchProvider {
 以下の形式の有効なJSONのみを返してください:
 {"results":[{"id":string,"title":string,"url":string,"date"?:string,"content":string,"score":number}]}
 
-最大${limit}件の高品質でユニークな結果を返してください。`,
+最大${limit}件の高品質でユニークな結果を返してください。
+リンク先に対象の情報があるものだけを返してください。`,
+            },
+          ],
         },
         { signal: controller.signal },
       );
-      const raw = resp.output_text?.trim();
+
+      const raw = resp.choices[0]?.message?.content;
       if (!raw) return [];
       let parsed: { results?: Array<Record<string, unknown>> } = {};
       try {
@@ -75,7 +77,7 @@ export class OpenAIWebProvider implements SearchProvider {
       const items = Array.isArray(parsed.results) ? parsed.results : [];
       const docs: DocumentResult[] = items.map((it, idx) => {
         const id = String(it.id ?? `${this.id}:${idx}`);
-        const title = typeof it.title === "string" ? it.title : undefined;
+        const title = typeof it?.title === "string" ? it.title : undefined;
         const url = typeof it.url === "string" ? it.url : undefined;
         const date = typeof it.date === "string" ? it.date : undefined;
         const content = typeof it.content === "string" ? it.content : "";

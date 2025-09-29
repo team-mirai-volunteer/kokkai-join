@@ -27,7 +27,7 @@ export class QueryPlanningService {
           { role: "system", content: getQueryPlanSystemPrompt() },
           { role: "user", content: userPrompt },
         ],
-        model: "gpt-4o-mini",
+        model: "openai/gpt-4o-mini",
         max_tokens: 3000,
         temperature: 0.3, // 計画生成は確定的に
         stream: false,

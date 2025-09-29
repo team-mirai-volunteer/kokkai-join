@@ -10,13 +10,8 @@ export class ProviderRegistry {
     // Kokkai RAG Provider: 国会議事録のベクトル検索API
     this.providers.push(new KokkaiRagProvider({ endpoint: ensureEnv("KOKKAI_RAG_URL") }));
 
-    // OpenAI Web Search（前提: OPENAI_API_KEY が必須）
-    this.providers.push(
-      new OpenAIWebProvider({
-        apiKey: ensureEnv("OPENAI_API_KEY"),
-        model: "gpt-4o-mini",
-      }),
-    );
+    // OpenAI Web Search
+    this.providers.push(new OpenAIWebProvider());
   }
 
   byIds(ids?: string[]): SearchProvider[] {

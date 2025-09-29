@@ -136,10 +136,6 @@ class KokkaiDeepResearchAPI {
    */
   async initialize(): Promise<void> {
     await load({ export: true });
-    const openaiApiKey = Deno.env.get("OPENAI_API_KEY");
-    if (!openaiApiKey) {
-      throw new Error("OPENAI_API_KEY environment variable is required");
-    }
     console.log("🚀 Initializing Kokkai Deep Research API (provider-based)...");
 
     // Initialize services

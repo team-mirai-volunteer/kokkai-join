@@ -25,7 +25,7 @@ export class SectionSynthesisService {
         { role: "system", content: systemPrompt },
         { role: "user", content: user },
       ],
-      model: "gpt-5",
+      model: "openai/gpt-5",
       max_completion_tokens: 8000,
       stream: false,
     });
