@@ -79,10 +79,6 @@ class KokkaiDeepResearchAPI {
           console.log(
             `✅ /v1/deepresearch completed in ${Date.now() - start}ms`,
           );
-          Deno.writeFileSync(
-            "./result.json",
-            new TextEncoder().encode(JSON.stringify(resp, null, 2)),
-          );
           const markdown = convertDeepResearchToMarkdown(resp);
           return c.text(markdown, 200, {
             "Content-Type": "text/markdown; charset=utf-8",
