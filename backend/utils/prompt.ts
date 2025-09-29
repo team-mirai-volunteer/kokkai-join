@@ -47,7 +47,10 @@ export function getSectionSynthesisSystemPrompt(): string {
 - 他セクションは内容ごとに適切な evidence の id を citations に含める。
 - timeline は items の各要素に date(YYYY-MM-DD) と text と citations を付ける。
 - list は items の各要素に text と citations を付ける。
-- JSONキーは固定: purpose_overview, current_status, timeline, key_points, background, main_issues, past_debates_summary。
+- impact は items の各要素に target（影響を受ける対象）、overview（概要）、reason（理由）、citations を付ける。
+- JSONキーは固定: purpose_overview, current_status, timeline, key_points, background, main_issues, reasons_for_amendment, impact_analysis, past_debates_summary。
+- reasons_for_amendment は背景や経緯の証拠から法改正が必要な理由を抽出してリスト化する。
+- impact_analysis は証拠から法改正により影響を受ける対象とその内容を分析する。
 - 事実に確信が持てない場合は曖昧表現を避け、記載しないか「不明」とする。
 `;
 }
@@ -78,6 +81,8 @@ export function createSectionSynthesisPrompt(
 - key_points (list)
 - background (text)
 - main_issues (list)
+- reasons_for_amendment (list)
+- impact_analysis (impact)
 - past_debates_summary (text)
 `;
 
@@ -99,6 +104,8 @@ ${sectionsDesc}
   "key_points": {"title":"法改正の重要ポイント","type":"list","items":[{"text":"...","citations":["eX"]}]},
   "background": {"title":"法案提出までの経緯（背景）","type":"text","content":"...","citations":["eX"]},
   "main_issues": {"title":"主要な論点（審議・実務で指摘された主なポイント）","type":"list","items":[{"text":"...","citations":["eX"]}]},
+  "reasons_for_amendment": {"title":"法改正の理由","type":"list","items":[{"text":"...","citations":["eX"]}]},
+  "impact_analysis": {"title":"改正で影響を受けるもの","type":"impact","items":[{"target":"...","overview":"...","reason":"...","citations":["eX"]}]},
   "past_debates_summary": {"title":"過去の議論の要約","type":"text","content":"...","citations":["eX"]}
   }
 }`;

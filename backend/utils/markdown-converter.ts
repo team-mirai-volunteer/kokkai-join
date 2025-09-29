@@ -45,6 +45,10 @@ export function convertDeepResearchToMarkdown(
       for (const item of section.items) {
         collectCitations(item.citations);
       }
+    } else if (section.type === "impact") {
+      for (const item of section.items) {
+        collectCitations(item.citations);
+      }
     } else if (section.type === "links") {
       for (const link of section.links) {
         collectCitations(link.citations);
@@ -127,6 +131,30 @@ export function convertDeepResearchToMarkdown(
     lines.push("");
   }
 
+  // Reasons for amendment
+  if (sections.reasons_for_amendment) {
+    lines.push(`## ${sections.reasons_for_amendment.title}`);
+    lines.push("");
+    for (const item of sections.reasons_for_amendment.items) {
+      lines.push(`- ${item.text}${formatCitations(item.citations)}`);
+    }
+    lines.push("");
+  }
+
+  // Impact analysis
+  if (sections.impact_analysis) {
+    lines.push(`## ${sections.impact_analysis.title}`);
+    lines.push("");
+    for (const item of sections.impact_analysis.items) {
+      lines.push(`### ${item.target}`);
+      lines.push("");
+      lines.push(`概要: ${item.overview}`);
+      lines.push("");
+      lines.push(`理由: ${item.reason}${formatCitations(item.citations)}`);
+      lines.push("");
+    }
+  }
+
   // Past debates summary
   if (sections.past_debates_summary) {
     lines.push(`## ${sections.past_debates_summary.title}`);
@@ -144,8 +172,6 @@ export function convertDeepResearchToMarkdown(
   // Add footnotes section if there are any citations
   if (citationMap.size > 0) {
     lines.push("---");
-    lines.push("");
-    lines.push("## 脚注");
     lines.push("");
 
     // Sort by citation number

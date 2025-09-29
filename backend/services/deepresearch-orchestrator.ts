@@ -10,6 +10,8 @@ const SECTION_KEYWORD_HINTS: Record<string, string[]> = {
   key_points: ["要点", "ポイント"],
   background: ["背景", "狙い", "経緯"],
   main_issues: ["論点", "課題", "争点"],
+  reasons_for_amendment: [], // 既存の証拠から統合するため、追加の検索は不要
+  impact_analysis: ["影響", "効果"],
   past_debates_summary: ["国会議事録", "質疑応答"],
 };
 

@@ -26,6 +26,12 @@ export const SECTION_ALLOWED_PROVIDERS: Record<string, string[]> = {
   // 主要論点: 両ソースから議論の内容を収集
   main_issues: ["openai-web", "kokkai-db"],
 
+  // 法改正の理由: 既存の証拠から統合するため、追加検索は不要
+  reasons_for_amendment: [],
+
+  // 影響分析: 両ソースから影響・効果に関する情報を収集
+  impact_analysis: ["kokkai-db", "openai-web"],
+
   // 過去の議論サマリー: 国会DBを優先
   past_debates_summary: ["kokkai-db"],
 };
@@ -41,5 +47,7 @@ export const SECTION_TARGET_COUNTS: Record<string, number> = {
   key_points: 3, // 要点も3件
   background: 2, // 背景は2件
   main_issues: 3, // 論点は3件
+  reasons_for_amendment: 0, // 既存の証拠から統合するため、追加検索は不要
+  impact_analysis: 2, // 影響分析は2件
   past_debates_summary: 3, // 過去の議論は3件
 };

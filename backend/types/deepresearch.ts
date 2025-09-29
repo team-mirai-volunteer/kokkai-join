@@ -51,6 +51,19 @@ export interface SectionLinks {
   links: SectionLinkItem[];
 }
 
+export interface SectionImpactItem {
+  target: string; // 影響を受ける対象
+  overview: string; // 概要
+  reason: string; // 理由
+  citations: string[];
+}
+
+export interface SectionImpact {
+  title: string;
+  type: "impact";
+  items: SectionImpactItem[];
+}
+
 export interface DeepResearchSections {
   purpose_overview: SectionText;
   current_status: SectionText;
@@ -58,6 +71,8 @@ export interface DeepResearchSections {
   key_points: SectionList;
   background: SectionText;
   main_issues: SectionList;
+  reasons_for_amendment: SectionList; // 法改正の理由（リスト）
+  impact_analysis: SectionImpact; // 改正で影響を受けるもの
   past_debates_summary: SectionText;
   related_links: SectionLinks;
 }
