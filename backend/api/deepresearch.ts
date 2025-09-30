@@ -51,8 +51,10 @@ class KokkaiDeepResearchAPI {
       "*",
       cors({
         origin: "*",
-        allowMethods: ["GET", "POST"],
-        allowHeaders: ["Content-Type"],
+        allowMethods: ["GET", "POST", "OPTIONS"],
+        allowHeaders: ["Content-Type", "Accept"],
+        exposeHeaders: ["Content-Type"],
+        credentials: false,
       }),
     );
 
