@@ -1,10 +1,10 @@
 import { Pool } from "pg";
-import type { DocumentResult, ProviderQuery } from "../types/knowledge.ts";
-import type { SearchProvider } from "./base.ts";
-import type { SpeechResult } from "../types/kokkai.ts";
-import { VectorSearchService } from "../services/vector-search.ts";
-import { ensureEnv } from "../utils/env.ts";
-import { DEFAULT_TOP_K_RESULTS, MAX_DB_CONNECTIONS } from "../config/constants.ts";
+import type { DocumentResult, ProviderQuery } from "../types/knowledge.js";
+import type { SearchProvider } from "./base.js";
+import type { SpeechResult } from "../types/kokkai.js";
+import { VectorSearchService } from "../services/vector-search.js";
+import { ensureEnv } from "../utils/env.js";
+import { DEFAULT_TOP_K_RESULTS, MAX_DB_CONNECTIONS } from "../config/constants.js";
 
 /**
  * Convert SpeechResult to DocumentResult for unified response format

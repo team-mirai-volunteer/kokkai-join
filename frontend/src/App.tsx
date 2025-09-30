@@ -42,7 +42,7 @@ function App() {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_ENDPOINT}/v1/deepresearch`,
+        `${import.meta.env.VITE_API_ENDPOINT}/v1/deepresearch?x-vercel-protection-bypass=${import.meta.env.VITE_API_TOKEN}`,
         {
           method: "POST",
           headers: {

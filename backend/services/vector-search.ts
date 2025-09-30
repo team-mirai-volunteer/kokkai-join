@@ -8,20 +8,20 @@ import type {
   QueryPlan,
   SpeechResult,
   SqlQuery,
-} from "../types/kokkai.ts";
+} from "../types/kokkai.js";
 import {
   buildFilterCondition,
   buildVectorSearchQuery,
   convertDatabaseRowToSpeechResult,
-} from "../utils/database.ts";
-import { EmbeddingProvider, EmbeddingProviderFactory } from "../providers/embedding.ts";
+} from "../utils/database.js";
+import { EmbeddingProvider, EmbeddingProviderFactory } from "../providers/embedding.js";
 import {
   DEFAULT_TOP_K_RESULTS,
   STRUCTURED_FILTER_LIMIT,
   VECTOR_SIMILARITY_THRESHOLD_FALLBACK,
   VECTOR_SIMILARITY_THRESHOLD_STRUCTURED,
   VECTOR_SIMILARITY_THRESHOLD_VECTOR_ONLY,
-} from "../config/constants.ts";
+} from "../config/constants.js";
 
 /**
  * Service responsible for vector search operations

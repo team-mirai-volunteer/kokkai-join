@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import { ensureEnv } from "../utils/env.ts";
+import { ensureEnv } from "../utils/env.js";
 
 let client: OpenAI | null = null;
 

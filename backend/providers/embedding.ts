@@ -8,7 +8,7 @@
 import { OllamaEmbedding } from "@llamaindex/ollama";
 import { Settings } from "llamaindex";
 import { OpenAI } from "openai";
-import { ensureEnv } from "../utils/env.ts";
+import { ensureEnv } from "../utils/env.js";
 
 /**
  * Interface for embedding providers
@@ -100,7 +100,11 @@ export class NovitaEmbeddingProvider implements EmbeddingProvider {
       model: this.modelName,
     });
 
-    return response.data[0].embedding;
+    const embedding = response.data[0]?.embedding;
+    if (!embedding) {
+      throw new Error("Failed to get embedding from response");
+    }
+    return embedding;
   }
 
   async getTextEmbeddings(texts: string[]): Promise<number[][]> {
@@ -145,7 +149,7 @@ export class EmbeddingProviderFactory {
    * @returns The embedding provider instance
    */
   static createFromEnv(): EmbeddingProvider {
-    const providerType = Deno.env.get("EMBEDDING_PROVIDER");
+    const providerType = process.env.EMBEDDING_PROVIDER;
     console.log(
       `Using embedding provider: ${providerType || "ollama (default)"}`,
     );

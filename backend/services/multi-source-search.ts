@@ -1,5 +1,5 @@
-import type { DocumentResult, ProviderQuery } from "../types/knowledge.ts";
-import type { SearchProvider } from "../providers/base.ts";
+import type { DocumentResult, ProviderQuery } from "../types/knowledge.js";
+import type { SearchProvider } from "../providers/base.js";
 
 /**
  * 複数プロバイダ横断検索サービス。

@@ -1,4 +1,4 @@
-import type { DeepResearchResponse } from "../types/deepresearch.ts";
+import type { DeepResearchResponse } from "../types/deepresearch.js";
 
 export function convertDeepResearchToMarkdown(
   response: DeepResearchResponse,

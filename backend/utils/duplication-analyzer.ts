@@ -3,7 +3,7 @@
  * ドキュメントの重複を分析し、統計情報を生成する
  */
 
-import type { DocumentResult } from "../types/knowledge.ts";
+import type { DocumentResult } from "../types/knowledge.js";
 
 export interface DuplicationInfo {
   sections: Set<string>;

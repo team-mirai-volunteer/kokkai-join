@@ -1,4 +1,4 @@
-import type { EvidenceRecord } from "../types/deepresearch.ts";
+import type { EvidenceRecord } from "../types/deepresearch.js";
 
 /**
  * Get system prompt for query planning

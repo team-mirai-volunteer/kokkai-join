@@ -1,6 +1,71 @@
-import { getOpenAIClient } from "../config/openai.ts";
-import type { DocumentResult, ProviderQuery } from "../types/knowledge.ts";
-import type { SearchProvider } from "./base.ts";
+import { getOpenAIClient } from "../config/openai.js";
+import type { DocumentResult, ProviderQuery } from "../types/knowledge.js";
+import type { SearchProvider } from "./base.js";
+
+/** Web検索結果の個別アイテム */
+interface WebSearchResultItem {
+  id: string;
+  title: string;
+  url: string;
+  date: string;
+  content: string;
+  score: number;
+}
+
+/** Web検索結果のレスポンス */
+interface WebSearchResponse {
+  results: WebSearchResultItem[];
+}
+
+const responseFormat = {
+  type: "json_schema",
+  json_schema: {
+    name: "web_search_results",
+    strict: true,
+    schema: {
+      type: "object",
+      properties: {
+        results: {
+          type: "array",
+          description: "Array of search results",
+          items: {
+            type: "object",
+            properties: {
+              id: {
+                type: "string",
+                description: "Unique identifier for this result",
+              },
+              title: {
+                type: "string",
+                description: "Title of the web page",
+              },
+              url: {
+                type: "string",
+                description: "URL of the web page",
+              },
+              date: {
+                type: "string",
+                description: "Publication date (YYYY-MM-DD format)",
+              },
+              content: {
+                type: "string",
+                description: "Summary or snippet of the content",
+              },
+              score: {
+                type: "number",
+                description: "Relevance score between 0 and 1",
+              },
+            },
+            required: ["id", "title", "url", "date", "content", "score"],
+            additionalProperties: false,
+          },
+        },
+      },
+      required: ["results"],
+      additionalProperties: false,
+    },
+  },
+} as const;
 
 /**
  * OpenAI Web 検索プロバイダ。
@@ -55,44 +120,29 @@ export class OpenAIWebProvider implements SearchProvider {
 3. 信頼できる情報源（政府、ニュース、学術機関）を優先する
 4. 情報源の多様性を確保 - 同一ドメインからの複数の結果を避ける
 
-以下の形式の有効なJSONのみを返してください:
-{"results":[{"id":string,"title":string,"url":string,"date"?:string,"content":string,"score":number}]}
-
 最大${limit}件の高品質でユニークな結果を返してください。
 リンク先に対象の情報があるものだけを返してください。`,
             },
           ],
+          response_format: responseFormat,
         },
         { signal: controller.signal },
       );
 
       const raw = resp.choices[0]?.message?.content;
       if (!raw) return [];
-      let parsed: { results?: Array<Record<string, unknown>> } = {};
-      try {
-        parsed = JSON.parse(raw);
-      } catch {
-        return [];
-      }
-      const items = Array.isArray(parsed.results) ? parsed.results : [];
-      const docs: DocumentResult[] = items.map((it, idx) => {
-        const id = String(it.id ?? `${this.id}:${idx}`);
-        const title = typeof it?.title === "string" ? it.title : undefined;
-        const url = typeof it.url === "string" ? it.url : undefined;
-        const date = typeof it.date === "string" ? it.date : undefined;
-        const content = typeof it.content === "string" ? it.content : "";
-        const score = typeof it.score === "number" ? it.score : undefined;
-        return {
-          id,
-          title,
-          url,
-          date,
-          content,
-          score,
-          source: { providerId: this.id, type: this.id },
-          extras: { subquery: subq },
-        };
-      });
+
+      const parsed: WebSearchResponse = JSON.parse(raw);
+      const docs: DocumentResult[] = parsed.results.map((item) => ({
+        id: item.id,
+        title: item.title,
+        url: item.url,
+        date: item.date,
+        content: item.content,
+        score: item.score,
+        source: { providerId: this.id, type: this.id },
+        extras: { subquery: subq },
+      }));
       return docs;
     } finally {
       clearTimeout(timeout);

@@ -1,7 +1,7 @@
 // Database utility functions
 
-import type { DatabaseRow, EmbeddingThreshold, SpeechResult, SqlQuery } from "../types/kokkai.ts";
-import { UNKNOWN_VALUE } from "../config/constants.ts";
+import type { DatabaseRow, EmbeddingThreshold, SpeechResult, SqlQuery } from "../types/kokkai.js";
+import { UNKNOWN_VALUE } from "../config/constants.js";
 
 /**
  * Build vector search SQL query with optional structured filtering

@@ -1,6 +1,6 @@
-import { KokkaiRagProvider } from "../providers/kokkai-rag.ts";
-import type { SearchProvider } from "../providers/base.ts";
-import { OpenAIWebProvider } from "../providers/websearch.ts";
+import { KokkaiRagProvider } from "../providers/kokkai-rag.js";
+import type { SearchProvider } from "../providers/base.js";
+import { OpenAIWebProvider } from "../providers/websearch.js";
 
 export class ProviderRegistry {
   private providers: SearchProvider[] = [];

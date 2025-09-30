@@ -1,0 +1,47 @@
+{
+  "compilerOptions": {
+    // File Layout
+    "rootDir": ".",
+    "outDir": "./dist",
+
+    // Environment Settings
+    "module": "nodenext",
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "types": ["node"],
+    "moduleResolution": "nodenext",
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+
+    // Other Outputs
+    "sourceMap": true,
+
+    // Stricter Typechecking Options
+    "noUncheckedIndexedAccess": true,
+
+    // Recommended Options
+    "strict": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": [
+    "api/**/*",
+    "config/**/*",
+    "providers/**/*",
+    "schemas/**/*",
+    "services/**/*",
+    "types/**/*",
+    "utils/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "scripts",
+    "**/*_test.ts"
+  ]
+}

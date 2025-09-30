@@ -1,0 +1,42 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "国会議事録深層調査システムのHono API実装",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "dev": "tsx watch server.ts",
+    "start": "tsx server.ts",
+    "type-check": "tsc --noEmit",
+    "test-api": "tsx scripts/test-api.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "devDependencies": {
+    "@types/node": "^24.6.0",
+    "@vitest/ui": "^3.2.4",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.19.5",
+    "@hono/valibot-validator": "^0.5.3",
+    "@llamaindex/ollama": "^0.1.23",
+    "@types/pg": "^8.15.5",
+    "dotenv": "^17.2.3",
+    "hono": "^4.9.9",
+    "llamaindex": "^0.12.0",
+    "openai": "^5.23.1",
+    "pg": "^8.16.3",
+    "pgvector": "^0.2.1",
+    "tsx": "^4.20.6",
+    "valibot": "^1.1.0"
+  }
+}

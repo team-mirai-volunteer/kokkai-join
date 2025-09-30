@@ -1,6 +1,6 @@
 // Types for Deep Research API (/v1/deepresearch)
 
-import type { DocumentResult } from "./knowledge.ts";
+import type { DocumentResult } from "./knowledge.js";
 
 export interface DeepResearchRequest {
   query: string;

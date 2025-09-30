@@ -1,7 +1,7 @@
-import type { DocumentResult, ProviderQuery } from "../types/knowledge.ts";
-import type { SearchProvider } from "../providers/base.ts";
-import { MultiSourceSearchService } from "./multi-source-search.ts";
-import { DuplicationAnalyzer, type SectionDocumentTracker } from "../utils/duplication-analyzer.ts";
+import type { DocumentResult, ProviderQuery } from "../types/knowledge.js";
+import type { SearchProvider } from "../providers/base.js";
+import { MultiSourceSearchService } from "./multi-source-search.js";
+import { DuplicationAnalyzer, type SectionDocumentTracker } from "../utils/duplication-analyzer.js";
 
 const SECTION_KEYWORD_HINTS: Record<string, string[]> = {
   purpose_overview: ["概要", "目的", "趣旨"],
@@ -126,10 +126,9 @@ export class DeepResearchOrchestrator {
 
     const coverage = this.computeCoverage(sectionKeys, targets, sectionHitMap);
     console.log(
-      `[DRV1] coverage=${JSON.stringify(coverage.current)} unmet=${
-        JSON.stringify(
-          coverage.missing,
-        )
+      `[DRV1] coverage=${JSON.stringify(coverage.current)} unmet=${JSON.stringify(
+        coverage.missing,
+      )
       }`,
     );
 

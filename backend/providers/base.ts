@@ -1,4 +1,4 @@
-import type { DocumentResult, ProviderQuery } from "../types/knowledge.ts";
+import type { DocumentResult, ProviderQuery } from "../types/knowledge.js";
 
 export interface SearchProvider {
   id: string;

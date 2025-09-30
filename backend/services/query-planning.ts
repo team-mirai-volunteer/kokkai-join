@@ -1,8 +1,8 @@
 // Query planning service for Kokkai RAG system
 
-import { getOpenAIClient } from "../config/openai.ts";
-import type { QueryPlan } from "../types/kokkai.ts";
-import { getQueryPlanSystemPrompt } from "../utils/prompt.ts";
+import { getOpenAIClient } from "../config/openai.js";
+import type { QueryPlan } from "../types/kokkai.js";
+import { getQueryPlanSystemPrompt } from "../utils/prompt.js";
 
 /**
  * クエリプランニングサービス。
