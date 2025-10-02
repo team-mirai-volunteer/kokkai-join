@@ -105,7 +105,7 @@ class KokkaiDeepResearchAPI {
           "Deep Research API for Japanese parliamentary records analysis",
         endpoints: {
           "/": "This endpoint",
-          "/v1/deepresearch":
+          "/api/v1/deepresearch":
             "POST - Deep research pipeline returning sections and citations",
         },
         timestamp: new Date().toISOString(),
@@ -277,9 +277,8 @@ class KokkaiDeepResearchAPI {
     console.log(`🚀 Starting server on port ${port}...`);
     console.log(`🌐 Server running at http://localhost:${port}`);
     console.log("📋 Available endpoints:");
-    console.log(`   GET  /                - API information`);
-    console.log(
-      `   POST /v1/deepresearch - Deep research pipeline (sections+citations)`,
+    console.log(`   GET  /                    - API information`);
+    console.log(`   POST /api/v1/deepresearch - Deep research pipeline (sections+citations)`,
     );
   }
 
