@@ -9,11 +9,15 @@
   "scripts": {
     "dev": "tsx watch server.ts",
     "start": "tsx server.ts",
+    "build": "tsc",
     "type-check": "tsc --noEmit",
     "test-api": "tsx scripts/test-api.ts",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:ui": "vitest --ui"
+    "test:ui": "vitest --ui",
+    "docker:build": "docker build -t kokkai-backend:latest .",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down"
   },
   "keywords": [],
   "author": "",

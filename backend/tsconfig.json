@@ -10,8 +10,7 @@
     "lib": ["ES2022"],
     "types": ["node"],
     "moduleResolution": "nodenext",
-    "allowImportingTsExtensions": true,
-    "noEmit": true,
+    "noEmit": false,
 
     // Other Outputs
     "sourceMap": true,
@@ -30,6 +29,8 @@
     "forceConsistentCasingInFileNames": true
   },
   "include": [
+    "server.ts",
+    "lib/**/*",
     "api/**/*",
     "config/**/*",
     "providers/**/*",
