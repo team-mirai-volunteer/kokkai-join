@@ -4,19 +4,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is the **kokkai-join backend**, a Deno-based TypeScript application providing RAG (Retrieval-Augmented Generation) services for Japanese parliamentary records (Kokkai). The system offers two distinct APIs:
+This is the **kokkai-join backend**, a Node.js-based TypeScript application providing RAG (Retrieval-Augmented Generation) services for Japanese parliamentary records (Kokkai). The system provides a Deep Research API with AI-powered analysis capabilities.
 
-- **Kokkai RAG API** (port 8001): Direct vector search without AI processing
-- **Deep Research API** (port 8000): Advanced AI-powered search with query planning, multi-source integration, and answer generation
+- **Deep Research API** (port 8000): Advanced AI-powered search with query planning, multi-source integration, section synthesis, and answer generation
 
 ## Technology Stack
 
-- **Runtime**: Deno 1.45+ (TypeScript/JavaScript runtime)
+- **Runtime**: Node.js with TypeScript (using tsx for execution)
 - **Web Framework**: Hono (lightweight web framework)
 - **Database**: PostgreSQL with pgvector extension (vector similarity search)
-- **Embedding Model**: Ollama with bge-m3 (1024-dimensional embeddings)
-- **LLM**: OpenAI (selectable models) for query planning and answer generation
+- **Embedding Model**: Ollama with bge-m3 or Novita (OpenAI-compatible) - configurable via environment variables
+- **LLM**: OpenAI for query planning and section synthesis
 - **Vector Search**: LlamaIndex for embedding management
+- **Testing**: Vitest for unit and integration testing
+- **Deployment**: Vercel Functions compatible
 
 ## Common Development Commands
 
@@ -26,85 +27,76 @@ This is the **kokkai-join backend**, a Deno-based TypeScript application providi
 # Start PostgreSQL with pgvector
 docker compose up -d postgres
 
+# Install dependencies
+npm install
+
 # Configure environment variables
 cp .env.example .env
 # Edit .env with required values:
 # DATABASE_URL=postgresql://kokkai_user:kokkai_pass@localhost:5432/kokkai_db
-# OPENROUTER_API_KEY=<your-api-key>
-# LLM_MODEL=gpt-4o-mini
-# OLLAMA_BASE_URL=http://localhost:11434
+# OPENAI_API_KEY=<your-api-key>
+# EMBEDDING_PROVIDER=novita  # or "ollama"
+# EMBEDDING_API_KEY=<your-embedding-api-key>  # for novita
+# EMBEDDING_MODEL=baai/bge-m3
+# EMBEDDING_BASE_URL=https://api.novita.ai/openai
+# OLLAMA_BASE_URL=http://localhost:11434  # for ollama
+# OLLAMA_EMBEDDING_MODEL=bge-m3
 ```
 
-### Data Processing
+### Running the Server
 
 ```bash
-# Generate embeddings for speeches (small test batch)
-deno run -A scripts/persistent-embed-speeches.ts --limit 100
+# Development mode with watch
+npm run dev
 
-# Generate embeddings with date range
-deno run -A scripts/persistent-embed-speeches.ts --batch-size 20 --start-date 2023-01-01
+# Production mode
+npm run start
 
-# Create database backup
-deno run -A scripts/dump-db.ts
-
-# Interactive CLI search
-deno task rag
-```
-
-### Running APIs
-
-```bash
-# Kokkai RAG API (simple vector search)
-deno run -A api/kokkai_rag.ts
-# Test: curl http://localhost:8001/v1/health
-
-# Deep Research API (AI-powered search)
-export KOKKAI_RAG_URL=http://localhost:8001/v1/search
-deno run -A api/server.ts
-# Test: curl http://localhost:8000/
+# API test
+npm run test-api
 ```
 
 ### Code Quality
 
 ```bash
 # Type checking
-deno check api/server.ts
-deno check api/kokkai_rag.ts
-
-# Format code
-deno fmt
-
-# Lint code
-deno lint
+npm run type-check
 
 # Run tests
-deno test -A
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run tests with UI
+npm run test:ui
 ```
 
 ## Architecture & Code Structure
 
-### Core Services Architecture
+### Core Architecture
 
 The backend implements a layered architecture with clear separation of concerns:
 
-1. **API Layer** (`api/`)
-   - `server.ts`: Deep Research API with AI-powered processing pipeline
-   - `kokkai_rag.ts`: Simple RAG API for direct vector search
+1. **Entry Point**
+   - `server.ts`: Application entry point that initializes and serves the API
 
-2. **Service Layer** (`services/`)
+2. **API Layer** (`lib/`)
+   - `deepresearch-api.ts`: Hono-based API implementation with middleware, routes, and orchestration logic
+
+3. **Service Layer** (`services/`)
    - `vector-search.ts`: Core vector similarity search with pgvector
+   - `query-planning.ts`: AI-powered query decomposition via OpenAI LLMs
+   - `section-synthesis.ts`: Comprehensive answer synthesis with section-based structure
+   - `deepresearch-orchestrator.ts`: Orchestrates the entire deep research pipeline
+   - `multi-source-search.ts`: Coordinated search across multiple providers
 
-- `query-planning.ts`: AI-powered query decomposition via OpenAI LLMs
-  - `answer-generation.ts`: Comprehensive answer synthesis from search results
-  - `relevance-evaluation.ts`: Result filtering and ranking
-  - `provider-registry.ts`: Multi-source provider management system
-  - `multi-source-search.ts`: Coordinated search across multiple providers
-
-3. **Provider System** (`providers/`)
+4. **Provider System** (`providers/`)
    - `base.ts`: Abstract provider interface for extensibility
-   - `kokkai-db.ts`: Direct database provider implementation
-   - `http-rag.ts`: HTTP-based RAG provider for remote services
-   - `adapter.ts`: Type conversion between different provider formats
+   - `kokkai-rag.ts`: Direct database provider implementation for Kokkai parliamentary records
+   - `websearch.ts`: OpenAI web search provider for external information
+   - `registry.ts`: Provider registry for managing multiple search sources
+   - `embedding.ts`: Embedding provider abstraction (Ollama and Novita support)
 
 ### Database Schema
 
@@ -117,52 +109,73 @@ The system uses PostgreSQL with a single main table:
 
 ### AI Processing Pipeline (Deep Research API)
 
-1. **Query Planning**: Decomposes complex queries into focused subqueries
-2. **Multi-Source Search**: Executes searches across registered providers
-3. **Relevance Evaluation**: Filters results using AI-based relevance scoring
-4. **Answer Generation**: Synthesizes comprehensive responses with citations
+The system uses a sophisticated multi-stage pipeline:
+
+1. **Query Planning**: Decomposes complex queries into focused subqueries using OpenAI
+2. **Multi-Source Search**: Executes searches across registered providers (Kokkai DB, Web Search)
+3. **Section Synthesis**: Synthesizes results into structured sections with citations
+4. **Orchestration**: Coordinates the entire pipeline with error handling and result aggregation
 
 ### Environment Variables
 
 Required configuration in `.env`:
 
 - `DATABASE_URL`: PostgreSQL connection string
-- `OPENROUTER_API_KEY`: Required for AI features (query planning, answer generation)
-- `LLM_MODEL`: Default OpenAI model (override with LLM_MODEL_* per stage)
-- `OLLAMA_BASE_URL`: Ollama server for embeddings (default: http://localhost:11434)
-- `PORT`: Deep Research API port (default: 8000)
-- `KOKKAI_RAG_PORT`: RAG API port (default: 8001)
-- `KOKKAI_RAG_URL`: RAG service endpoint for Deep Research API
+- `OPENAI_API_KEY`: Required for AI features (query planning, section synthesis)
+- `EMBEDDING_PROVIDER`: Embedding provider type (`ollama` or `novita`, default: `ollama`)
+- `EMBEDDING_API_KEY`: API key for Novita embedding provider (when using `novita`)
+- `EMBEDDING_MODEL`: Embedding model name (e.g., `baai/bge-m3`)
+- `EMBEDDING_BASE_URL`: Base URL for Novita API (when using `novita`)
+- `OLLAMA_BASE_URL`: Ollama server URL (default: `http://localhost:11434`)
+- `OLLAMA_EMBEDDING_MODEL`: Ollama embedding model name (e.g., `bge-m3`)
+- `PORT`: Server port (default: 8000)
 
 ## API Endpoints
-
-### Kokkai RAG API (port 8001)
-
-- `GET /v1/health`: Health check endpoint
-- `POST /v1/search`: Vector similarity search
-  ```json
-  {
-    "query": "防衛費",
-    "limit": 10,
-    "filters": {
-      "speaker": "岸田文雄",
-      "date_from": "2023-01-01",
-      "date_to": "2023-12-31"
-    }
-  }
-  ```
 
 ### Deep Research API (port 8000)
 
 - `GET /`: API information and status
-- `POST /v1/deepresearch`: AI-powered comprehensive search returning sections, evidences, and metadata
+- `POST /api/v1/deepresearch`: AI-powered comprehensive search returning sections, evidences, and metadata
   ```json
   {
     "query": "防衛費と子育て支援の関係",
     "limit": 10,
-    "providers": ["kokkai-db"]
+    "providers": ["kokkai-db", "openai-web"],
+    "asOfDate": "2025-09-01",
+    "seedUrls": ["https://example.com/document.pdf"]
   }
   ```
+
+**Response structure:**
+```json
+{
+  "query": "防衛費と子育て支援の関係",
+  "sections": {
+    "purpose_overview": {
+      "summary": "...",
+      "citations": ["e1", "e2"]
+    },
+    "timeline": {
+      "summary": "...",
+      "citations": ["e3"]
+    }
+  },
+  "evidences": [
+    {
+      "id": "e1",
+      "title": "...",
+      "url": "...",
+      "source": { "providerId": "kokkai-db" }
+    }
+  ],
+  "metadata": {
+    "usedProviders": ["kokkai-db"],
+    "totalResults": 15,
+    "timestamp": "2025-10-05T...",
+    "version": "deepresearch-v1"
+  }
+}
+```
 
 ## Key Implementation Details
 
@@ -179,7 +192,10 @@ The system uses a registry pattern for managing multiple search providers:
 
 - Providers implement a common interface (`SearchProvider`)
 - Registry manages provider lifecycle and routing
-- Currently supports HTTP-based and direct database providers
+- Currently supports:
+  - **kokkai-db**: Direct PostgreSQL database provider for parliamentary records
+  - **openai-web**: OpenAI web search provider for external information
+- Embedding providers support both Ollama (local) and Novita (cloud) services
 
 ### Error Handling
 
@@ -189,11 +205,13 @@ The system uses a registry pattern for managing multiple search providers:
 
 ## Testing Approach
 
-The project uses Deno's built-in testing framework:
+The project uses Vitest for testing:
 
-- Test files follow `*_test.ts` naming convention
-- Run all tests: `deno test -A`
-- Test specific file: `deno test -A path/to/file_test.ts`
+- Test files follow `*.test.ts` naming convention
+- Run all tests: `npm test`
+- Run tests in watch mode: `npm run test:watch`
+- Run tests with UI: `npm run test:ui`
+- Test files are colocated with source files in `services/` directory
 
 ## Performance Considerations
 
@@ -204,8 +222,9 @@ The project uses Deno's built-in testing framework:
 
 ## Deployment Notes
 
-- The system requires both Kokkai RAG API and Deep Research API running
-- Deep Research API depends on Kokkai RAG API for data retrieval
-- Ensure Ollama is running with bge-m3 model loaded
+- The system is designed for deployment on Vercel Functions
+- Vercel configuration in `vercel.json` sets function timeout to 300s and memory to 1024MB
 - PostgreSQL with pgvector extension is mandatory
-- OpenAI API key required for AI features
+- Choose between Ollama (local) or Novita (cloud) for embeddings via `EMBEDDING_PROVIDER`
+- OpenAI API key required for AI features (query planning and section synthesis)
+- All necessary environment variables must be configured in deployment environment
