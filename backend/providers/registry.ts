@@ -1,6 +1,7 @@
 import { KokkaiRagProvider } from "../providers/kokkai-rag.js";
 import type { SearchProvider } from "../providers/base.js";
 import { OpenAIWebProvider } from "../providers/websearch.js";
+import { GovMeetingRagProvider } from "../providers/gov-meeting-rag.js";
 
 export class ProviderRegistry {
   private providers: SearchProvider[] = [];
@@ -11,6 +12,9 @@ export class ProviderRegistry {
 
     // OpenAI Web Search
     this.providers.push(new OpenAIWebProvider());
+
+    // Gov-Meeting-RAG Provider: 政府会議録検索
+    this.providers.push(new GovMeetingRagProvider());
   }
 
   byIds(ids?: string[]): SearchProvider[] {
