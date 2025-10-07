@@ -14,3 +14,11 @@ export const VECTOR_SIMILARITY_THRESHOLD_FALLBACK = 0.7;
 
 // Default Values
 export const UNKNOWN_VALUE = "?";
+
+export const ProviderID = {
+  KokkaiDB: "kokkai-db",
+  WebSearch: "openai-web",
+  GovMeetingRag: "gov-meeting-rag",
+} as const;
+
+export type ProviderType = (typeof ProviderID)[keyof typeof ProviderID];

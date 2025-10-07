@@ -1,6 +1,7 @@
 import { getOpenAIClient } from "../config/openai.js";
 import type { DocumentResult, ProviderQuery } from "../types/knowledge.js";
 import type { SearchProvider } from "./base.js";
+import { ProviderID } from "../config/constants.js";
 
 /** Web検索結果の個別アイテム */
 interface WebSearchResultItem {
@@ -74,11 +75,10 @@ const responseFormat = {
  * - 返却は DocumentResult の配列（title/url/content/date など）に正規化。
  */
 export class OpenAIWebProvider implements SearchProvider {
-  id: string;
+  readonly id = ProviderID.WebSearch;
   private timeoutMs: number;
 
   constructor() {
-    this.id = "openai-web";
     this.timeoutMs = 120000;
   }
 

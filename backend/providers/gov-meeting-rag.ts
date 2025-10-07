@@ -1,6 +1,7 @@
 import type { DocumentResult, ProviderQuery } from "../types/knowledge.js";
 import { ensureEnv } from "../utils/env.js";
 import type { SearchProvider } from "./base.js";
+import { ProviderID } from "../config/constants.js";
 
 /**
  * Gov-Meeting-RAG API レスポンスの個別アイテム
@@ -29,7 +30,7 @@ interface GovMeetingSearchRequest {
  * 厚生労働省などの政府機関の会議録をRAGベースで検索する。
  */
 export class GovMeetingRagProvider implements SearchProvider {
-  readonly id = "gov-meeting-rag";
+  readonly id = ProviderID.GovMeetingRag;
   private baseUrl = ensureEnv("GOV_MEETIN_GRAG_ENDPOINT");
   private timeoutMs = 30000; // 30 seconds
 

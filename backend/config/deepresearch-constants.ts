@@ -3,37 +3,51 @@
  * 各セクションの探索に対する許可プロバイダーとターゲット件数を定義
  */
 
+import { ProviderID, ProviderType } from "./constants.js";
+
 /**
  * セクションごとに許可されたプロバイダーのリスト
  * 各セクションの性質に応じて、適切な情報源を選択
  */
-export const SECTION_ALLOWED_PROVIDERS: Record<string, ("gov-meeting-rag" | "openai-web" | "kokkai-db")[]> = {
+export const SECTION_ALLOWED_PROVIDERS: Record<string, ProviderType[]> = {
   // 目的・概要: 主にWeb検索で最新情報を取得
-  purpose_overview: ["openai-web"],
+  purpose_overview: [ProviderID.WebSearch],
 
   // 現状: 国会DBとWeb検索の両方から情報収集
-  current_status: ["kokkai-db", "openai-web", "gov-meeting-rag"],
+  current_status: [
+    ProviderID.KokkaiDB,
+    ProviderID.WebSearch,
+    ProviderID.GovMeetingRag,
+  ],
 
   // タイムライン: 時系列情報は両ソースから
-  timeline: ["kokkai-db", "openai-web"],
+  timeline: [ProviderID.KokkaiDB, ProviderID.WebSearch],
 
   // 要点: Web検索で幅広く情報収集
-  key_points: ["openai-web"],
+  key_points: [ProviderID.WebSearch],
 
   // 背景: 両ソースから背景情報を収集
-  background: ["openai-web", "kokkai-db"],
+  background: [ProviderID.WebSearch, ProviderID.KokkaiDB],
 
   // 主要論点: 両ソースから議論の内容を収集
-  main_issues: ["openai-web", "kokkai-db", "gov-meeting-rag"],
+  main_issues: [
+    ProviderID.WebSearch,
+    ProviderID.KokkaiDB,
+    ProviderID.GovMeetingRag,
+  ],
 
   // 法改正の理由: 既存の証拠から統合するため、追加検索は不要
   reasons_for_amendment: [],
 
   // 影響分析: 両ソースから影響・効果に関する情報を収集
-  impact_analysis: ["kokkai-db", "openai-web", "gov-meeting-rag"],
+  impact_analysis: [
+    ProviderID.KokkaiDB,
+    ProviderID.WebSearch,
+    ProviderID.GovMeetingRag,
+  ],
 
   // 過去の議論サマリー: 国会DBを優先
-  past_debates_summary: ["kokkai-db"],
+  past_debates_summary: [ProviderID.KokkaiDB],
 };
 
 /**

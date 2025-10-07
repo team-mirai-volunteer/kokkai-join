@@ -4,7 +4,11 @@ import type { SearchProvider } from "./base.js";
 import type { SpeechResult } from "../types/kokkai.js";
 import { VectorSearchService } from "../services/vector-search.js";
 import { ensureEnv } from "../utils/env.js";
-import { DEFAULT_TOP_K_RESULTS, MAX_DB_CONNECTIONS } from "../config/constants.js";
+import {
+  DEFAULT_TOP_K_RESULTS,
+  MAX_DB_CONNECTIONS,
+  ProviderID,
+} from "../config/constants.js";
 
 /**
  * Convert SpeechResult to DocumentResult for unified response format
@@ -18,7 +22,7 @@ function mapSpeechToDocument(r: SpeechResult): DocumentResult {
     date: r.date || undefined,
     author: r.speaker ? `${r.speaker} (${r.party})` : undefined,
     score: r.score,
-    source: { providerId: "kokkai-db", type: "kokkai-db" },
+    source: { providerId: ProviderID.KokkaiDB, type: ProviderID.KokkaiDB },
     extras: {
       speaker: r.speaker,
       party: r.party,
@@ -32,7 +36,7 @@ function mapSpeechToDocument(r: SpeechResult): DocumentResult {
  * Performs vector search on parliamentary records without HTTP overhead
  */
 export class KokkaiRagProvider implements SearchProvider {
-  readonly id = "kokkai-db";
+  readonly id = ProviderID.KokkaiDB;
   private dbPool: Pool;
   private vectorSearch: VectorSearchService;
 
