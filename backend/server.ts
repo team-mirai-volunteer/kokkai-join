@@ -24,6 +24,7 @@ async function main() {
 		serve({
 			fetch: app.fetch,
 			port: PORT,
+			hostname: "0.0.0.0",
 		});
 
 		console.log(`🌐 Server running at http://localhost:${PORT}`);
