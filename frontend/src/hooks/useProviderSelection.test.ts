@@ -1,8 +1,8 @@
-import { renderHook, act } from "@testing-library/react";
-import { describe, it, expect } from "vitest";
-import { useProviderSelection } from "./useProviderSelection";
+import { act, renderHook } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
 import { ProviderID, SELECTABLE_PROVIDERS } from "../types/provider";
 import { createStorage } from "../utils/storage";
+import { useProviderSelection } from "./useProviderSelection";
 
 describe("useProviderSelection", () => {
   it("should initialize with all providers selected by default", () => {

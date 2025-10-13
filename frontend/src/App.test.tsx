@@ -1,14 +1,14 @@
-import { render, fireEvent, waitFor, cleanup } from "@testing-library/react";
-import {
-  describe,
-  it,
-  expect,
-  vi,
-  beforeEach,
-  beforeAll,
-  afterEach,
-} from "vitest";
 import { GlobalRegistrator } from "@happy-dom/global-registrator";
+import { cleanup, fireEvent, render, waitFor } from "@testing-library/react";
+import {
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vitest";
 import "@testing-library/jest-dom";
 import App from "./App";
 import { ProviderID } from "./types/provider";

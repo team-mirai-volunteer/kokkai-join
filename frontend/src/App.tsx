@@ -3,8 +3,8 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { FileUploadArea } from "./components/FileUploadArea";
 import { useFileUpload } from "./hooks/useFileUpload";
-import { useStorageCache } from "./hooks/useStorageCache";
 import { useProviderSelection } from "./hooks/useProviderSelection";
+import { useStorageCache } from "./hooks/useStorageCache";
 import { PROVIDER_LABELS, SELECTABLE_PROVIDERS } from "./types/provider";
 import "./App.css";
 import { storage } from "./utils/storage";
@@ -58,10 +58,10 @@ function App() {
       const encodedFiles =
         files.length > 0
           ? files.map((file) => ({
-            name: file.name,
-            content: file.content,
-            mimeType: file.type,
-          }))
+              name: file.name,
+              content: file.content,
+              mimeType: file.type,
+            }))
           : undefined;
 
       const response = await fetch(
@@ -92,7 +92,8 @@ function App() {
       });
     } catch (err) {
       setError(
-        `エラーが発生しました: ${err instanceof Error ? err.message : "不明なエラー"
+        `エラーが発生しました: ${
+          err instanceof Error ? err.message : "不明なエラー"
         }`,
       );
     } finally {

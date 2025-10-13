@@ -2,7 +2,6 @@ import { useCallback, useState } from "react";
 import { type ProviderType, SELECTABLE_PROVIDERS } from "../types/provider";
 import type { StorageType } from "../utils/storage";
 
-
 const storageKey = "selected-providers";
 
 export function useProviderSelection(storage: StorageType) {
@@ -13,7 +12,9 @@ export function useProviderSelection(storage: StorageType) {
         try {
           return JSON.parse(saved);
         } catch {
-          console.warn("Failed to parse selected_providers from storage, using default.");
+          console.warn(
+            "Failed to parse selected_providers from storage, using default.",
+          );
           storage.removeItem("selected_providers");
         }
       }
@@ -21,29 +22,29 @@ export function useProviderSelection(storage: StorageType) {
     },
   );
 
-  const handleProviderToggle = useCallback((providerId: ProviderType) => {
-    setSelectedProviders((prev) => {
-      const update = () => {
-        if (prev.includes(providerId)) {
-          if (prev.length === 1) {
-            return prev;
+  const handleProviderToggle = useCallback(
+    (providerId: ProviderType) => {
+      setSelectedProviders((prev) => {
+        const update = () => {
+          if (prev.includes(providerId)) {
+            if (prev.length === 1) {
+              return prev;
+            }
+            return prev.filter((id) => id !== providerId);
+          } else {
+            return [...prev, providerId];
           }
-          return prev.filter((id) => id !== providerId);
-        } else {
-          return [...prev, providerId];
-        }
-      }
+        };
 
-      const newState = update();
+        const newState = update();
 
-      storage.setItem(
-        storageKey,
-        JSON.stringify(newState),
-      );
+        storage.setItem(storageKey, JSON.stringify(newState));
 
-      return newState
-    });
-  }, [storage]);
+        return newState;
+      });
+    },
+    [storage],
+  );
 
   return {
     selectedProviders,

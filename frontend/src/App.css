@@ -5,9 +5,9 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
+    "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: #f8f9fa;
@@ -278,7 +278,7 @@ body {
   background-color: #f1f3f5;
   padding: 3px 6px;
   border-radius: 4px;
-  font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+  font-family: "SF Mono", Monaco, "Courier New", monospace;
   font-size: 0.9em;
   color: #e83e8c;
 }

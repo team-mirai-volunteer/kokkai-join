@@ -2,16 +2,16 @@ export const STORAGE_PREFIX = "mirai-kaigi-";
 
 export const storage = {
   prefix: STORAGE_PREFIX,
-  getItem: function(key: string): string | null {
+  getItem: function (key: string): string | null {
     return localStorage.getItem(this.prefix + key);
   },
-  setItem: function(key: string, value: string): void {
+  setItem: function (key: string, value: string): void {
     localStorage.setItem(this.prefix + key, value);
   },
-  removeItem: function(key: string): void {
+  removeItem: function (key: string): void {
     localStorage.removeItem(this.prefix + key);
   },
-  clear: function(): void {
+  clear: function (): void {
     Object.keys(localStorage).forEach((key) => {
       if (key.startsWith(this.prefix)) {
         localStorage.removeItem(key);
@@ -37,4 +37,3 @@ export function createStorage(): StorageType {
     },
   };
 }
-

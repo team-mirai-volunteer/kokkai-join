@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { StorageType } from "../utils/storage";
 
 interface UseStorageCacheOptions {
@@ -13,7 +13,7 @@ interface UseStorageCacheReturn<T> {
 
 export function useStorageCache<T>({
   key,
-  storage
+  storage,
 }: UseStorageCacheOptions): UseStorageCacheReturn<T> {
   const [data, setDataState] = useState<T | null>(null);
 
@@ -42,7 +42,6 @@ export function useStorageCache<T>({
     },
     [key, storage],
   );
-
 
   return {
     data,

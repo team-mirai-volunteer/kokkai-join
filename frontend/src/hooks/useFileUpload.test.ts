@@ -1,7 +1,7 @@
-import { renderHook, act, waitFor } from "@testing-library/react";
-import { describe, it, expect, vi } from "vitest";
-import { useFileUpload } from "./useFileUpload";
+import { act, renderHook, waitFor } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 import { MAX_FILE_COUNT } from "../types/file";
+import { useFileUpload } from "./useFileUpload";
 
 describe("useFileUpload", () => {
   it("should initialize with empty files and no error", () => {
@@ -136,7 +136,7 @@ describe("useFileUpload", () => {
     const mockError = new Error("Failed to read file");
 
     try {
-      global.FileReader = vi.fn().mockImplementation(function(this: {
+      global.FileReader = vi.fn().mockImplementation(function (this: {
         result: string | ArrayBuffer | null;
         error: DOMException | null;
         onload: ((ev: ProgressEvent<FileReader>) => unknown) | null;
@@ -148,7 +148,7 @@ describe("useFileUpload", () => {
         this.onload = null;
         this.onerror = null;
 
-        this.readAsDataURL = vi.fn(function(this: {
+        this.readAsDataURL = vi.fn(function (this: {
           result: string | ArrayBuffer | null;
           error: DOMException | null;
           onload: ((ev: ProgressEvent<FileReader>) => unknown) | null;

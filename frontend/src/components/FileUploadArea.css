@@ -1,122 +1,122 @@
 .file-upload-area {
-	margin: 1rem 0;
+  margin: 1rem 0;
 }
 
 .file-dropzone {
-	border: 2px dashed #ccc;
-	border-radius: 8px;
-	padding: 0.5rem;
-	text-align: center;
-	cursor: pointer;
-	transition: all 0.3s ease;
-	background-color: #fafafa;
-	min-height: 50px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  padding: 0.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: #fafafa;
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .file-dropzone:hover {
-	border-color: #999;
-	background-color: #f0f0f0;
+  border-color: #999;
+  background-color: #f0f0f0;
 }
 
 .file-dropzone.drag-over {
-	border-color: #4caf50;
-	background-color: #e8f5e9;
+  border-color: #4caf50;
+  background-color: #e8f5e9;
 }
 
 .dropzone-placeholder {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 0.5rem;
-	color: #666;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  color: #666;
 }
 
 .dropzone-icon {
-	font-size: 2rem;
-	display: block;
+  font-size: 2rem;
+  display: block;
 }
 
 .dropzone-placeholder p {
-	margin: 0;
-	font-size: 1rem;
+  margin: 0;
+  font-size: 1rem;
 }
 
 .dropzone-subtext {
-	font-size: 0.875rem;
-	color: #999;
+  font-size: 0.875rem;
+  color: #999;
 }
 
 .file-list {
-	width: 100%;
-	display: flex;
-	flex-direction: column;
-	gap: 0.5rem;
-	align-items: stretch;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: stretch;
 }
 
 .file-list-item {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	padding: 0.75rem 1rem;
-	background-color: white;
-	border: 1px solid #e0e0e0;
-	border-radius: 4px;
-	transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
 }
 
 .file-list-item:hover {
-	background-color: #f5f5f5;
+  background-color: #f5f5f5;
 }
 
 .file-info {
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-	flex: 1;
-	min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 0;
 }
 
 .file-name {
-	font-weight: 500;
-	color: #333;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
+  font-weight: 500;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .file-size {
-	color: #666;
-	font-size: 0.875rem;
-	flex-shrink: 0;
+  color: #666;
+  font-size: 0.875rem;
+  flex-shrink: 0;
 }
 
 .file-remove-button {
-	background: none;
-	border: none;
-	color: #999;
-	font-size: 1.5rem;
-	cursor: pointer;
-	padding: 0 0.5rem;
-	line-height: 1;
-	transition: color 0.2s ease;
-	flex-shrink: 0;
+  background: none;
+  border: none;
+  color: #999;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0 0.5rem;
+  line-height: 1;
+  transition: color 0.2s ease;
+  flex-shrink: 0;
 }
 
 .file-remove-button:hover {
-	color: #f44336;
+  color: #f44336;
 }
 
 .file-upload-error {
-	margin-top: 0.5rem;
-	padding: 0.75rem 1rem;
-	background-color: #ffebee;
-	border: 1px solid #ef9a9a;
-	border-radius: 4px;
-	color: #c62828;
-	font-size: 0.875rem;
-	white-space: pre-line;
+  margin-top: 0.5rem;
+  padding: 0.75rem 1rem;
+  background-color: #ffebee;
+  border: 1px solid #ef9a9a;
+  border-radius: 4px;
+  color: #c62828;
+  font-size: 0.875rem;
+  white-space: pre-line;
 }

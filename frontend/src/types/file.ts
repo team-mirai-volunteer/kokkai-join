@@ -17,9 +17,7 @@ export interface FileValidationError {
   message: string;
 }
 
-export const ACCEPTED_FILE_TYPES = [
-  "application/pdf",
-] as const;
+export const ACCEPTED_FILE_TYPES = ["application/pdf"] as const;
 
 export const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 export const MAX_FILE_COUNT = 10;
