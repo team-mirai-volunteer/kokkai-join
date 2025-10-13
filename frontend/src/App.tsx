@@ -59,21 +59,10 @@ function App() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!query.trim()) {
-      setError("キーワードを入力してください");
-      return;
-    }
-
-    if (selectedProviders.length === 0) {
-      setError("少なくとも1つのプロバイダーを選択してください");
-      return;
-    }
-
     setLoading(true);
     setError("");
 
     try {
-      // Files are already encoded in base64 format
       const encodedFiles =
         files.length > 0
           ? files.map((file) => ({
@@ -104,7 +93,6 @@ function App() {
 
       const markdown = await response.text();
 
-      // 結果をキャッシュに保存
       setCachedData({
         query: query.trim(),
         result: markdown,
@@ -170,7 +158,13 @@ function App() {
                 </div>
               )}
             </div>
-            <button type="submit" disabled={loading} className="submit-button">
+            <button
+              type="submit"
+              disabled={
+                loading || !query.trim() || selectedProviders.length === 0
+              }
+              className="submit-button"
+            >
               {loading ? "検索中..." : "検索"}
             </button>
           </div>

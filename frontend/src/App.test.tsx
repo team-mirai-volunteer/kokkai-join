@@ -1,25 +1,9 @@
-import { GlobalRegistrator } from "@happy-dom/global-registrator";
-import { cleanup, fireEvent, render, waitFor } from "@testing-library/react";
-import {
-  afterEach,
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi,
-} from "vitest";
-import "@testing-library/jest-dom";
+import { fireEvent, render, waitFor } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import App from "./App";
 import { ProviderID } from "./types/provider";
 import { STORAGE_PREFIX } from "./utils/storage";
 
-// Register happy-dom before all tests
-beforeAll(() => {
-  GlobalRegistrator.register();
-});
-
-// Mock localStorage
 const localStorageMock = (() => {
   let store: Record<string, string> = {};
   return {
@@ -48,11 +32,6 @@ describe("App - Provider Selection", () => {
     localStorageMock.clear();
     // Mock fetch
     global.fetch = vi.fn();
-  });
-
-  afterEach(() => {
-    // Cleanup rendered components after each test
-    cleanup();
   });
 
   it("should render provider dropdown button", () => {
@@ -182,5 +161,73 @@ describe("App - Provider Selection", () => {
 
     // Verify dropdown is closed
     expect(queryByRole("menu")).not.toBeInTheDocument();
+  });
+
+  it("should disable submit button when query is empty", () => {
+    const { container } = render(<App />);
+
+    const submitButton = container.querySelector(
+      'button[type="submit"]',
+    ) as HTMLButtonElement;
+
+    expect(submitButton).toBeDisabled();
+  });
+
+  it("should enable submit button when query is entered", async () => {
+    const { container, getByRole } = render(<App />);
+
+    const queryInput = getByRole("textbox");
+
+    const getSubmitButton = () =>
+      container.querySelector('button[type="submit"]') as HTMLButtonElement;
+
+    expect(getSubmitButton()).toBeDisabled();
+
+    // Enter query
+    fireEvent.change(queryInput, { target: { value: "test query" } });
+
+    // Wait for React to update
+    await waitFor(() => {
+      expect(getSubmitButton()).not.toBeDisabled();
+    });
+  });
+
+  it("should disable submit button when query becomes empty after input", async () => {
+    const { container, getByRole } = render(<App />);
+
+    const queryInput = getByRole("textbox");
+
+    const getSubmitButton = () =>
+      container.querySelector('button[type="submit"]') as HTMLButtonElement;
+
+    // Enter query
+    fireEvent.change(queryInput, { target: { value: "test query" } });
+
+    await waitFor(() => {
+      expect(getSubmitButton()).not.toBeDisabled();
+    });
+
+    // Clear query
+    fireEvent.change(queryInput, { target: { value: "" } });
+
+    await waitFor(() => {
+      expect(getSubmitButton()).toBeDisabled();
+    });
+  });
+
+  it("should disable submit button when query is only whitespace", async () => {
+    const { container, getByRole } = render(<App />);
+
+    const queryInput = getByRole("textbox");
+
+    const getSubmitButton = () =>
+      container.querySelector('button[type="submit"]') as HTMLButtonElement;
+
+    // Enter whitespace only
+    fireEvent.change(queryInput, { target: { value: "   " } });
+
+    await waitFor(() => {
+      expect(getSubmitButton()).toBeDisabled();
+    });
   });
 });
