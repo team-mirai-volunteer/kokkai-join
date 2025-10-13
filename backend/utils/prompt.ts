@@ -60,19 +60,40 @@ export function createSectionSynthesisPrompt(
   asOfDate: string | undefined,
   evidences: EvidenceRecord[],
 ): string {
-  const evLines = evidences
-    .map((e) => {
+  // Group evidences by provider
+  const groupedByProvider = new Map<string, EvidenceRecord[]>();
+  for (const ev of evidences) {
+    const providerId = ev.source.providerId;
+    if (!groupedByProvider.has(providerId)) {
+      groupedByProvider.set(providerId, []);
+    }
+    groupedByProvider.get(providerId)?.push(ev);
+  }
+
+  // Sort each provider's evidences by score (descending)
+  for (const records of groupedByProvider.values()) {
+    records.sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
+  }
+
+  // Build evidence list grouped by provider
+  const providerSections: string[] = [];
+  for (const [providerId, records] of groupedByProvider.entries()) {
+    const lines = records.map((e) => {
       const parts = [
         `id:${e.id}`,
+        `score:${(e.score ?? 0).toFixed(3)}`,
         e.url ? `url:${e.url}` : undefined,
         e.date ? `date:${e.date}` : undefined,
         e.title ? `title:${e.title}` : undefined,
         e.excerpt ? `excerpt:${e.excerpt}` : undefined,
-        `provider:${e.source.providerId}`,
       ].filter(Boolean);
-      return `- ${parts.join(" | ")}`;
-    })
-    .join("\n");
+      return `  - ${parts.join(" | ")}`;
+    });
+    providerSections.push(
+      `[${providerId}] (${records.length}件)\n${lines.join("\n")}`,
+    );
+  }
+  const evLines = providerSections.join("\n\n");
 
   const sectionsDesc = `生成するセクション:
 - purpose_overview (text)
@@ -86,11 +107,26 @@ export function createSectionSynthesisPrompt(
 - past_debates_summary (text)
 `;
 
+  // 利用可能なプロバイダーのリストを生成
+  const availableProviders = Array.from(groupedByProvider.keys());
+  const providerList = availableProviders.map((p) => `[${p}]`).join(", ");
+
+  const usageConstraints = `
+## 証拠の使用ルール（必須）
+1. **各プロバイダー（${providerList}）から最低3件以上**のevidenceを必ず引用してください
+   - 例: kokkai-dbから3件、openai-webから3件、pdf-extractから3件など
+   - 全てのプロバイダーから均等に引用することを強く推奨します
+2. スコアが高いevidenceを優先的に使用してください
+3. 質問と無関係な内容は使用しないでください
+4. 各セクションで使用したevidenceのidをcitationsに含めてください
+`;
+
   return `質問: ${userQuery}
 ${asOfDate ? `対象時点: ${asOfDate}\n` : ""}
 
 利用可能な証拠 (evidences):
 ${evLines}
+${usageConstraints}
 
 ${sectionsDesc}
 

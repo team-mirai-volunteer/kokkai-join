@@ -201,8 +201,7 @@ class KokkaiDeepResearchAPI {
     console.log(
       `[DRV1] ▶ Start deepresearch query="${body.query}" limit=${limit}`,
     );
-    const providersRequested =
-      body.providers && body.providers.length > 0 ? body.providers : undefined;
+    const providersRequested = body.providers ? body.providers : [];
     const providers = this.providerRegistry.byIds(providersRequested);
     const providerIds = providers.map((p) => p.id);
     console.log(`[DRV1] Providers: ${providerIds.join(", ")}`);

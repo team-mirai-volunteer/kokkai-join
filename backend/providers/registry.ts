@@ -17,8 +17,8 @@ export class ProviderRegistry {
     this.providers.push(new GovMeetingRagProvider());
   }
 
-  byIds(ids?: string[]): SearchProvider[] {
-    if (!ids || ids.length === 0) return this.providers;
+  byIds(ids: string[]): SearchProvider[] {
+    if (ids.length === 0) return this.providers;
     const set = new Set(ids);
     return this.providers.filter((p) => set.has(p.id));
   }

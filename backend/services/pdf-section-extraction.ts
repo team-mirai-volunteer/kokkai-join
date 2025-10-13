@@ -109,6 +109,7 @@ export class PDFSectionExtractionService {
           },
         },
       ],
+      max_tokens: 18000,
     };
 
     let rawContent: string | undefined;
@@ -165,7 +166,7 @@ export class PDFSectionExtractionService {
       );
     }
 
-    return this.convertToSectionResults(parsed);
+    return this.convertToSectionResults(parsed, fileName);
   }
 
   private buildSystemPrompt(): string {
@@ -234,6 +235,7 @@ export class PDFSectionExtractionService {
 
   private convertToSectionResults(
     response: PDFExtractionResponse,
+    fileName?: string,
   ): PDFSectionResult[] {
     const results: PDFSectionResult[] = [];
 
@@ -250,9 +252,11 @@ export class PDFSectionExtractionService {
           return;
         }
         const pageNumber = item.pageNumber ?? 0;
+        const displayFileName = fileName || "アップロードされたPDF";
         docs.push({
           id: `pdf-${sectionKey}-p${pageNumber}-${index}`,
-          title: `Uploaded PDF - Page ${pageNumber}`,
+          title: `${displayFileName} - ページ ${pageNumber}`,
+          url: `${displayFileName}#ページ${pageNumber}`,
           content: item.content,
           score: item.relevance,
           source: {
