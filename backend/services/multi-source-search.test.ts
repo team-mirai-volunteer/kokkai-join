@@ -13,7 +13,7 @@ class MockProvider implements SearchProvider {
     public id: string,
     private results: DocumentResult[],
     private shouldFail = false,
-  ) { }
+  ) {}
 
   async search(_query: ProviderQuery): Promise<DocumentResult[]> {
     if (this.shouldFail) {

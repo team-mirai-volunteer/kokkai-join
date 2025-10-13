@@ -14,7 +14,10 @@ import {
   buildVectorSearchQuery,
   convertDatabaseRowToSpeechResult,
 } from "../utils/database.js";
-import { EmbeddingProvider, EmbeddingProviderFactory } from "../providers/embedding.js";
+import {
+  EmbeddingProvider,
+  EmbeddingProviderFactory,
+} from "../providers/embedding.js";
 import {
   DEFAULT_TOP_K_RESULTS,
   STRUCTURED_FILTER_LIMIT,
@@ -128,7 +131,8 @@ export class VectorSearchService {
         }
 
         // ベクトル検索実行
-        const queryEmbedding = await this.embedProvider.getTextEmbedding(enhancedQuery);
+        const queryEmbedding =
+          await this.embedProvider.getTextEmbedding(enhancedQuery);
 
         let searchQuery: SqlQuery;
         let queryParams: QueryParameter[];

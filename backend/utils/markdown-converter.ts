@@ -160,11 +160,9 @@ export function convertDeepResearchToMarkdown(
     lines.push(`## ${sections.past_debates_summary.title}`);
     lines.push("");
     lines.push(
-      `${sections.past_debates_summary.content}${
-        formatCitations(
-          sections.past_debates_summary.citations,
-        )
-      }`,
+      `${sections.past_debates_summary.content}${formatCitations(
+        sections.past_debates_summary.citations,
+      )}`,
     );
     lines.push("");
   }
