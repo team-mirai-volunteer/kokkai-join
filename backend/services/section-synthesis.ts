@@ -1,6 +1,12 @@
 import { getOpenAIClient } from "../config/openai.js";
-import type { DeepResearchSections, EvidenceRecord } from "../types/deepresearch.js";
-import { createSectionSynthesisPrompt, getSectionSynthesisSystemPrompt } from "../utils/prompt.js";
+import type {
+  DeepResearchSections,
+  EvidenceRecord,
+} from "../types/deepresearch.js";
+import {
+  createSectionSynthesisPrompt,
+  getSectionSynthesisSystemPrompt,
+} from "../utils/prompt.js";
 
 /**
  * セクション統合サービス。
@@ -9,7 +15,7 @@ import { createSectionSynthesisPrompt, getSectionSynthesisSystemPrompt } from ".
  * - 失敗時: JSONパースに失敗した場合はエラーにする（フォールバックは行わない方針）。
  */
 export class SectionSynthesisService {
-  constructor() { }
+  constructor() {}
 
   async synthesize(
     userQuery: string,

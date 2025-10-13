@@ -2,10 +2,10 @@
  * MultiSourceSearchService のテスト
  */
 
-import { describe, it, expect } from "vitest";
-import { MultiSourceSearchService } from "./multi-source-search.js";
+import { describe, expect, it } from "vitest";
 import type { SearchProvider } from "../providers/base.js";
 import type { DocumentResult, ProviderQuery } from "../types/knowledge.js";
+import { MultiSourceSearchService } from "./multi-source-search.js";
 
 // モックプロバイダークラス
 class MockProvider implements SearchProvider {
@@ -13,7 +13,7 @@ class MockProvider implements SearchProvider {
     public id: string,
     private results: DocumentResult[],
     private shouldFail = false,
-  ) { }
+  ) {}
 
   async search(_query: ProviderQuery): Promise<DocumentResult[]> {
     if (this.shouldFail) {

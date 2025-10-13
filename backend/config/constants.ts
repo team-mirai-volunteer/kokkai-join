@@ -19,6 +19,7 @@ export const ProviderID = {
   KokkaiDB: "kokkai-db",
   WebSearch: "openai-web",
   GovMeetingRag: "gov-meeting-rag",
+  PDFExtract: "pdf-extract",
 } as const;
 
 export type ProviderType = (typeof ProviderID)[keyof typeof ProviderID];

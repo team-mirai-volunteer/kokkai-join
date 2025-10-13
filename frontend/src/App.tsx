@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { FileUploadArea } from "./components/FileUploadArea";
+import { useFileUpload } from "./hooks/useFileUpload";
 import { useLocalStorageCache } from "./hooks/useLocalStorageCache";
 import "./App.css";
 
@@ -15,19 +17,28 @@ function App() {
   const [error, setError] = useState("");
 
   // カスタムフックでlocalStorageを管理
+  const { data: cachedData, setData: setCachedData } =
+    useLocalStorageCache<SearchResult>({
+      key: "deepresearch_cache",
+    });
+
+  // ファイルアップロード管理
   const {
-    data: cachedData,
-    setData: setCachedData,
-  } = useLocalStorageCache<SearchResult>({
-    key: "deepresearch_cache",
-  });
+    files,
+    addFiles,
+    removeFile,
+    encodeFilesToBase64,
+    error: fileError,
+  } = useFileUpload();
 
   const result = cachedData?.result || "";
   const cachedQuery = cachedData?.query || "";
 
-  if (cachedQuery && !query) {
-    setQuery(cachedQuery);
-  }
+  useEffect(() => {
+    if (cachedQuery && !query) {
+      setQuery(cachedQuery);
+    }
+  }, [cachedQuery, query]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,6 +52,10 @@ function App() {
     setError("");
 
     try {
+      // ファイルをbase64エンコード
+      const encodedFiles =
+        files.length > 0 ? await encodeFilesToBase64() : undefined;
+
       const response = await fetch(
         `${import.meta.env.VITE_API_ENDPOINT}/v1/deepresearch?x-vercel-protection-bypass=${import.meta.env.VITE_API_TOKEN}`,
         {
@@ -50,6 +65,7 @@ function App() {
           },
           body: JSON.stringify({
             query: query.trim(),
+            attachedFiles: encodedFiles,
           }),
         },
       );
@@ -93,6 +109,14 @@ function App() {
             </button>
           </div>
         </form>
+
+        <FileUploadArea
+          files={files}
+          onFilesAdd={addFiles}
+          onFileRemove={removeFile}
+          error={fileError}
+        />
+
         {error && <div className="error-message">{error}</div>}
       </div>
 

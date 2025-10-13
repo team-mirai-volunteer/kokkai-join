@@ -1,33 +1,35 @@
 // Standard library imports
-import { config } from "dotenv";
 
+import { vValidator } from "@hono/valibot-validator";
+import { config } from "dotenv";
 // Third-party library imports
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { prettyJSON } from "hono/pretty-json";
-import { vValidator } from "@hono/valibot-validator";
 
 // Local imports
-import { DEFAULT_TOP_K_RESULTS } from "../config/constants.js";
+import { DEFAULT_TOP_K_RESULTS, ProviderID } from "../config/constants.js";
 import {
   SECTION_ALLOWED_PROVIDERS,
   SECTION_TARGET_COUNTS,
 } from "../config/deepresearch-constants.js";
-import { QueryPlanningService } from "../services/query-planning.js";
 import { ProviderRegistry } from "../providers/registry.js";
 import {
   DeepResearchRequestSchema,
   type DeepResearchRequestValidated,
 } from "../schemas/deepresearch-validation.js";
+import { DeepResearchOrchestrator } from "../services/deepresearch-orchestrator.js";
+import { PDFSectionExtractionService } from "../services/pdf-section-extraction.js";
+import { QueryPlanningService } from "../services/query-planning.js";
+import { SectionSynthesisService } from "../services/section-synthesis.js";
 import type {
   DeepResearchResponse,
   EvidenceRecord,
 } from "../types/deepresearch.js";
 import { toEvidenceRecord } from "../types/deepresearch.js";
+import type { QueryPlan } from "../types/kokkai.js";
 import { convertDeepResearchToMarkdown } from "../utils/markdown-converter.js";
-import { SectionSynthesisService } from "../services/section-synthesis.js";
-import { DeepResearchOrchestrator } from "../services/deepresearch-orchestrator.js";
 
 /**
  * Kokkai Deep Research API Server using Hono
@@ -37,6 +39,7 @@ class KokkaiDeepResearchAPI {
   private providerRegistry!: ProviderRegistry;
   private sectionSynthesis!: SectionSynthesisService;
   private orchestrator!: DeepResearchOrchestrator;
+  private pdfSectionExtraction!: PDFSectionExtractionService;
   private app: Hono;
 
   constructor() {
@@ -150,6 +153,7 @@ class KokkaiDeepResearchAPI {
     this.providerRegistry = new ProviderRegistry();
     this.sectionSynthesis = new SectionSynthesisService();
     this.orchestrator = new DeepResearchOrchestrator();
+    this.pdfSectionExtraction = new PDFSectionExtractionService();
 
     console.log("✅ Services initialized");
   }
@@ -185,6 +189,13 @@ class KokkaiDeepResearchAPI {
   private async executeDeepResearchV1(
     body: DeepResearchRequestValidated,
   ): Promise<DeepResearchResponse> {
+    const fileContexts =
+      body.files?.map((file) => ({
+        name: file.name,
+        buffer: Buffer.from(file.content, "base64"),
+        mimeType: file.mimeType,
+      })) ?? [];
+
     const start = Date.now();
     const limit = body.limit ?? DEFAULT_TOP_K_RESULTS;
     console.log(
@@ -198,7 +209,7 @@ class KokkaiDeepResearchAPI {
 
     // 1) プランニング（サブクエリ生成）
     console.log("[DRV1] ▶ Planning subqueries...");
-    let plan;
+    let plan: QueryPlan;
     try {
       plan = await this.queryPlanningService.createQueryPlan(body.query);
       console.log(`📋 Query plan created:`);
@@ -219,14 +230,40 @@ class KokkaiDeepResearchAPI {
         : [body.query];
 
     // 2)+3) DeepResearchOrchestrator に委譲（重複除去も含む）
-    const { finalDocs, sectionHitMap, iterations } =
-      await this.orchestrator.run({
+    const [orchestratorResult, ...pdfSectionResultsArray] = await Promise.all([
+      this.orchestrator.run({
         baseSubqueries: subqueries,
         providers,
         allowBySection: SECTION_ALLOWED_PROVIDERS,
         targets: SECTION_TARGET_COUNTS,
         limit,
-      });
+      }),
+      ...fileContexts.map((fileContext) =>
+        this.pdfSectionExtraction.extractBySections({
+          query: [body.query, ...subqueries].join(" "),
+          fileName: fileContext.name,
+          fileBuffer: fileContext.buffer,
+          mimeType: fileContext.mimeType,
+        }),
+      ),
+    ]);
+
+    // 複数ファイルの結果をフラット化
+    const pdfSectionResults = pdfSectionResultsArray.flat();
+
+    const { finalDocs, sectionHitMap, iterations } = orchestratorResult;
+    for (const { sectionKey, docs } of pdfSectionResults) {
+      for (const doc of docs) {
+        finalDocs.push(doc);
+        const key = doc.url ?? `${doc.source.providerId}:${doc.id}`;
+        let sectionsForDoc = sectionHitMap.get(key);
+        if (!sectionsForDoc) {
+          sectionsForDoc = new Set<string>();
+          sectionHitMap.set(key, sectionsForDoc);
+        }
+        sectionsForDoc.add(sectionKey);
+      }
+    }
 
     // 4) e1.. の連番で EvidenceRecord を構築（セクションヒントを付与）
     console.log("[DRV1] ▶ Building evidences...");
@@ -240,7 +277,7 @@ class KokkaiDeepResearchAPI {
       const eid = `e${ecount}`;
       const rec = toEvidenceRecord(d, eid);
       const hints = sectionHitMap.get(key);
-      if (hints && hints.size) rec.sectionHints = Array.from(hints);
+      if (hints?.size) rec.sectionHints = Array.from(hints);
       evidenceMap.set(key, rec);
       evidences.push(rec);
     }
@@ -254,13 +291,20 @@ class KokkaiDeepResearchAPI {
       evidences,
     );
 
+    const usedProviderIds = [...providerIds];
+    if (
+      finalDocs.some((doc) => doc.source.providerId === ProviderID.PDFExtract)
+    ) {
+      usedProviderIds.push(ProviderID.PDFExtract);
+    }
+
     const resp: DeepResearchResponse = {
       query: body.query,
       asOfDate: body.asOfDate,
       sections,
       evidences,
       metadata: {
-        usedProviders: providerIds,
+        usedProviders: usedProviderIds,
         iterations,
         totalResults: finalDocs.length,
         processingTime: Date.now() - start,
@@ -278,7 +322,8 @@ class KokkaiDeepResearchAPI {
     console.log(`🌐 Server running at http://localhost:${port}`);
     console.log("📋 Available endpoints:");
     console.log(`   GET  /                    - API information`);
-    console.log(`   POST /api/v1/deepresearch - Deep research pipeline (sections+citations)`,
+    console.log(
+      `   POST /api/v1/deepresearch - Deep research pipeline (sections+citations)`,
     );
   }
 
@@ -292,7 +337,7 @@ class KokkaiDeepResearchAPI {
   /**
    * Cleanup resources
    */
-  async close(): Promise<void> { }
+  async close(): Promise<void> {}
 }
 
 // Export for use in Vercel functions

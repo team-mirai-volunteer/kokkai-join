@@ -8,6 +8,11 @@ export interface DeepResearchRequest {
   providers?: string[]; // default ["kokkai-db"]
   asOfDate?: string; // ISO date (YYYY-MM-DD)
   seedUrls?: string[]; // Optional seed URLs (HTML/PDF)
+  files?: Array<{
+    name: string;
+    mimeType: string;
+    content: string;
+  }>;
 }
 
 export type SectionType = "text" | "list" | "timeline" | "links";

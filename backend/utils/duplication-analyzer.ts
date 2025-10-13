@@ -118,7 +118,9 @@ export class DuplicationAnalyzer {
   ): string {
     const baseKey = this.generateDocumentKey(doc);
     // セクションと検索コンテキストを組み合わせて一意性を保証
-    const contextPart = searchContext ? `:${this.hashContent(searchContext)}` : "";
+    const contextPart = searchContext
+      ? `:${this.hashContent(searchContext)}`
+      : "";
     return `${baseKey}:${section}${contextPart}`;
   }
 
@@ -141,7 +143,8 @@ export class DuplicationAnalyzer {
       if (!this.duplicateStats[section]) {
         this.duplicateStats[section] = {};
       }
-      this.duplicateStats[section][provider] = (this.duplicateStats[section][provider] || 0) + 1;
+      this.duplicateStats[section][provider] =
+        (this.duplicateStats[section][provider] || 0) + 1;
     });
   }
 
@@ -177,9 +180,10 @@ export class DuplicationAnalyzer {
       .slice(0, topN);
 
     const uniqueDocuments = this.docKeyToInfo.size;
-    const duplicatePercentage = totalDocuments > 0
-      ? Math.round((duplicatesRemoved * 100) / totalDocuments)
-      : 0;
+    const duplicatePercentage =
+      totalDocuments > 0
+        ? Math.round((duplicatesRemoved * 100) / totalDocuments)
+        : 0;
 
     return {
       totalDocuments,
@@ -270,11 +274,9 @@ export class DuplicationAnalyzer {
       );
       stats.topDuplicates.forEach((d) => {
         console.log(
-          `    "${d.key}": ${d.count}x in [${d.sections.join(", ")}] from [${
-            d.providers.join(
-              ", ",
-            )
-          }]`,
+          `    "${d.key}": ${d.count}x in [${d.sections.join(", ")}] from [${d.providers.join(
+            ", ",
+          )}]`,
         );
       });
     }

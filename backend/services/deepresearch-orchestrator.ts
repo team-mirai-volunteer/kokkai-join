@@ -1,7 +1,10 @@
-import type { DocumentResult, ProviderQuery } from "../types/knowledge.js";
 import type { SearchProvider } from "../providers/base.js";
+import type { DocumentResult, ProviderQuery } from "../types/knowledge.js";
+import {
+  DuplicationAnalyzer,
+  type SectionDocumentTracker,
+} from "../utils/duplication-analyzer.js";
 import { MultiSourceSearchService } from "./multi-source-search.js";
-import { DuplicationAnalyzer, type SectionDocumentTracker } from "../utils/duplication-analyzer.js";
 
 const SECTION_KEYWORD_HINTS: Record<string, string[]> = {
   purpose_overview: ["概要", "目的", "趣旨"],
@@ -50,7 +53,8 @@ export class DeepResearchOrchestrator {
    * @param limit 各呼び出しあたりの上限目安
    */
   async run(params: OrchestratorRunParams): Promise<OrchestratorRunResult> {
-    const { baseSubqueries, providers, allowBySection, targets, limit } = params;
+    const { baseSubqueries, providers, allowBySection, targets, limit } =
+      params;
     const sectionKeys = Object.keys(allowBySection);
     const allDocs: DocumentResult[] = [];
     const sectionHitMap = new Map<string, Set<string>>();
@@ -62,7 +66,9 @@ export class DeepResearchOrchestrator {
         const allowedProviderIds = allowBySection[sectionKey] ?? [];
         if (allowedProviderIds.length === 0) return null;
 
-        const sectionProviders = providers.filter((p) => allowedProviderIds.includes(p.id));
+        const sectionProviders = providers.filter((p) =>
+          allowedProviderIds.includes(p.id),
+        );
         if (!sectionProviders.length) return null;
 
         const query = this.buildSectionQuery(sectionKey, baseSubqueries);
@@ -113,14 +119,20 @@ export class DeepResearchOrchestrator {
       for (const doc of docs) {
         allDocs.push(doc);
         const key = this.docKey(doc);
-        if (!sectionHitMap.has(key)) sectionHitMap.set(key, new Set());
-        sectionHitMap.get(key)!.add(sectionKey);
+        let sectionsForDoc = sectionHitMap.get(key);
+        if (!sectionsForDoc) {
+          sectionsForDoc = new Set<string>();
+          sectionHitMap.set(key, sectionsForDoc);
+        }
+        sectionsForDoc.add(sectionKey);
 
         // 検索クエリ情報を保存
-        if (!sectionQueryMap.has(key)) {
-          sectionQueryMap.set(key, new Map());
+        let queryMap = sectionQueryMap.get(key);
+        if (!queryMap) {
+          queryMap = new Map<string, string>();
+          sectionQueryMap.set(key, queryMap);
         }
-        sectionQueryMap.get(key)!.set(sectionKey, query);
+        queryMap.set(sectionKey, query);
       }
     }
 
@@ -128,8 +140,7 @@ export class DeepResearchOrchestrator {
     console.log(
       `[DRV1] coverage=${JSON.stringify(coverage.current)} unmet=${JSON.stringify(
         coverage.missing,
-      )
-      }`,
+      )}`,
     );
 
     // 重複分析と除去
@@ -229,12 +240,16 @@ export class DeepResearchOrchestrator {
     const uniqueWords = new Set<string>();
     for (const query of allQueries) {
       const words = query.split(/\s+/).filter((w) => w.length > 0);
-      words.forEach((w) => uniqueWords.add(w));
+      words.forEach((word) => {
+        uniqueWords.add(word);
+      });
     }
 
     // セクション固有のヒントを追加
     const hints = SECTION_KEYWORD_HINTS[sectionKey] ?? [];
-    hints.forEach((hint) => uniqueWords.add(hint));
+    hints.forEach((hint) => {
+      uniqueWords.add(hint);
+    });
 
     // 1つの統合クエリとして返す
     const combinedQuery = Array.from(uniqueWords).join(" ");
