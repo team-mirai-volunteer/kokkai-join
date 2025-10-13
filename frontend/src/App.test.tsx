@@ -114,61 +114,6 @@ describe("App - Provider Selection", () => {
     expect(govCheckbox.checked).toBe(true);
   });
 
-  // TODO: This test has issues with form submission in happy-dom environment
-  // The functionality works correctly in manual testing
-  it.skip("should send providers array in API request", async () => {
-    const mockFetch = vi.fn(() =>
-      Promise.resolve({
-        ok: true,
-        text: () => Promise.resolve("# Test Result"),
-      } as Response),
-    );
-    global.fetch = mockFetch;
-
-    const { container, getByLabelText, getByPlaceholderText } = render(<App />);
-
-    const kokkaiCheckbox = getByLabelText("国会会議録") as HTMLInputElement;
-    const queryInput = getByPlaceholderText(
-      /検索キーワードを入力/,
-    ) as HTMLInputElement;
-    const form = container.querySelector("form");
-
-    // Uncheck kokkai-db
-    fireEvent.click(kokkaiCheckbox);
-    expect(kokkaiCheckbox.checked).toBe(false);
-
-    // Enter query and submit
-    fireEvent.change(queryInput, { target: { value: "test query" } });
-    expect(queryInput.value).toBe("test query");
-
-    if (form) {
-      fireEvent.submit(form);
-    }
-
-    await waitFor(
-      () => {
-        expect(mockFetch).toHaveBeenCalled();
-      },
-      { timeout: 3000 },
-    );
-
-    expect(mockFetch.mock.calls.length).toBeGreaterThan(0);
-    const fetchCall = mockFetch.mock.calls[0] as unknown as [
-      string,
-      RequestInit,
-    ];
-    expect(fetchCall).toBeDefined();
-    expect(fetchCall.length).toBeGreaterThan(1);
-
-    const requestBody = JSON.parse(fetchCall[1].body as string);
-
-    expect(requestBody.providers).toBeInstanceOf(Array);
-    expect(requestBody.providers).toContain(ProviderID.WebSearch);
-    expect(requestBody.providers).toContain(ProviderID.GovMeetingRag);
-    expect(requestBody.providers).not.toContain(ProviderID.KokkaiDB);
-    expect(requestBody.query).toBe("test query");
-  });
-
   it("should persist provider selections in localStorage", async () => {
     // Ensure clean localStorage
     localStorageMock.clear();

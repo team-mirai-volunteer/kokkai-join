@@ -2,7 +2,7 @@ import type { UploadedFile } from "../types/file";
 
 interface FileListItemProps {
   file: UploadedFile;
-  onRemove: (fileId: string) => void;
+  onRemove: (fileName: string) => void;
 }
 
 function formatFileSize(bytes: number): string {
@@ -14,7 +14,7 @@ function formatFileSize(bytes: number): string {
 export function FileListItem({ file, onRemove }: FileListItemProps) {
   const handleRemoveClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
-    onRemove(file.id);
+    onRemove(file.name);
   };
 
   return (

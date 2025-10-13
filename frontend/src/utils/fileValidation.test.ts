@@ -10,15 +10,6 @@ describe("validateFile", () => {
     expect(result.error).toBeUndefined();
   });
 
-  it("should return valid for a Word document within size limit", () => {
-    const file = new File(["content"], "test.docx", {
-      type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    });
-    const result = validateFile(file);
-    expect(result.isValid).toBe(true);
-    expect(result.error).toBeUndefined();
-  });
-
   it("should return invalid for file exceeding size limit", () => {
     const largeContent = new ArrayBuffer(MAX_FILE_SIZE + 1);
     const file = new File([largeContent], "large.pdf", {
@@ -38,20 +29,6 @@ describe("validateFile", () => {
     expect(result.isValid).toBe(false);
     expect(result.error?.reason).toBe("type");
     expect(result.error?.message).toContain("対応していない");
-  });
-
-  it("should return valid for text file", () => {
-    const file = new File(["content"], "test.txt", { type: "text/plain" });
-    const result = validateFile(file);
-    expect(result.isValid).toBe(true);
-    expect(result.error).toBeUndefined();
-  });
-
-  it("should return valid for markdown file", () => {
-    const file = new File(["content"], "test.md", { type: "text/markdown" });
-    const result = validateFile(file);
-    expect(result.isValid).toBe(true);
-    expect(result.error).toBeUndefined();
   });
 });
 

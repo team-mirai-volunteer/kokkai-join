@@ -25,15 +25,10 @@ function App() {
       storage: storage,
     });
 
-  const {
-    files,
-    addFiles,
-    removeFile,
-    encodeFilesToBase64,
-    error: fileError,
-  } = useFileUpload();
+  const { files, addFiles, removeFile, error: fileError } = useFileUpload();
 
-  const { selectedProviders, handleProviderToggle } = useProviderSelection(storage);
+  const { selectedProviders, handleProviderToggle } =
+    useProviderSelection(storage);
 
   const result = cachedData?.result || "";
 
@@ -59,8 +54,15 @@ function App() {
     setError("");
 
     try {
+      // Files are already encoded in base64 format
       const encodedFiles =
-        files.length > 0 ? await encodeFilesToBase64() : undefined;
+        files.length > 0
+          ? files.map((file) => ({
+            name: file.name,
+            content: file.content,
+            mimeType: file.type,
+          }))
+          : undefined;
 
       const response = await fetch(
         `${import.meta.env.VITE_API_ENDPOINT}/v1/deepresearch?x-vercel-protection-bypass=${import.meta.env.VITE_API_TOKEN}`,

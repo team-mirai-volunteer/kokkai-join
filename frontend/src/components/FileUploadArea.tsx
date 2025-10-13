@@ -90,7 +90,11 @@ export function FileUploadArea({
         ) : (
           <div className="file-list">
             {files.map((file) => (
-              <FileListItem key={file.id} file={file} onRemove={onFileRemove} />
+              <FileListItem
+                key={file.name}
+                file={file}
+                onRemove={onFileRemove}
+              />
             ))}
           </div>
         )}
