@@ -5,12 +5,12 @@
 .file-dropzone {
 	border: 2px dashed #ccc;
 	border-radius: 8px;
-	padding: 2rem;
+	padding: 0.5rem;
 	text-align: center;
 	cursor: pointer;
 	transition: all 0.3s ease;
 	background-color: #fafafa;
-	min-height: 150px;
+	min-height: 50px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -35,7 +35,7 @@
 }
 
 .dropzone-icon {
-	font-size: 3rem;
+	font-size: 2rem;
 	display: block;
 }
 

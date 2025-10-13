@@ -4,6 +4,11 @@ import remarkGfm from "remark-gfm";
 import { FileUploadArea } from "./components/FileUploadArea";
 import { useFileUpload } from "./hooks/useFileUpload";
 import { useLocalStorageCache } from "./hooks/useLocalStorageCache";
+import {
+  type ProviderType,
+  PROVIDER_LABELS,
+  SELECTABLE_PROVIDERS,
+} from "./types/provider";
 import "./App.css";
 
 interface SearchResult {
@@ -15,6 +20,21 @@ function App() {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [selectedProviders, setSelectedProviders] = useState<ProviderType[]>(
+    () => {
+      // localStorageから保存されたprovidersを復元
+      const saved = localStorage.getItem("selected_providers");
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch {
+          // パースエラーの場合はデフォルト値
+        }
+      }
+      // デフォルトは全て選択
+      return [...SELECTABLE_PROVIDERS];
+    },
+  );
 
   // カスタムフックでlocalStorageを管理
   const { data: cachedData, setData: setCachedData } =
@@ -40,11 +60,38 @@ function App() {
     }
   }, [cachedQuery, query]);
 
+  // selectedProvidersが変更されたらlocalStorageに保存
+  useEffect(() => {
+    localStorage.setItem(
+      "selected_providers",
+      JSON.stringify(selectedProviders),
+    );
+  }, [selectedProviders]);
+
+  const handleProviderToggle = (providerId: ProviderType) => {
+    setSelectedProviders((prev) => {
+      if (prev.includes(providerId)) {
+        // 最低1つは選択必要
+        if (prev.length === 1) {
+          return prev;
+        }
+        return prev.filter((id) => id !== providerId);
+      } else {
+        return [...prev, providerId];
+      }
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!query.trim()) {
       setError("キーワードを入力してください");
+      return;
+    }
+
+    if (selectedProviders.length === 0) {
+      setError("少なくとも1つのプロバイダーを選択してください");
       return;
     }
 
@@ -66,6 +113,7 @@ function App() {
           body: JSON.stringify({
             query: query.trim(),
             files: encodedFiles,
+            providers: selectedProviders,
           }),
         },
       );
@@ -107,6 +155,25 @@ function App() {
             <button type="submit" disabled={loading} className="submit-button">
               {loading ? "検索中..." : "検索"}
             </button>
+          </div>
+
+          <div
+            className="provider-selection"
+            role="group"
+            aria-label="provider selection"
+          >
+            <span className="provider-label">検索対象:</span>
+            {SELECTABLE_PROVIDERS.map((providerId) => (
+              <label key={providerId} className="provider-checkbox">
+                <input
+                  type="checkbox"
+                  checked={selectedProviders.includes(providerId)}
+                  onChange={() => handleProviderToggle(providerId)}
+                  disabled={loading}
+                />
+                <span>{PROVIDER_LABELS[providerId]}</span>
+              </label>
+            ))}
           </div>
         </form>
 

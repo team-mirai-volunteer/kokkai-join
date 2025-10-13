@@ -12,6 +12,11 @@ function formatFileSize(bytes: number): string {
 }
 
 export function FileListItem({ file, onRemove }: FileListItemProps) {
+  const handleRemoveClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    onRemove(file.id);
+  };
+
   return (
     <div className="file-list-item">
       <div className="file-info">
@@ -21,7 +26,7 @@ export function FileListItem({ file, onRemove }: FileListItemProps) {
       <button
         type="button"
         className="file-remove-button"
-        onClick={() => onRemove(file.id)}
+        onClick={handleRemoveClick}
         aria-label={`${file.name}を削除`}
       >
         ×

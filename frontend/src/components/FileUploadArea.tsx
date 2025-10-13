@@ -85,8 +85,7 @@ export function FileUploadArea({
         {files.length === 0 ? (
           <div className="dropzone-placeholder">
             <span className="dropzone-icon">📎</span>
-            <p>ファイルをドラッグ&ドロップ</p>
-            <p className="dropzone-subtext">またはクリックして選択</p>
+            <p>ファイルをドラッグ&ドロップまたはクリックして選択</p>
           </div>
         ) : (
           <div className="file-list">
