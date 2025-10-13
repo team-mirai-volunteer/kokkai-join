@@ -15,7 +15,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
-    "fmt": "biome format --write .",
+    "fmt": "biome check --fix .",
     "lint": "biome lint .",
     "docker:build": "docker build -t kokkai-backend:latest .",
     "docker:up": "docker compose up -d",

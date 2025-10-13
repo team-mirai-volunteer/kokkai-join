@@ -2,9 +2,9 @@
  * DuplicationAnalyzer の単体テスト
  */
 
-import { describe, it, expect } from "vitest";
-import { DuplicationAnalyzer } from "./duplication-analyzer.js";
+import { describe, expect, it } from "vitest";
 import type { DocumentResult } from "../types/knowledge.js";
+import { DuplicationAnalyzer } from "./duplication-analyzer.js";
 
 // テスト用のドキュメントを作成するヘルパー関数
 function createTestDocument(

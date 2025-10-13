@@ -1,14 +1,14 @@
 import { Pool } from "pg";
-import type { DocumentResult, ProviderQuery } from "../types/knowledge.js";
-import type { SearchProvider } from "./base.js";
-import type { SpeechResult } from "../types/kokkai.js";
-import { VectorSearchService } from "../services/vector-search.js";
-import { ensureEnv } from "../utils/env.js";
 import {
   DEFAULT_TOP_K_RESULTS,
   MAX_DB_CONNECTIONS,
   ProviderID,
 } from "../config/constants.js";
+import { VectorSearchService } from "../services/vector-search.js";
+import type { DocumentResult, ProviderQuery } from "../types/knowledge.js";
+import type { SpeechResult } from "../types/kokkai.js";
+import { ensureEnv } from "../utils/env.js";
+import type { SearchProvider } from "./base.js";
 
 /**
  * Convert SpeechResult to DocumentResult for unified response format

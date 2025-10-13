@@ -1,7 +1,7 @@
+import { ProviderID } from "../config/constants.js";
 import { getOpenAIClient } from "../config/openai.js";
 import type { DocumentResult, ProviderQuery } from "../types/knowledge.js";
 import type { SearchProvider } from "./base.js";
-import { ProviderID } from "../config/constants.js";
 
 /** Web検索結果の個別アイテム */
 interface WebSearchResultItem {

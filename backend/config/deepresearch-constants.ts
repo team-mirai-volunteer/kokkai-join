@@ -3,7 +3,7 @@
  * 各セクションの探索に対する許可プロバイダーとターゲット件数を定義
  */
 
-import { ProviderID, ProviderType } from "./constants.js";
+import { ProviderID, type ProviderType } from "./constants.js";
 
 /**
  * セクションごとに許可されたプロバイダーのリスト

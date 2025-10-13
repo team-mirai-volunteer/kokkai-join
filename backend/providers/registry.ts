@@ -1,7 +1,7 @@
-import { KokkaiRagProvider } from "../providers/kokkai-rag.js";
 import type { SearchProvider } from "../providers/base.js";
-import { OpenAIWebProvider } from "../providers/websearch.js";
 import { GovMeetingRagProvider } from "../providers/gov-meeting-rag.js";
+import { KokkaiRagProvider } from "../providers/kokkai-rag.js";
+import { OpenAIWebProvider } from "../providers/websearch.js";
 
 export class ProviderRegistry {
   private providers: SearchProvider[] = [];

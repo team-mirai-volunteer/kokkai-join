@@ -1,7 +1,18 @@
 // Vector search service for Kokkai RAG system
 
-import { Pool } from "pg";
+import type { Pool } from "pg";
 import pgvector from "pgvector/pg";
+import {
+  DEFAULT_TOP_K_RESULTS,
+  STRUCTURED_FILTER_LIMIT,
+  VECTOR_SIMILARITY_THRESHOLD_FALLBACK,
+  VECTOR_SIMILARITY_THRESHOLD_STRUCTURED,
+  VECTOR_SIMILARITY_THRESHOLD_VECTOR_ONLY,
+} from "../config/constants.js";
+import {
+  type EmbeddingProvider,
+  EmbeddingProviderFactory,
+} from "../providers/embedding.js";
 import type {
   KokkaiEntities,
   QueryParameter,
@@ -14,17 +25,6 @@ import {
   buildVectorSearchQuery,
   convertDatabaseRowToSpeechResult,
 } from "../utils/database.js";
-import {
-  EmbeddingProvider,
-  EmbeddingProviderFactory,
-} from "../providers/embedding.js";
-import {
-  DEFAULT_TOP_K_RESULTS,
-  STRUCTURED_FILTER_LIMIT,
-  VECTOR_SIMILARITY_THRESHOLD_FALLBACK,
-  VECTOR_SIMILARITY_THRESHOLD_STRUCTURED,
-  VECTOR_SIMILARITY_THRESHOLD_VECTOR_ONLY,
-} from "../config/constants.js";
 
 /**
  * Service responsible for vector search operations

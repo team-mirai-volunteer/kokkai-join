@@ -2,7 +2,7 @@
  * DeepResearchOrchestrator の単体テスト
  */
 
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { DeepResearchOrchestrator } from "./deepresearch-orchestrator.js";
 
 describe("DeepResearchOrchestrator", () => {

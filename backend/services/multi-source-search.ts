@@ -1,5 +1,5 @@
-import type { DocumentResult, ProviderQuery } from "../types/knowledge.js";
 import type { SearchProvider } from "../providers/base.js";
+import type { DocumentResult, ProviderQuery } from "../types/knowledge.js";
 
 /**
  * 複数プロバイダ横断検索サービス。
