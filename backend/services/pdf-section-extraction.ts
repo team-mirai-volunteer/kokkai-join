@@ -58,7 +58,16 @@ export class PDFSectionExtractionService {
   async extractBySections(
     params: PDFSectionExtractionParams,
   ): Promise<PDFSectionResult[]> {
-    const { query, fileBuffer, mimeType = "application/pdf" } = params;
+    const {
+      fileName,
+      query,
+      fileBuffer,
+      mimeType = "application/pdf",
+    } = params;
+
+    console.log(
+      `📄 Extracting sections from ${fileName} using model: ${this.model}`,
+    );
     const client = getOpenAIClient();
 
     const systemPrompt = this.buildSystemPrompt();
@@ -76,7 +85,7 @@ export class PDFSectionExtractionService {
             {
               type: "file",
               file: {
-                filename: params.fileName,
+                filename: fileName,
                 file_data: fileData,
               },
             },
@@ -263,6 +272,11 @@ export class PDFSectionExtractionService {
         results.push({ sectionKey, docs });
       }
     }
+
+    const totalDocs = results.reduce((sum, r) => sum + r.docs.length, 0);
+    console.log(
+      `[PDF] Extraction complete: ${totalDocs} total documents across ${results.length} sections`,
+    );
 
     return results;
   }

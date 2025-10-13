@@ -65,7 +65,7 @@ function App() {
           },
           body: JSON.stringify({
             query: query.trim(),
-            attachedFiles: encodedFiles,
+            files: encodedFiles,
           }),
         },
       );
