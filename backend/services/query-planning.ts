@@ -10,9 +10,25 @@ import { getQueryPlanSystemPrompt } from "../utils/prompt.js";
  * - 役割: ユーザ質問を解析し、検索に適したサブクエリやエンティティ（話者/政党/期間など）を抽出。
  * - 本実装: OpenAI 経由で選択した LLM にプロンプトして JSON 形式のプランを生成する。
  */
-export class QueryPlanningService {
-  constructor() {}
+interface RawPlanData {
+  subqueries?: string[];
+  entities?: {
+    speakers?: string[];
+    parties?: string[];
+    topics?: string[];
+    meetings?: string[];
+    positions?: string[];
+    dateRange?: {
+      start?: string;
+      end?: string;
+    };
+  };
+  enabledStrategies?: string[];
+  confidence?: number;
+  estimatedComplexity?: number;
+}
 
+export class QueryPlanningService {
   /** ユーザ質問からクエリプラン（サブクエリ等）を生成 */
   async createQueryPlan(userQuestion: string): Promise<QueryPlan> {
     console.log("🧠 Planning query strategy...");
@@ -43,9 +59,9 @@ export class QueryPlanningService {
     }
 
     // JSONパース試行
-    let planData;
+    let planData: RawPlanData;
     try {
-      planData = JSON.parse(planText);
+      planData = JSON.parse(planText) as RawPlanData;
     } catch (parseError) {
       throw new Error(
         `Failed to parse LLM response as JSON: ${
@@ -55,6 +71,17 @@ export class QueryPlanningService {
     }
 
     // QueryPlan形式に変換
+    const rawDateRange = planData.entities?.dateRange;
+    const normalizedDateRange =
+      rawDateRange &&
+      typeof rawDateRange.start === "string" &&
+      typeof rawDateRange.end === "string"
+        ? {
+            start: rawDateRange.start,
+            end: rawDateRange.end,
+          }
+        : undefined;
+
     const plan: QueryPlan = {
       originalQuestion: userQuestion,
       subqueries: planData.subqueries || [userQuestion],
@@ -64,7 +91,7 @@ export class QueryPlanningService {
         topics: planData.entities?.topics || [],
         meetings: planData.entities?.meetings || [],
         positions: planData.entities?.positions || [],
-        dateRange: planData.entities?.dateRange,
+        dateRange: normalizedDateRange,
       },
       enabledStrategies: planData.enabledStrategies || ["vector"],
       confidence: planData.confidence || 0.5,

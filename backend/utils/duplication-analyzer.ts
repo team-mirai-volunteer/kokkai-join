@@ -61,9 +61,14 @@ export class DuplicationAnalyzer {
       });
     } else {
       // 既存ドキュメント
-      const info = this.docKeyToInfo.get(key)!;
+      const info = this.docKeyToInfo.get(key);
+      if (!info) {
+        throw new Error(`Document info not found for key: ${key}`);
+      }
       info.count++;
-      sections.forEach((s) => info.sections.add(s));
+      for (const s of sections) {
+        info.sections.add(s);
+      }
       info.providers.add(provider);
 
       // セクション-プロバイダー別の重複統計を更新
@@ -86,7 +91,10 @@ export class DuplicationAnalyzer {
       this.sectionDocumentSeen.set(section, new Set());
     }
 
-    const sectionDocs = this.sectionDocumentSeen.get(section)!;
+    const sectionDocs = this.sectionDocumentSeen.get(section);
+    if (!sectionDocs) {
+      throw new Error(`Section documents not found for section: ${section}`);
+    }
 
     if (sectionDocs.has(key)) {
       // このセクション内で既に出現している
@@ -199,7 +207,7 @@ export class DuplicationAnalyzer {
    * キーを読みやすい長さに切り詰める
    */
   private truncateKey(key: string, maxLength = 50): string {
-    return key.length > maxLength ? key.substring(0, maxLength) + "..." : key;
+    return key.length > maxLength ? `${key.substring(0, maxLength)}...` : key;
   }
 
   /**
@@ -233,7 +241,10 @@ export class DuplicationAnalyzer {
         sectionSeenKeys.set(section, new Set());
       }
 
-      const seenInSection = sectionSeenKeys.get(section)!;
+      const seenInSection = sectionSeenKeys.get(section);
+      if (!seenInSection) {
+        throw new Error(`Section keys not found for section: ${section}`);
+      }
 
       if (!seenInSection.has(sectionKey)) {
         // このセクション内でこのコンテキストでは初めて出現

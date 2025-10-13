@@ -15,7 +15,6 @@ import {
  * - 失敗時: JSONパースに失敗した場合はエラーにする（フォールバックは行わない方針）。
  */
 export class SectionSynthesisService {
-  constructor() {}
 
   async synthesize(
     userQuery: string,

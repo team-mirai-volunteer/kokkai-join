@@ -125,57 +125,54 @@ export type EmbeddingProviderConfig =
   | NovitaEmbeddingConfig;
 
 /**
- * Factory for creating embedding providers
+ * Create an embedding provider based on configuration
+ * @param config The provider configuration
+ * @returns The embedding provider instance
  */
-export class EmbeddingProviderFactory {
-  /**
-   * Create an embedding provider based on configuration
-   * @param config The provider configuration
-   * @returns The embedding provider instance
-   */
-  static create(config: EmbeddingProviderConfig): EmbeddingProvider {
-    switch (config.type) {
-      case "ollama":
-        return new OllamaEmbeddingProvider(config);
-      case "novita":
-        return new NovitaEmbeddingProvider(config);
-      default:
-        throw new Error(`Unknown embedding provider type: ${config}`);
-    }
+export function createEmbeddingProvider(
+  config: EmbeddingProviderConfig,
+): EmbeddingProvider {
+  switch (config.type) {
+    case "ollama":
+      return new OllamaEmbeddingProvider(config);
+    case "novita":
+      return new NovitaEmbeddingProvider(config);
+    default:
+      throw new Error(`Unknown embedding provider type: ${config}`);
   }
+}
 
-  /**
-   * Create an embedding provider from environment variables
-   * @returns The embedding provider instance
-   */
-  static createFromEnv(): EmbeddingProvider {
-    const providerType = process.env.EMBEDDING_PROVIDER;
-    console.log(
-      `Using embedding provider: ${providerType || "ollama (default)"}`,
-    );
+/**
+ * Create an embedding provider from environment variables
+ * @returns The embedding provider instance
+ */
+export function createEmbeddingProviderFromEnv(): EmbeddingProvider {
+  const providerType = process.env.EMBEDDING_PROVIDER;
+  console.log(
+    `Using embedding provider: ${providerType || "ollama (default)"}`,
+  );
 
-    if (providerType === "novita") {
-      // Novita provider (OpenAI-compatible)
-      const apiKey = ensureEnv("EMBEDDING_API_KEY");
-      const model = ensureEnv("EMBEDDING_MODEL");
-      const baseUrl = ensureEnv("EMBEDDING_BASE_URL");
+  if (providerType === "novita") {
+    // Novita provider (OpenAI-compatible)
+    const apiKey = ensureEnv("EMBEDDING_API_KEY");
+    const model = ensureEnv("EMBEDDING_MODEL");
+    const baseUrl = ensureEnv("EMBEDDING_BASE_URL");
 
-      return EmbeddingProviderFactory.create({
-        type: "novita",
-        model,
-        apiKey,
-        baseUrl,
-      });
-    } else {
-      // Default to Ollama
-      const model = ensureEnv("OLLAMA_EMBEDDING_MODEL");
-      const baseUrl = ensureEnv("OLLAMA_BASE_URL");
+    return createEmbeddingProvider({
+      type: "novita",
+      model,
+      apiKey,
+      baseUrl,
+    });
+  } else {
+    // Default to Ollama
+    const model = ensureEnv("OLLAMA_EMBEDDING_MODEL");
+    const baseUrl = ensureEnv("OLLAMA_BASE_URL");
 
-      return EmbeddingProviderFactory.create({
-        type: "ollama",
-        model,
-        baseUrl,
-      });
-    }
+    return createEmbeddingProvider({
+      type: "ollama",
+      model,
+      baseUrl,
+    });
   }
 }

@@ -10,8 +10,8 @@ import {
   VECTOR_SIMILARITY_THRESHOLD_VECTOR_ONLY,
 } from "../config/constants.js";
 import {
+  createEmbeddingProviderFromEnv,
   type EmbeddingProvider,
-  EmbeddingProviderFactory,
 } from "../providers/embedding.js";
 import type {
   KokkaiEntities,
@@ -35,7 +35,7 @@ export class VectorSearchService {
 
   constructor(pool: Pool) {
     this.dbPool = pool;
-    this.embedProvider = EmbeddingProviderFactory.createFromEnv();
+    this.embedProvider = createEmbeddingProviderFromEnv();
   }
 
   /**

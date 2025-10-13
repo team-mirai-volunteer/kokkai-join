@@ -233,7 +233,9 @@ describe("DuplicationAnalyzer", () => {
     sectionHitMap.set("https://example.com/doc2", new Set(["section2"]));
     sectionHitMap.set("https://example.com/doc3", new Set(["section3"]));
 
-    docs.forEach((doc) => analyzer.collectStatistics(doc, sectionHitMap));
+    for (const doc of docs) {
+      analyzer.collectStatistics(doc, sectionHitMap);
+    }
 
     const stats = analyzer.generateStatistics(5);
 
@@ -274,13 +276,13 @@ describe("DuplicationAnalyzer", () => {
     const stats = analyzer.generateStatistics(2);
 
     // セクション-プロバイダー別の統計を確認
-    expect(stats.bySection["section1"]).toBeDefined();
-    expect(stats.bySection["section1"]?.["provider2"]).toBeDefined();
-    expect(stats.bySection["section1"]?.["provider2"]).toBe(1);
+    expect(stats.bySection.section1).toBeDefined();
+    expect(stats.bySection.section1?.provider2).toBeDefined();
+    expect(stats.bySection.section1?.provider2).toBe(1);
 
-    expect(stats.bySection["section2"]).toBeDefined();
-    expect(stats.bySection["section2"]?.["provider2"]).toBeDefined();
-    expect(stats.bySection["section2"]?.["provider2"]).toBe(1);
+    expect(stats.bySection.section2).toBeDefined();
+    expect(stats.bySection.section2?.provider2).toBeDefined();
+    expect(stats.bySection.section2?.provider2).toBe(1);
   });
 
   it("getUniqueDocuments", () => {
@@ -295,7 +297,9 @@ describe("DuplicationAnalyzer", () => {
     ];
 
     const sectionHitMap = new Map<string, Set<string>>();
-    docs.forEach((doc) => analyzer.collectStatistics(doc, sectionHitMap));
+    for (const doc of docs) {
+      analyzer.collectStatistics(doc, sectionHitMap);
+    }
 
     const uniqueDocs = analyzer.getUniqueDocuments();
 
@@ -442,10 +446,10 @@ describe("DuplicationAnalyzer", () => {
     const stats = analyzer.generateStatistics(3);
 
     // セクション別の重複統計を確認
-    expect(stats.bySection["intro"]?.["provider1"]).toBe(1);
-    expect(stats.bySection["body"]?.["provider1"]).toBe(1);
-    expect(stats.bySection["body"]?.["provider2"]).toBe(1);
-    expect(stats.bySection["conclusion"]?.["provider2"]).toBe(1);
+    expect(stats.bySection.intro?.provider1).toBe(1);
+    expect(stats.bySection.body?.provider1).toBe(1);
+    expect(stats.bySection.body?.provider2).toBe(1);
+    expect(stats.bySection.conclusion?.provider2).toBe(1);
 
     // トップ重複のセクション情報
     const topDup = stats.topDuplicates[0];
