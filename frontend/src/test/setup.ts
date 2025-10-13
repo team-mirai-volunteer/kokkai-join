@@ -1,6 +1,5 @@
 import "@testing-library/jest-dom";
 
-// Mock FileReader for tests
 class MockFileReader {
   result: string | ArrayBuffer | null = null;
   onload: ((ev: ProgressEvent<FileReader>) => unknown) | null = null;

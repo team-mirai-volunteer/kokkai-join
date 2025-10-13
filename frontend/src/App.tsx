@@ -3,13 +3,11 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { FileUploadArea } from "./components/FileUploadArea";
 import { useFileUpload } from "./hooks/useFileUpload";
-import { useLocalStorageCache } from "./hooks/useLocalStorageCache";
-import {
-  type ProviderType,
-  PROVIDER_LABELS,
-  SELECTABLE_PROVIDERS,
-} from "./types/provider";
+import { useStorageCache } from "./hooks/useStorageCache";
+import { useProviderSelection } from "./hooks/useProviderSelection";
+import { PROVIDER_LABELS, SELECTABLE_PROVIDERS } from "./types/provider";
 import "./App.css";
+import { storage } from "./utils/storage";
 
 interface SearchResult {
   query: string;
@@ -20,29 +18,13 @@ function App() {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [selectedProviders, setSelectedProviders] = useState<ProviderType[]>(
-    () => {
-      // localStorageから保存されたprovidersを復元
-      const saved = localStorage.getItem("selected_providers");
-      if (saved) {
-        try {
-          return JSON.parse(saved);
-        } catch {
-          // パースエラーの場合はデフォルト値
-        }
-      }
-      // デフォルトは全て選択
-      return [...SELECTABLE_PROVIDERS];
-    },
-  );
 
-  // カスタムフックでlocalStorageを管理
   const { data: cachedData, setData: setCachedData } =
-    useLocalStorageCache<SearchResult>({
-      key: "deepresearch_cache",
+    useStorageCache<SearchResult>({
+      key: "deepresearch-cache",
+      storage: storage,
     });
 
-  // ファイルアップロード管理
   const {
     files,
     addFiles,
@@ -51,36 +33,14 @@ function App() {
     error: fileError,
   } = useFileUpload();
 
+  const { selectedProviders, handleProviderToggle } = useProviderSelection(storage);
+
   const result = cachedData?.result || "";
+
   const cachedQuery = cachedData?.query || "";
-
   useEffect(() => {
-    if (cachedQuery && !query) {
-      setQuery(cachedQuery);
-    }
-  }, [cachedQuery, query]);
-
-  // selectedProvidersが変更されたらlocalStorageに保存
-  useEffect(() => {
-    localStorage.setItem(
-      "selected_providers",
-      JSON.stringify(selectedProviders),
-    );
-  }, [selectedProviders]);
-
-  const handleProviderToggle = (providerId: ProviderType) => {
-    setSelectedProviders((prev) => {
-      if (prev.includes(providerId)) {
-        // 最低1つは選択必要
-        if (prev.length === 1) {
-          return prev;
-        }
-        return prev.filter((id) => id !== providerId);
-      } else {
-        return [...prev, providerId];
-      }
-    });
-  };
+    if (cachedQuery) setQuery(cachedQuery);
+  }, [cachedQuery]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -99,7 +59,6 @@ function App() {
     setError("");
 
     try {
-      // ファイルをbase64エンコード
       const encodedFiles =
         files.length > 0 ? await encodeFilesToBase64() : undefined;
 

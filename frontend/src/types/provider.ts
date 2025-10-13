@@ -6,14 +6,13 @@ export const ProviderID = {
 
 export type ProviderType = (typeof ProviderID)[keyof typeof ProviderID];
 
-export const PROVIDER_LABELS: Record<ProviderType, string> = {
+export const PROVIDER_LABELS: Readonly<Record<ProviderType, string>> = {
   [ProviderID.KokkaiDB]: "国会会議録",
   [ProviderID.WebSearch]: "Web",
   [ProviderID.GovMeetingRag]: "各省庁会議録",
 };
 
-// PDF抽出以外のプロバイダー（ユーザーが選択可能）
-export const SELECTABLE_PROVIDERS = [
+export const SELECTABLE_PROVIDERS: ReadonlyArray<ProviderType> = [
   ProviderID.KokkaiDB,
   ProviderID.WebSearch,
   ProviderID.GovMeetingRag,
