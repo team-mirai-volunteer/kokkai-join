@@ -58,7 +58,7 @@ describe("App - Provider Selection", () => {
   it("should render provider checkboxes", () => {
     const { getByRole, getByLabelText } = render(<App />);
 
-    const providerGroup = getByRole("group", { name: /provider selection/i });
+    const providerGroup = getByRole("group", { name: /検索対象/i });
     expect(providerGroup).toBeInTheDocument();
 
     const kokkaiCheckbox = getByLabelText("国会会議録");

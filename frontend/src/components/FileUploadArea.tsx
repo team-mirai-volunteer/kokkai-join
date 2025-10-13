@@ -19,17 +19,17 @@ export function FileUploadArea({
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
+  const handleDragOver = (e: DragEvent<HTMLElement>) => {
     e.preventDefault();
     setIsDragOver(true);
   };
 
-  const handleDragLeave = (e: DragEvent<HTMLDivElement>) => {
+  const handleDragLeave = (e: DragEvent<HTMLElement>) => {
     e.preventDefault();
     setIsDragOver(false);
   };
 
-  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
+  const handleDrop = (e: DragEvent<HTMLElement>) => {
     e.preventDefault();
     setIsDragOver(false);
 
@@ -53,7 +53,7 @@ export function FileUploadArea({
     fileInputRef.current?.click();
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
       handleClick();
@@ -62,16 +62,12 @@ export function FileUploadArea({
 
   return (
     <div className="file-upload-area">
-      <div
+      <section
         className={`file-dropzone ${isDragOver ? "drag-over" : ""}`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        onClick={handleClick}
-        onKeyDown={handleKeyDown}
-        role="button"
-        tabIndex={0}
-        aria-label="ファイルを選択またはドラッグ&ドロップ"
+        aria-label="ファイルアップロード領域"
       >
         <input
           ref={fileInputRef}
@@ -83,10 +79,18 @@ export function FileUploadArea({
         />
 
         {files.length === 0 ? (
-          <div className="dropzone-placeholder">
-            <span className="dropzone-icon">📎</span>
-            <p>ファイルをドラッグ&ドロップまたはクリックして選択</p>
-          </div>
+          <button
+            type="button"
+            className="dropzone-button"
+            onClick={handleClick}
+            onKeyDown={handleKeyDown}
+            aria-label="ファイルを選択またはドラッグ&ドロップ"
+          >
+            <div className="dropzone-placeholder">
+              <span className="dropzone-icon">📎</span>
+              <p>ファイルをドラッグ&ドロップまたはクリックして選択</p>
+            </div>
+          </button>
         ) : (
           <div className="file-list">
             {files.map((file) => (
@@ -98,7 +102,7 @@ export function FileUploadArea({
             ))}
           </div>
         )}
-      </div>
+      </section>
 
       {error && <div className="file-upload-error">{error}</div>}
     </div>

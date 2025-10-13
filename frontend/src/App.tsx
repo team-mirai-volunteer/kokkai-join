@@ -119,12 +119,8 @@ function App() {
             </button>
           </div>
 
-          <div
-            className="provider-selection"
-            role="group"
-            aria-label="provider selection"
-          >
-            <span className="provider-label">検索対象:</span>
+          <fieldset className="provider-selection">
+            <legend className="provider-label">検索対象:</legend>
             {SELECTABLE_PROVIDERS.map((providerId) => (
               <label key={providerId} className="provider-checkbox">
                 <input
@@ -136,7 +132,7 @@ function App() {
                 <span>{PROVIDER_LABELS[providerId]}</span>
               </label>
             ))}
-          </div>
+          </fieldset>
         </form>
 
         <FileUploadArea

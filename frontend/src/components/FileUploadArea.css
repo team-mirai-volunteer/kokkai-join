@@ -3,17 +3,26 @@
 }
 
 .file-dropzone {
+  width: 100%;
   border: 2px dashed #ccc;
   border-radius: 8px;
   padding: 0.5rem;
   text-align: center;
-  cursor: pointer;
   transition: all 0.3s ease;
   background-color: #fafafa;
   min-height: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.dropzone-button {
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
 }
 
 .file-dropzone:hover {
