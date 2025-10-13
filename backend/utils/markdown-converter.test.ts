@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { convertDeepResearchToMarkdown } from "./markdown-converter.js";
 import type { DeepResearchResponse } from "../types/deepresearch.js";
+import { convertDeepResearchToMarkdown } from "./markdown-converter.js";
 
 describe("convertDeepResearchToMarkdown", () => {
   it("should create footnotes for evidences with URLs", () => {
