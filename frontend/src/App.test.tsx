@@ -55,23 +55,20 @@ describe("App - Provider Selection", () => {
     cleanup();
   });
 
-  it("should render provider checkboxes", () => {
-    const { getByRole, getByLabelText } = render(<App />);
+  it("should render provider dropdown button", () => {
+    const { getByRole } = render(<App />);
 
-    const providerGroup = getByRole("group", { name: /検索対象/i });
-    expect(providerGroup).toBeInTheDocument();
-
-    const kokkaiCheckbox = getByLabelText("国会会議録");
-    const webCheckbox = getByLabelText("Web");
-    const govCheckbox = getByLabelText("各省庁会議録");
-
-    expect(kokkaiCheckbox).toBeInTheDocument();
-    expect(webCheckbox).toBeInTheDocument();
-    expect(govCheckbox).toBeInTheDocument();
+    const dropdownButton = getByRole("button", { name: /検索対象/ });
+    expect(dropdownButton).toBeInTheDocument();
+    expect(dropdownButton).toHaveTextContent("(3)");
   });
 
   it("should have all providers selected by default", () => {
-    const { getByLabelText } = render(<App />);
+    const { getByRole, getByLabelText } = render(<App />);
+
+    // Open dropdown
+    const dropdownButton = getByRole("button", { name: /検索対象/ });
+    fireEvent.click(dropdownButton);
 
     const kokkaiCheckbox = getByLabelText("国会会議録") as HTMLInputElement;
     const webCheckbox = getByLabelText("Web") as HTMLInputElement;
@@ -83,7 +80,11 @@ describe("App - Provider Selection", () => {
   });
 
   it("should toggle provider selection", () => {
-    const { getByLabelText } = render(<App />);
+    const { getByRole, getByLabelText } = render(<App />);
+
+    // Open dropdown
+    const dropdownButton = getByRole("button", { name: /検索対象/ });
+    fireEvent.click(dropdownButton);
 
     const kokkaiCheckbox = getByLabelText("国会会議録") as HTMLInputElement;
 
@@ -97,7 +98,11 @@ describe("App - Provider Selection", () => {
   });
 
   it("should not allow unchecking the last provider", () => {
-    const { getByLabelText } = render(<App />);
+    const { getByRole, getByLabelText } = render(<App />);
+
+    // Open dropdown
+    const dropdownButton = getByRole("button", { name: /検索対象/ });
+    fireEvent.click(dropdownButton);
 
     const kokkaiCheckbox = getByLabelText("国会会議録") as HTMLInputElement;
     const webCheckbox = getByLabelText("Web") as HTMLInputElement;
@@ -118,7 +123,11 @@ describe("App - Provider Selection", () => {
     // Ensure clean localStorage
     localStorageMock.clear();
 
-    const { getByLabelText } = render(<App />);
+    const { getByRole, getByLabelText } = render(<App />);
+
+    // Open dropdown
+    const dropdownButton = getByRole("button", { name: /検索対象/ });
+    fireEvent.click(dropdownButton);
 
     const webCheckbox = getByLabelText("Web") as HTMLInputElement;
 
@@ -142,7 +151,11 @@ describe("App - Provider Selection", () => {
       JSON.stringify([ProviderID.WebSearch]),
     );
 
-    const { getByLabelText } = render(<App />);
+    const { getByRole, getByLabelText } = render(<App />);
+
+    // Open dropdown
+    const dropdownButton = getByRole("button", { name: /検索対象/ });
+    fireEvent.click(dropdownButton);
 
     const kokkaiCheckbox = getByLabelText("国会会議録") as HTMLInputElement;
     const webCheckbox = getByLabelText("Web") as HTMLInputElement;
@@ -151,5 +164,23 @@ describe("App - Provider Selection", () => {
     expect(kokkaiCheckbox.checked).toBe(false);
     expect(webCheckbox.checked).toBe(true);
     expect(govCheckbox.checked).toBe(false);
+  });
+
+  it("should close dropdown when clicking outside", () => {
+    const { getByRole, queryByRole } = render(<App />);
+
+    // Open dropdown
+    const dropdownButton = getByRole("button", { name: /検索対象/ });
+    fireEvent.click(dropdownButton);
+
+    // Verify dropdown is open
+    const dropdownMenu = getByRole("menu");
+    expect(dropdownMenu).toBeInTheDocument();
+
+    // Click outside (on document body)
+    fireEvent.mouseDown(document.body);
+
+    // Verify dropdown is closed
+    expect(queryByRole("menu")).not.toBeInTheDocument();
   });
 });

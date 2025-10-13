@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { FileUploadArea } from "./components/FileUploadArea";
@@ -18,6 +18,8 @@ function App() {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const { data: cachedData, setData: setCachedData } =
     useStorageCache<SearchResult>({
@@ -36,6 +38,23 @@ function App() {
   useEffect(() => {
     if (cachedQuery) setQuery(cachedQuery);
   }, [cachedQuery]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    if (isDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () =>
+        document.removeEventListener("mousedown", handleClickOutside);
+    }
+  }, [isDropdownOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -105,7 +124,7 @@ function App() {
     <div className="app-container">
       <div className="input-section">
         <form onSubmit={handleSubmit} className="search-form">
-          <div className="form-group">
+          <div className="search-bar">
             <input
               type="text"
               value={query}
@@ -114,25 +133,47 @@ function App() {
               disabled={loading}
               className="query-input"
             />
+            <div className="provider-dropdown" ref={dropdownRef}>
+              <button
+                type="button"
+                className="dropdown-button"
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                disabled={loading}
+                aria-expanded={isDropdownOpen}
+                aria-haspopup="true"
+              >
+                検索対象
+                <span className="provider-count">
+                  ({selectedProviders.length})
+                </span>
+                <span
+                  className={`dropdown-arrow ${isDropdownOpen ? "open" : ""}`}
+                >
+                  ▼
+                </span>
+              </button>
+              {isDropdownOpen && (
+                <div className="dropdown-menu" role="menu">
+                  {SELECTABLE_PROVIDERS.map((providerId) => (
+                    <div key={providerId} className="dropdown-item">
+                      <label>
+                        <input
+                          type="checkbox"
+                          checked={selectedProviders.includes(providerId)}
+                          onChange={() => handleProviderToggle(providerId)}
+                          disabled={loading}
+                        />
+                        <span>{PROVIDER_LABELS[providerId]}</span>
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
             <button type="submit" disabled={loading} className="submit-button">
               {loading ? "検索中..." : "検索"}
             </button>
           </div>
-
-          <fieldset className="provider-selection">
-            <legend className="provider-label">検索対象:</legend>
-            {SELECTABLE_PROVIDERS.map((providerId) => (
-              <label key={providerId} className="provider-checkbox">
-                <input
-                  type="checkbox"
-                  checked={selectedProviders.includes(providerId)}
-                  onChange={() => handleProviderToggle(providerId)}
-                  disabled={loading}
-                />
-                <span>{PROVIDER_LABELS[providerId]}</span>
-              </label>
-            ))}
-          </fieldset>
         </form>
 
         <FileUploadArea
