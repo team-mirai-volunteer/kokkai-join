@@ -1,25 +1,20 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useReducer, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { FileUploadArea } from "./components/FileUploadArea";
+import { ProviderSelector } from "./components/ProviderSelector";
+import { useDeepSearch } from "./hooks/useDeepSearch";
 import { useFileUpload } from "./hooks/useFileUpload";
 import { useProviderSelection } from "./hooks/useProviderSelection";
 import { useStorageCache } from "./hooks/useStorageCache";
-import { PROVIDER_LABELS, SELECTABLE_PROVIDERS } from "./types/provider";
+import { initialUIState, uiStateReducer } from "./reducers/uiStateReducer";
+import type { SearchResult } from "./types/searchResult";
 import "./App.css";
 import { storage } from "./utils/storage";
 
-interface SearchResult {
-  query: string;
-  result: string;
-}
-
 function App() {
   const [query, setQuery] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [uiState, dispatch] = useReducer(uiStateReducer, initialUIState);
 
   const { data: cachedData, setData: setCachedData } =
     useStorageCache<SearchResult>({
@@ -32,6 +27,8 @@ function App() {
   const { selectedProviders, handleProviderToggle } =
     useProviderSelection(storage);
 
+  const { search } = useDeepSearch();
+
   const result = cachedData?.result || "";
 
   const cachedQuery = cachedData?.query || "";
@@ -39,28 +36,10 @@ function App() {
     if (cachedQuery) setQuery(cachedQuery);
   }, [cachedQuery]);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setIsDropdownOpen(false);
-      }
-    };
-
-    if (isDropdownOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-      return () =>
-        document.removeEventListener("mousedown", handleClickOutside);
-    }
-  }, [isDropdownOpen]);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    setLoading(true);
-    setError("");
+    dispatch({ type: "SEARCH_START" });
 
     try {
       const encodedFiles =
@@ -72,39 +51,23 @@ function App() {
             }))
           : undefined;
 
-      const response = await fetch(
-        `${import.meta.env.VITE_API_ENDPOINT}/v1/deepresearch?x-vercel-protection-bypass=${import.meta.env.VITE_API_TOKEN}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            query: query.trim(),
-            files: encodedFiles,
-            providers: selectedProviders,
-          }),
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const markdown = await response.text();
+      const markdown = await search({
+        query: query.trim(),
+        providers: selectedProviders,
+        files: encodedFiles,
+      });
 
       setCachedData({
         query: query.trim(),
         result: markdown,
       });
+
+      dispatch({ type: "SEARCH_SUCCESS" });
     } catch (err) {
-      setError(
-        `エラーが発生しました: ${
-          err instanceof Error ? err.message : "不明なエラー"
-        }`,
-      );
-    } finally {
-      setLoading(false);
+      const errorMessage = `エラーが発生しました: ${
+        err instanceof Error ? err.message : "不明なエラー"
+      }`;
+      dispatch({ type: "SEARCH_ERROR", payload: errorMessage });
     }
   };
 
@@ -118,54 +81,28 @@ function App() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="検索キーワードを入力してください..."
-              disabled={loading}
+              disabled={uiState.loading}
               className="query-input"
             />
-            <div className="provider-dropdown" ref={dropdownRef}>
-              <button
-                type="button"
-                className="dropdown-button"
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                disabled={loading}
-                aria-expanded={isDropdownOpen}
-                aria-haspopup="true"
-              >
-                検索対象
-                <span className="provider-count">
-                  ({selectedProviders.length})
-                </span>
-                <span
-                  className={`dropdown-arrow ${isDropdownOpen ? "open" : ""}`}
-                >
-                  ▼
-                </span>
-              </button>
-              {isDropdownOpen && (
-                <div className="dropdown-menu" role="menu">
-                  {SELECTABLE_PROVIDERS.map((providerId) => (
-                    <div key={providerId} className="dropdown-item">
-                      <label>
-                        <input
-                          type="checkbox"
-                          checked={selectedProviders.includes(providerId)}
-                          onChange={() => handleProviderToggle(providerId)}
-                          disabled={loading}
-                        />
-                        <span>{PROVIDER_LABELS[providerId]}</span>
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            <ProviderSelector
+              selectedProviders={selectedProviders}
+              onToggle={handleProviderToggle}
+              isOpen={uiState.isDropdownOpen}
+              onOpenChange={(open) =>
+                dispatch({ type: "TOGGLE_DROPDOWN", payload: open })
+              }
+              disabled={uiState.loading}
+            />
             <button
               type="submit"
               disabled={
-                loading || !query.trim() || selectedProviders.length === 0
+                uiState.loading ||
+                !query.trim() ||
+                selectedProviders.length === 0
               }
               className="submit-button"
             >
-              {loading ? "検索中..." : "検索"}
+              {uiState.loading ? "検索中..." : "検索"}
             </button>
           </div>
         </form>
@@ -177,12 +114,12 @@ function App() {
           error={fileError}
         />
 
-        {error && <div className="error-message">{error}</div>}
+        {uiState.error && <div className="error-message">{uiState.error}</div>}
       </div>
 
       <div className="output-section">
         <div className="markdown-output">
-          {loading ? (
+          {uiState.loading ? (
             <div className="loading">処理中...</div>
           ) : result ? (
             <ReactMarkdown remarkPlugins={[remarkGfm]}>{result}</ReactMarkdown>
