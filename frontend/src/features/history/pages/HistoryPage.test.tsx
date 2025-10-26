@@ -5,7 +5,7 @@ import HistoryPage from "./HistoryPage";
 /**
  * Mock Supabase client to isolate HistoryPage from external dependencies.
  */
-vi.mock("../lib/supabaseClient", () => ({
+vi.mock("../../../lib/supabaseClient", () => ({
   supabase: {
     auth: {
       getSession: vi.fn(),
@@ -21,7 +21,7 @@ vi.mock("../lib/supabaseClient", () => ({
 /**
  * Mock AuthContext to focus tests on HistoryPage's rendering.
  */
-vi.mock("../contexts/AuthContext", () => ({
+vi.mock("../../auth/contexts/AuthContext", () => ({
   useAuth: () => ({
     user: { id: "test-user-id", email: "test@example.com" },
     session: {

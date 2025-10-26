@@ -3,7 +3,7 @@ import {
   type FileValidationError,
   MAX_FILE_COUNT,
   MAX_FILE_SIZE,
-} from "../types/file";
+} from "../../features/search/types/file";
 
 export interface FileValidationResult {
   isValid: boolean;

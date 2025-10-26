@@ -1,8 +1,8 @@
 import { fireEvent, render, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import App from "./App";
-import { ProviderID } from "./types/provider";
-import { STORAGE_PREFIX } from "./utils/storage";
+import { ProviderID } from "./features/search/types/provider";
+import { STORAGE_PREFIX } from "./shared/utils/storage";
 
 const localStorageMock = (() => {
   let store: Record<string, string> = {};
@@ -27,7 +27,7 @@ Object.defineProperty(globalThis, "localStorage", {
 });
 
 // Mock AuthContext to provide a logged-in user immediately
-vi.mock("./contexts/AuthContext", () => ({
+vi.mock("./features/auth/contexts/AuthContext", () => ({
   AuthProvider: ({ children }: { children: React.ReactNode }) => children,
   useAuth: () => ({
     user: { id: "test-user-id", email: "test@example.com" },

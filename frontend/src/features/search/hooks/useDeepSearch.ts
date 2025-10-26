@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { supabase } from "../lib/supabaseClient";
+import { supabase } from "../../../lib/supabaseClient";
 import type { ProviderType } from "../types/provider";
 
 export interface SearchParams {

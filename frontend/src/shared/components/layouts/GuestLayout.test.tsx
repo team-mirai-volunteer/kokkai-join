@@ -1,6 +1,6 @@
 import { render } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import AuthLayout from "./AuthLayout";
+import GuestLayout from "./GuestLayout";
 
 // Mock react-router-dom components
 vi.mock("react-router-dom", () => ({
@@ -11,9 +11,9 @@ vi.mock("react-router-dom", () => ({
 }));
 
 /**
- * Mock Supabase client to isolate AuthLayout from external dependencies.
+ * Mock Supabase client to isolate GuestLayout from external dependencies.
  */
-vi.mock("../lib/supabaseClient", () => ({
+vi.mock("../../../lib/supabaseClient", () => ({
   supabase: {
     auth: {
       getSession: vi.fn(),
@@ -30,52 +30,40 @@ const mockUseAuth = vi.fn();
 /**
  * Mock AuthContext with configurable useAuth return value.
  */
-vi.mock("../contexts/AuthContext", () => ({
+vi.mock("../../../features/auth/contexts/AuthContext", () => ({
   useAuth: () => mockUseAuth(),
 }));
 
-describe("AuthLayout", () => {
+describe("GuestLayout", () => {
   beforeEach(() => {
     mockUseAuth.mockClear();
   });
 
-  describe("when user is authenticated", () => {
-    it("should render children via Outlet", () => {
-      mockUseAuth.mockReturnValue({
-        user: { id: "test-user", email: "test@example.com" },
-        loading: false,
-      });
-
-      const { getByTestId } = render(<AuthLayout />);
-
-      expect(getByTestId("outlet")).toBeInTheDocument();
-    });
-
-    it("should apply auth-layout class", () => {
-      mockUseAuth.mockReturnValue({
-        user: { id: "test-user", email: "test@example.com" },
-        loading: false,
-      });
-
-      const { container } = render(<AuthLayout />);
-
-      const authLayoutDiv = container.querySelector(".auth-layout");
-      expect(authLayoutDiv).toBeInTheDocument();
-    });
-  });
-
   describe("when user is not authenticated", () => {
-    it("should redirect to /login", () => {
+    it("should render children via Outlet", () => {
       mockUseAuth.mockReturnValue({
         user: null,
         loading: false,
       });
 
-      const { getByTestId } = render(<AuthLayout />);
+      const { getByTestId } = render(<GuestLayout />);
+
+      expect(getByTestId("outlet")).toBeInTheDocument();
+    });
+  });
+
+  describe("when user is authenticated", () => {
+    it("should redirect to /", () => {
+      mockUseAuth.mockReturnValue({
+        user: { id: "test-user", email: "test@example.com" },
+        loading: false,
+      });
+
+      const { getByTestId } = render(<GuestLayout />);
 
       const navigate = getByTestId("navigate");
       expect(navigate).toBeInTheDocument();
-      expect(navigate.textContent).toContain("/login");
+      expect(navigate.textContent).toContain("Redirect to /");
     });
   });
 
@@ -86,7 +74,7 @@ describe("AuthLayout", () => {
         loading: true,
       });
 
-      const { getByText } = render(<AuthLayout />);
+      const { getByText } = render(<GuestLayout />);
 
       expect(getByText("認証確認中...")).toBeInTheDocument();
     });
@@ -97,7 +85,7 @@ describe("AuthLayout", () => {
         loading: true,
       });
 
-      const { container } = render(<AuthLayout />);
+      const { container } = render(<GuestLayout />);
 
       const loadingDiv = container.querySelector(".loading");
       expect(loadingDiv).toBeInTheDocument();

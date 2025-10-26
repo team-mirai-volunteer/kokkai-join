@@ -4,7 +4,7 @@ import type { ProviderType } from "../types/provider";
 import { useDeepSearch } from "./useDeepSearch";
 
 // Mock Supabase client
-vi.mock("../lib/supabaseClient", () => ({
+vi.mock("../../../lib/supabaseClient", () => ({
   supabase: {
     auth: {
       getSession: vi.fn().mockResolvedValue({

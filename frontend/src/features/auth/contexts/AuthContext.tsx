@@ -7,7 +7,7 @@ import {
   useMemo,
   useState,
 } from "react";
-import { supabase } from "../lib/supabaseClient";
+import { supabase } from "../../../lib/supabaseClient";
 
 export interface AuthResult {
   error: AuthError | null;

@@ -1,17 +1,17 @@
 import { useCallback, useEffect, useReducer, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { FileUploadArea } from "../components/FileUploadArea";
-import { ProviderSelector } from "../components/ProviderSelector";
-import { useAuth } from "../contexts/AuthContext";
-import { useDeepSearch } from "../hooks/useDeepSearch";
-import { useFileUpload } from "../hooks/useFileUpload";
-import { useProviderSelection } from "../hooks/useProviderSelection";
-import { useStorageCache } from "../hooks/useStorageCache";
-import { initialUIState, uiStateReducer } from "../reducers/uiStateReducer";
-import type { SearchResult } from "../types/searchResult";
-import { storage } from "../utils/storage";
-import "../App.css"; // Use existing App.css styles
+import { FileUploadArea } from "../../search/components/FileUploadArea";
+import { ProviderSelector } from "../../search/components/ProviderSelector";
+import { useAuth } from "../../auth/contexts/AuthContext";
+import { useDeepSearch } from "../../search/hooks/useDeepSearch";
+import { useFileUpload } from "../../search/hooks/useFileUpload";
+import { useProviderSelection } from "../../search/hooks/useProviderSelection";
+import { useStorageCache } from "../../../shared/hooks/useStorageCache";
+import { initialUIState, uiStateReducer } from "../../../reducers/uiStateReducer";
+import type { SearchResult } from "../../search/types/searchResult";
+import { storage } from "../../../shared/utils/storage";
+import "../../../App.css"; // Use existing App.css styles
 
 /**
  * HistoryPage - 検索画面（Phase 1: 既存機能を移行）

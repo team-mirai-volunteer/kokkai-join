@@ -6,7 +6,7 @@ import LoginPage from "./LoginPage";
  * Mock Supabase client to isolate LoginPage from external dependencies.
  * This avoids requiring actual Supabase environment variables in tests.
  */
-vi.mock("../lib/supabaseClient", () => ({
+vi.mock("../../../lib/supabaseClient", () => ({
   supabase: {
     auth: {
       getSession: vi.fn(),

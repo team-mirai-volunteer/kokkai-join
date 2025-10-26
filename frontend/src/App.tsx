@@ -1,9 +1,9 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import AuthLayout from "./layouts/AuthLayout";
-import GuestLayout from "./layouts/GuestLayout";
-import LoginPage from "./pages/LoginPage";
-import HistoryPage from "./pages/HistoryPage";
-import { AuthProvider } from "./contexts/AuthContext";
+import AuthLayout from "./shared/components/layouts/AuthLayout";
+import GuestLayout from "./shared/components/layouts/GuestLayout";
+import LoginPage from "./features/auth/pages/LoginPage";
+import HistoryPage from "./features/history/pages/HistoryPage";
+import { AuthProvider } from "./features/auth/contexts/AuthContext";
 
 /**
  * App - ルートコンポーネント（Phase 1: ルーティング構造導入）
