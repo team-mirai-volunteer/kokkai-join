@@ -7,8 +7,6 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { prettyJSON } from "hono/pretty-json";
-
-// Local imports
 import { DEFAULT_TOP_K_RESULTS, ProviderID } from "../config/constants.js";
 import {
   SECTION_ALLOWED_PROVIDERS,
@@ -30,6 +28,8 @@ import type {
 import { toEvidenceRecord } from "../types/deepresearch.js";
 import type { QueryPlan } from "../types/kokkai.js";
 import { convertDeepResearchToMarkdown } from "../utils/markdown-converter.js";
+// Local imports
+import { authMiddleware } from "./authMiddleware.js";
 
 /**
  * Kokkai Deep Research API Server using Hono
@@ -58,7 +58,7 @@ class KokkaiDeepResearchAPI {
       cors({
         origin: "*",
         allowMethods: ["GET", "POST", "OPTIONS"],
-        allowHeaders: ["Content-Type", "Accept"],
+        allowHeaders: ["Content-Type", "Accept", "Authorization"],
         exposeHeaders: ["Content-Type"],
         credentials: false,
       }),
@@ -75,9 +75,10 @@ class KokkaiDeepResearchAPI {
    * Setup API routes
    */
   private setupRoutes(): void {
-    // Deep Research v1 endpoint
+    // Deep Research v1 endpoint (protected by auth)
     this.app.post(
       "/api/v1/deepresearch",
+      authMiddleware,
       vValidator("json", DeepResearchRequestSchema),
       async (c) => {
         const start = Date.now();

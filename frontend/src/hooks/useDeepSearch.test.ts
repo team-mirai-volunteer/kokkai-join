@@ -3,6 +3,23 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ProviderType } from "../types/provider";
 import { useDeepSearch } from "./useDeepSearch";
 
+// Mock Supabase client
+vi.mock("../lib/supabaseClient", () => ({
+  supabase: {
+    auth: {
+      getSession: vi.fn().mockResolvedValue({
+        data: {
+          session: {
+            user: { id: "test-user-id", email: "test@example.com" },
+            access_token: "test-token",
+          },
+        },
+        error: null,
+      }),
+    },
+  },
+}));
+
 describe("useDeepSearch", () => {
   const mockFetcher = vi.fn();
 
@@ -47,6 +64,7 @@ describe("useDeepSearch", () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: "Bearer test-token",
         },
       }),
     );
@@ -84,6 +102,7 @@ describe("useDeepSearch", () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: "Bearer test-token",
         },
         body: expect.stringContaining("test.txt"),
       }),

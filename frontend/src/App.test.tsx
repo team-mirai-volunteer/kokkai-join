@@ -26,6 +26,28 @@ Object.defineProperty(globalThis, "localStorage", {
   configurable: true,
 });
 
+// Mock AuthContext to provide a logged-in user immediately
+vi.mock("./contexts/AuthContext", () => ({
+  AuthProvider: ({ children }: { children: React.ReactNode }) => children,
+  useAuth: () => ({
+    user: { id: "test-user-id", email: "test@example.com" },
+    session: {
+      user: { id: "test-user-id", email: "test@example.com" },
+      access_token: "test-token",
+    },
+    loading: false,
+    signIn: vi.fn(),
+    signOut: vi.fn(),
+    signUp: vi.fn(),
+    resetPassword: vi.fn(),
+  }),
+}));
+
+// Helper function to render App
+const renderApp = (): ReturnType<typeof render> => {
+  return render(<App />);
+};
+
 describe("App - Provider Selection", () => {
   beforeEach(() => {
     // Clear localStorage before each test
@@ -35,7 +57,7 @@ describe("App - Provider Selection", () => {
   });
 
   it("should render provider dropdown button", () => {
-    const { getByRole } = render(<App />);
+    const { getByRole } = renderApp();
 
     const dropdownButton = getByRole("button", { name: /検索対象/ });
     expect(dropdownButton).toBeInTheDocument();
@@ -43,7 +65,7 @@ describe("App - Provider Selection", () => {
   });
 
   it("should have all providers selected by default", () => {
-    const { getByRole, getByLabelText } = render(<App />);
+    const { getByRole, getByLabelText } = renderApp();
 
     // Open dropdown
     const dropdownButton = getByRole("button", { name: /検索対象/ });
@@ -59,7 +81,7 @@ describe("App - Provider Selection", () => {
   });
 
   it("should toggle provider selection", () => {
-    const { getByRole, getByLabelText } = render(<App />);
+    const { getByRole, getByLabelText } = renderApp();
 
     // Open dropdown
     const dropdownButton = getByRole("button", { name: /検索対象/ });
@@ -77,7 +99,7 @@ describe("App - Provider Selection", () => {
   });
 
   it("should not allow unchecking the last provider", () => {
-    const { getByRole, getByLabelText } = render(<App />);
+    const { getByRole, getByLabelText } = renderApp();
 
     // Open dropdown
     const dropdownButton = getByRole("button", { name: /検索対象/ });
@@ -102,7 +124,7 @@ describe("App - Provider Selection", () => {
     // Ensure clean localStorage
     localStorageMock.clear();
 
-    const { getByRole, getByLabelText } = render(<App />);
+    const { getByRole, getByLabelText } = renderApp();
 
     // Open dropdown
     const dropdownButton = getByRole("button", { name: /検索対象/ });
@@ -130,7 +152,7 @@ describe("App - Provider Selection", () => {
       JSON.stringify([ProviderID.WebSearch]),
     );
 
-    const { getByRole, getByLabelText } = render(<App />);
+    const { getByRole, getByLabelText } = renderApp();
 
     // Open dropdown
     const dropdownButton = getByRole("button", { name: /検索対象/ });
@@ -146,7 +168,7 @@ describe("App - Provider Selection", () => {
   });
 
   it("should close dropdown when clicking outside", () => {
-    const { getByRole, queryByRole } = render(<App />);
+    const { getByRole, queryByRole } = renderApp();
 
     // Open dropdown
     const dropdownButton = getByRole("button", { name: /検索対象/ });
@@ -164,7 +186,7 @@ describe("App - Provider Selection", () => {
   });
 
   it("should disable submit button when query is empty", () => {
-    const { container } = render(<App />);
+    const { container } = renderApp();
 
     const submitButton = container.querySelector(
       'button[type="submit"]',
@@ -174,7 +196,7 @@ describe("App - Provider Selection", () => {
   });
 
   it("should enable submit button when query is entered", async () => {
-    const { container, getByRole } = render(<App />);
+    const { container, getByRole } = renderApp();
 
     const queryInput = getByRole("textbox");
 
@@ -193,7 +215,7 @@ describe("App - Provider Selection", () => {
   });
 
   it("should disable submit button when query becomes empty after input", async () => {
-    const { container, getByRole } = render(<App />);
+    const { container, getByRole } = renderApp();
 
     const queryInput = getByRole("textbox");
 
@@ -216,7 +238,7 @@ describe("App - Provider Selection", () => {
   });
 
   it("should disable submit button when query is only whitespace", async () => {
-    const { container, getByRole } = render(<App />);
+    const { container, getByRole } = renderApp();
 
     const queryInput = getByRole("textbox");
 
