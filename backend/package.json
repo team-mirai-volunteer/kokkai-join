@@ -36,6 +36,7 @@
     "@hono/node-server": "^1.19.5",
     "@hono/valibot-validator": "^0.5.3",
     "@llamaindex/ollama": "^0.1.23",
+    "@supabase/supabase-js": "^2.76.1",
     "@types/pg": "^8.15.5",
     "dotenv": "^17.2.3",
     "hono": "^4.9.9",
