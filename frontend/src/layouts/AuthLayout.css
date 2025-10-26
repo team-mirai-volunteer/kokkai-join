@@ -1,0 +1,13 @@
+.auth-layout {
+  min-height: 100vh;
+}
+
+.auth-layout .main-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.auth-layout .loading {
+  padding: 24px;
+}
