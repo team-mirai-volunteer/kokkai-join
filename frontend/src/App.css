@@ -212,11 +212,13 @@ body {
   cursor: pointer;
   transition: all 0.2s;
   white-space: nowrap;
+  flex: 0 0 auto;
 }
 
 .submit-button {
   background-color: #007bff;
   color: white;
+  width: auto;
 }
 
 .submit-button:hover:not(:disabled) {
