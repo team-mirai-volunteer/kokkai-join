@@ -1,4 +1,5 @@
 import { useCallback, useState } from "react";
+import { supabase } from "../lib/supabaseClient";
 import type { ProviderType } from "../types/provider";
 
 export interface SearchParams {
@@ -36,12 +37,22 @@ export function useDeepSearch(
       setError(null);
 
       try {
+        // Get current session to obtain access token
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+
+        if (!session) {
+          throw new Error("認証が必要です。ログインしてください。");
+        }
+
         const response = await fetcher(
-          `${import.meta.env.VITE_API_ENDPOINT}/v1/deepresearch?x-vercel-protection-bypass=${import.meta.env.VITE_API_TOKEN}`,
+          `${import.meta.env.VITE_API_ENDPOINT}/v1/deepresearch`,
           {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
+              Authorization: `Bearer ${session.access_token}`,
             },
             body: JSON.stringify({
               query: params.query.trim(),
@@ -52,6 +63,11 @@ export function useDeepSearch(
         );
 
         if (!response.ok) {
+          if (response.status === 401) {
+            throw new Error(
+              "認証エラー: セッションが無効です。再度ログインしてください。",
+            );
+          }
           throw new Error(`HTTP error! status: ${response.status}`);
         }
 

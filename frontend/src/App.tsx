@@ -1,8 +1,10 @@
-import { useEffect, useReducer, useState } from "react";
+import { useCallback, useEffect, useReducer, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { FileUploadArea } from "./components/FileUploadArea";
+import { LoginForm } from "./components/LoginForm";
 import { ProviderSelector } from "./components/ProviderSelector";
+import { useAuth } from "./contexts/AuthContext";
 import { useDeepSearch } from "./hooks/useDeepSearch";
 import { useFileUpload } from "./hooks/useFileUpload";
 import { useProviderSelection } from "./hooks/useProviderSelection";
@@ -13,6 +15,7 @@ import "./App.css";
 import { storage } from "./utils/storage";
 
 function App() {
+  const { user, loading: authLoading, signOut } = useAuth();
   const [query, setQuery] = useState("");
   const [uiState, dispatch] = useReducer(uiStateReducer, initialUIState);
 
@@ -36,44 +39,77 @@ function App() {
     if (cachedQuery) setQuery(cachedQuery);
   }, [cachedQuery]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
 
-    dispatch({ type: "SEARCH_START" });
+      dispatch({ type: "SEARCH_START" });
 
-    try {
-      const encodedFiles =
-        files.length > 0
-          ? files.map((file) => ({
-              name: file.name,
-              content: file.content,
-              mimeType: file.type,
-            }))
-          : undefined;
+      try {
+        const encodedFiles =
+          files.length > 0
+            ? files.map((file) => ({
+                name: file.name,
+                content: file.content,
+                mimeType: file.type,
+              }))
+            : undefined;
 
-      const markdown = await search({
-        query: query.trim(),
-        providers: selectedProviders,
-        files: encodedFiles,
-      });
+        const markdown = await search({
+          query: query.trim(),
+          providers: selectedProviders,
+          files: encodedFiles,
+        });
 
-      setCachedData({
-        query: query.trim(),
-        result: markdown,
-      });
+        setCachedData({
+          query: query.trim(),
+          result: markdown,
+        });
 
-      dispatch({ type: "SEARCH_SUCCESS" });
-    } catch (err) {
-      const errorMessage = `エラーが発生しました: ${
-        err instanceof Error ? err.message : "不明なエラー"
-      }`;
-      dispatch({ type: "SEARCH_ERROR", payload: errorMessage });
-    }
-  };
+        dispatch({ type: "SEARCH_SUCCESS" });
+      } catch (err) {
+        const errorMessage = `エラーが発生しました: ${
+          err instanceof Error ? err.message : "不明なエラー"
+        }`;
+        dispatch({ type: "SEARCH_ERROR", payload: errorMessage });
+      }
+    },
+    [files, query, selectedProviders, search, setCachedData],
+  );
 
+  const handleSignOut = useCallback(async () => {
+    await signOut();
+  }, [signOut]);
+
+  // Show loading state during authentication check
+  if (authLoading) {
+    return (
+      <div className="app-container">
+        <div className="loading">認証確認中...</div>
+      </div>
+    );
+  }
+
+  // Show login form if not authenticated
+  if (!user) {
+    return <LoginForm />;
+  }
+
+  // Show main app if authenticated
   return (
     <div className="app-container">
       <div className="input-section">
+        <div className="auth-header">
+          <span className="user-email">{user.email}</span>
+          <button
+            type="button"
+            onClick={handleSignOut}
+            className="logout-button"
+          >
+            ログアウト
+          </button>
+        </div>
+
         <form onSubmit={handleSubmit} className="search-form">
           <div className="search-bar">
             <input
