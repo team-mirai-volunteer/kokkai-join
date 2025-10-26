@@ -1415,12 +1415,415 @@ bun add react-router-dom
   "
   ```
 
+## 12. バックエンド設計（履歴機能）
+
+### 12.1 データベーススキーマ設計
+
+**テーブル**: `search_histories`
+
+```sql
+-- 検索履歴テーブル
+CREATE TABLE search_histories (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  query TEXT NOT NULL,
+  providers TEXT[] NOT NULL, -- ['kokkai', 'web', 'gov']
+  result_summary TEXT, -- 検索結果のサマリー（最初の200文字程度）
+  result_markdown TEXT, -- 検索結果全文（Markdown形式）
+  file_names TEXT[], -- アップロードされたファイル名の配列
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- インデックス作成（パフォーマンス最適化）
+CREATE INDEX idx_search_histories_user_id ON search_histories(user_id);
+CREATE INDEX idx_search_histories_created_at ON search_histories(created_at DESC);
+CREATE INDEX idx_search_histories_user_created ON search_histories(user_id, created_at DESC);
+
+-- updated_at の自動更新トリガー
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+CREATE TRIGGER update_search_histories_updated_at
+  BEFORE UPDATE ON search_histories
+  FOR EACH ROW
+  EXECUTE FUNCTION update_updated_at_column();
+```
+
+**データ型の説明**:
+- `id`: UUID型のプライマリキー（自動生成）
+- `user_id`: auth.usersテーブルへの外部キー（ユーザー削除時はカスケード削除）
+- `query`: 検索クエリ文字列
+- `providers`: 検索対象プロバイダーの配列（PostgreSQL配列型）
+- `result_summary`: 検索結果の要約（一覧表示用）
+- `result_markdown`: 検索結果の全文（詳細表示用）
+- `file_names`: アップロードファイル名の配列（検索時の参照ファイル記録用）
+- `created_at`: 作成日時（自動設定）
+- `updated_at`: 更新日時（トリガーで自動更新）
+
+### 12.2 Row Level Security (RLS) ポリシー
+
+**セキュリティ要件**: ユーザーは自分の履歴のみアクセス可能
+
+```sql
+-- RLSを有効化
+ALTER TABLE search_histories ENABLE ROW LEVEL SECURITY;
+
+-- SELECT ポリシー: 自分の履歴のみ閲覧可能
+CREATE POLICY "Users can view own search histories"
+  ON search_histories
+  FOR SELECT
+  USING (auth.uid() = user_id);
+
+-- INSERT ポリシー: 自分の履歴のみ作成可能
+CREATE POLICY "Users can create own search histories"
+  ON search_histories
+  FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+-- UPDATE ポリシー: 自分の履歴のみ更新可能
+CREATE POLICY "Users can update own search histories"
+  ON search_histories
+  FOR UPDATE
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+-- DELETE ポリシー: 自分の履歴のみ削除可能
+CREATE POLICY "Users can delete own search histories"
+  ON search_histories
+  FOR DELETE
+  USING (auth.uid() = user_id);
+```
+
+### 12.3 バックエンドAPI設計
+
+**実装場所**: `backend/lib/deepresearch-api.ts`
+
+#### 12.3.1 履歴保存API
+
+**検索実行と同時に履歴を保存する設計**:
+
+```typescript
+// backend/lib/deepresearch-api.ts
+import type { SupabaseClient } from '@supabase/supabase-js';
+
+interface SearchHistoryRecord {
+  user_id: string;
+  query: string;
+  providers: string[];
+  result_summary: string;
+  result_markdown: string;
+  file_names: string[];
+}
+
+/**
+ * 検索実行 & 履歴保存
+ */
+export async function executeSearchAndSaveHistory(
+  supabase: SupabaseClient,
+  params: {
+    query: string;
+    providers: string[];
+    files?: { name: string; content: string; mimeType: string }[];
+  }
+): Promise<{ markdown: string; historyId: string }> {
+  // 1. DeepResearch APIで検索実行
+  const markdown = await deepResearch(params);
+
+  // 2. 検索結果のサマリーを生成（最初の200文字）
+  const summary = markdown.substring(0, 200) + (markdown.length > 200 ? '...' : '');
+
+  // 3. ファイル名の抽出
+  const fileNames = params.files?.map(f => f.name) || [];
+
+  // 4. 認証ユーザーIDを取得
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) {
+    throw new Error('Authentication required');
+  }
+
+  // 5. 履歴をSupabaseに保存
+  const { data, error } = await supabase
+    .from('search_histories')
+    .insert({
+      user_id: user.id,
+      query: params.query,
+      providers: params.providers,
+      result_summary: summary,
+      result_markdown: markdown,
+      file_names: fileNames,
+    })
+    .select('id')
+    .single();
+
+  if (error) {
+    console.error('Failed to save search history:', error);
+    // 履歴保存失敗は検索結果には影響させない
+  }
+
+  return {
+    markdown,
+    historyId: data?.id || '',
+  };
+}
+```
+
+#### 12.3.2 履歴取得API
+
+```typescript
+/**
+ * 履歴一覧取得（最新100件、ページネーション対応）
+ */
+export async function getSearchHistories(
+  supabase: SupabaseClient,
+  options?: {
+    limit?: number;
+    offset?: number;
+  }
+): Promise<SearchHistory[]> {
+  const limit = options?.limit || 100;
+  const offset = options?.offset || 0;
+
+  const { data, error } = await supabase
+    .from('search_histories')
+    .select('id, query, providers, result_summary, file_names, created_at')
+    .order('created_at', { ascending: false })
+    .range(offset, offset + limit - 1);
+
+  if (error) {
+    throw new Error(`Failed to fetch search histories: ${error.message}`);
+  }
+
+  return data || [];
+}
+
+/**
+ * 履歴詳細取得
+ */
+export async function getSearchHistoryById(
+  supabase: SupabaseClient,
+  id: string
+): Promise<SearchHistory | null> {
+  const { data, error } = await supabase
+    .from('search_histories')
+    .select('*')
+    .eq('id', id)
+    .single();
+
+  if (error) {
+    throw new Error(`Failed to fetch search history: ${error.message}`);
+  }
+
+  return data;
+}
+
+/**
+ * 履歴削除
+ */
+export async function deleteSearchHistory(
+  supabase: SupabaseClient,
+  id: string
+): Promise<void> {
+  const { error } = await supabase
+    .from('search_histories')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    throw new Error(`Failed to delete search history: ${error.message}`);
+  }
+}
+```
+
+### 12.4 型定義
+
+**共通型定義**: `types/supabase.types.ts`
+
+```typescript
+export interface SearchHistory {
+  id: string;
+  user_id: string;
+  query: string;
+  providers: string[];
+  result_summary: string;
+  result_markdown: string;
+  file_names: string[];
+  created_at: string;
+  updated_at: string;
+}
+
+export type SearchHistoryListItem = Pick<
+  SearchHistory,
+  'id' | 'query' | 'providers' | 'result_summary' | 'file_names' | 'created_at'
+>;
+```
+
+### 12.5 フロントエンド連携フロー
+
+#### 検索実行時のフロー
+
+```
+┌─────────────┐
+│ ユーザー     │
+└──────┬──────┘
+       │ 検索実行
+       ↓
+┌──────────────────────────────┐
+│ Frontend (Header/SearchForm) │
+└──────┬───────────────────────┘
+       │ POST /api/search
+       ↓
+┌─────────────────────────────────────┐
+│ Backend API                         │
+│ executeSearchAndSaveHistory()       │
+│  1. DeepResearch API呼び出し        │
+│  2. 検索結果取得                     │
+│  3. Supabaseに履歴保存              │
+└──────┬──────────────────────────────┘
+       │ { markdown, historyId }
+       ↓
+┌──────────────────────────────┐
+│ Frontend                     │
+│  - 検索結果を画面に表示       │
+│  - historyIdを保持            │
+└──────────────────────────────┘
+```
+
+#### 履歴一覧取得フロー
+
+```
+┌─────────────┐
+│ ユーザー     │
+└──────┬──────┘
+       │ 履歴ページ表示
+       ↓
+┌──────────────────────────────┐
+│ Frontend (HistoryPage)       │
+│ useHistory() hook            │
+└──────┬───────────────────────┘
+       │ Supabase Client直接利用
+       ↓
+┌─────────────────────────────┐
+│ Supabase (RLS適用)          │
+│ SELECT * FROM               │
+│   search_histories          │
+│ WHERE user_id = auth.uid()  │
+│ ORDER BY created_at DESC    │
+│ LIMIT 100                   │
+└──────┬──────────────────────┘
+       │ SearchHistory[]
+       ↓
+┌──────────────────────────────┐
+│ Frontend                     │
+│  - HistoryList表示           │
+│  - HistoryCard x N個         │
+└──────────────────────────────┘
+```
+
+### 12.6 Supabase移行手順
+
+**Phase 3では一旦LocalStorageで実装し、Phase 4でSupabaseに移行**:
+
+**Phase 3 (LocalStorageベース)**:
+```typescript
+// features/history/hooks/useHistory.ts
+export function useHistory() {
+  // LocalStorageを使用
+  const [histories, setHistories] = useState<SearchHistory[]>(() => {
+    const saved = localStorage.getItem('search-histories');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  // ...
+}
+```
+
+**Phase 4 (Supabase移行)**:
+```typescript
+// features/history/hooks/useHistory.ts
+import { supabase } from '@/lib/supabaseClient';
+
+export function useHistory() {
+  const [histories, setHistories] = useState<SearchHistory[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Supabaseから履歴を取得
+  useEffect(() => {
+    async function fetchHistories() {
+      setLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('search_histories')
+          .select('id, query, providers, result_summary, file_names, created_at')
+          .order('created_at', { ascending: false })
+          .limit(100);
+
+        if (error) throw error;
+        setHistories(data || []);
+      } catch (error) {
+        console.error('Failed to fetch histories:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchHistories();
+  }, []);
+
+  // リアルタイム購読（オプション）
+  useEffect(() => {
+    const subscription = supabase
+      .channel('search_histories_changes')
+      .on('postgres_changes',
+        { event: '*', schema: 'public', table: 'search_histories' },
+        (payload) => {
+          // 履歴変更時に再取得
+          fetchHistories();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  // ...
+}
+```
+
+### 12.7 セキュリティ考慮事項
+
+1. **認証必須**: 全ての履歴操作は認証済みユーザーのみ
+2. **RLSによる権限制御**: データベースレベルで自分の履歴のみアクセス可能
+3. **SQLインジェクション対策**: Supabase Clientを使用することで自動的に対策
+4. **XSS対策**: Markdown表示時にサニタイズ（react-markdownが対応）
+5. **CSRF対策**: Supabaseの認証トークンベースの認証で対応
+6. **データサイズ制限**:
+   - `result_markdown`は最大1MB程度に制限
+   - 履歴件数は100件に制限（自動削除）
+
+### 12.8 パフォーマンス最適化
+
+1. **インデックス**: `user_id`と`created_at`の複合インデックス
+2. **ページネーション**: 一覧取得時は100件ずつ取得
+3. **部分取得**: 一覧表示では`result_summary`のみ取得、詳細表示で全文取得
+4. **キャッシュ**: フロントエンドでReact Queryを使用したキャッシング（将来）
+5. **リアルタイム更新**: Supabase Realtimeで履歴変更を購読（オプション）
+
 ### Phase 3: 履歴機能の実装（TDDサイクル）
 
-**目的**: 履歴機能を本格実装する
+**目的**: 履歴機能を本格実装する（まずはLocalStorageベース）
 
 この時点で、Feature-based 構造への移行が完了しているので、
 新しい構造で履歴機能を TDD で実装します。
+
+**注**: Phase 3ではLocalStorageを使用し、Phase 4でSupabaseに移行します。
 
 #### 3.1 useHistory フック（TDDサイクル）
 
