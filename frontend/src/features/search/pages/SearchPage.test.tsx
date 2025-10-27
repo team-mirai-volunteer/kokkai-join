@@ -177,6 +177,11 @@ describe("SearchPage", () => {
     const submitButton = screen.getByRole("button", { name: "検索" });
     await user.click(submitButton);
 
+    // Wait for loading to finish
+    await waitFor(() => {
+      expect(screen.queryByText("検索中...")).not.toBeInTheDocument();
+    });
+
     await waitFor(() => {
       expect(screen.getByText(/エラーが発生しました/)).toBeInTheDocument();
     });

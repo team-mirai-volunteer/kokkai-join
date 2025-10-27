@@ -154,7 +154,9 @@ describe("useSearchHistory", () => {
         json: async () => [],
       });
 
-      await result.current.deleteHistory("1");
+      await waitFor(async () => {
+        await result.current.deleteHistory("1");
+      });
 
       expect(mockFetch).toHaveBeenCalledWith(
         "http://localhost:8000/api/v1/history/1",
@@ -261,7 +263,9 @@ describe("useSearchHistory", () => {
         json: async () => updatedHistories,
       });
 
-      await result.current.refetchHistories();
+      await waitFor(async () => {
+        await result.current.refetchHistories();
+      });
 
       await waitFor(() => {
         expect(result.current.histories).toEqual(updatedHistories);
