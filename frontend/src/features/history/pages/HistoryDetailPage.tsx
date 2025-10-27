@@ -121,9 +121,6 @@ export default function HistoryDetailPage() {
               paddingBottom: "1rem",
             }}
           >
-            <h2 style={{ margin: 0, marginBottom: "0.5rem" }}>
-              {history.query}
-            </h2>
             <div
               className="history-detail-meta"
               style={{ fontSize: "0.9rem", color: "#6c757d" }}
