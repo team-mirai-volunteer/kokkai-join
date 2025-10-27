@@ -26,7 +26,7 @@ export default function HistoryListPage() {
     (id: string) => {
       navigate(`/histories/${id}`);
     },
-    [navigate]
+    [navigate],
   );
 
   const handleHistoryDelete = useCallback(
@@ -38,12 +38,12 @@ export default function HistoryListPage() {
           alert(
             `削除に失敗しました: ${
               err instanceof Error ? err.message : "不明なエラー"
-            }`
+            }`,
           );
         }
       }
     },
-    [deleteHistory]
+    [deleteHistory],
   );
 
   return (

@@ -78,7 +78,7 @@ describe("useSearchHistory", () => {
             Authorization: "Bearer test-token",
             "Content-Type": "application/json",
           }),
-        })
+        }),
       );
     });
 
@@ -165,7 +165,7 @@ describe("useSearchHistory", () => {
           headers: expect.objectContaining({
             Authorization: "Bearer test-token",
           }),
-        })
+        }),
       );
 
       await waitFor(() => {
@@ -206,7 +206,7 @@ describe("useSearchHistory", () => {
       });
 
       await expect(result.current.deleteHistory("1")).rejects.toThrow(
-        errorMessage
+        errorMessage,
       );
     });
   });

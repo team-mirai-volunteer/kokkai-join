@@ -6,13 +6,27 @@ import type { SearchHistoryListItem } from "../../../../../types/supabase.types"
 
 describe("HistoryList", () => {
   it("should render empty state when no histories", () => {
-    render(<HistoryList histories={[]} loading={false} onHistoryClick={vi.fn()} onHistoryDelete={vi.fn()} />);
+    render(
+      <HistoryList
+        histories={[]}
+        loading={false}
+        onHistoryClick={vi.fn()}
+        onHistoryDelete={vi.fn()}
+      />,
+    );
 
     expect(screen.getByText("検索履歴がありません")).toBeInTheDocument();
   });
 
   it("should render loading state", () => {
-    render(<HistoryList histories={[]} loading={true} onHistoryClick={vi.fn()} onHistoryDelete={vi.fn()} />);
+    render(
+      <HistoryList
+        histories={[]}
+        loading={true}
+        onHistoryClick={vi.fn()}
+        onHistoryDelete={vi.fn()}
+      />,
+    );
 
     expect(screen.getByText("読み込み中...")).toBeInTheDocument();
   });
@@ -43,7 +57,7 @@ describe("HistoryList", () => {
         loading={false}
         onHistoryClick={vi.fn()}
         onHistoryDelete={vi.fn()}
-      />
+      />,
     );
 
     expect(screen.getByText("防衛費と子育て支援")).toBeInTheDocument();
@@ -70,7 +84,7 @@ describe("HistoryList", () => {
         loading={false}
         onHistoryClick={onHistoryClick}
         onHistoryDelete={vi.fn()}
-      />
+      />,
     );
 
     const historyItem = screen.getByText("防衛費と子育て支援").closest("div");
@@ -100,7 +114,7 @@ describe("HistoryList", () => {
         loading={false}
         onHistoryClick={vi.fn()}
         onHistoryDelete={onHistoryDelete}
-      />
+      />,
     );
 
     const deleteButton = screen.getByRole("button", { name: /削除/i });
@@ -127,7 +141,7 @@ describe("HistoryList", () => {
         loading={false}
         onHistoryClick={vi.fn()}
         onHistoryDelete={vi.fn()}
-      />
+      />,
     );
 
     expect(screen.getByText("kokkai")).toBeInTheDocument();
@@ -153,7 +167,7 @@ describe("HistoryList", () => {
         loading={false}
         onHistoryClick={vi.fn()}
         onHistoryDelete={vi.fn()}
-      />
+      />,
     );
 
     expect(screen.getByText(/document1.pdf/)).toBeInTheDocument();

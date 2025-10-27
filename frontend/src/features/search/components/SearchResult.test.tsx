@@ -6,7 +6,9 @@ describe("SearchResult", () => {
   it("should display placeholder when no result", () => {
     render(<SearchResult result="" query="" loading={false} />);
 
-    expect(screen.getByText("検索結果がここに表示されます")).toBeInTheDocument();
+    expect(
+      screen.getByText("検索結果がここに表示されます"),
+    ).toBeInTheDocument();
   });
 
   it("should display loading message when loading", () => {
@@ -36,12 +38,16 @@ describe("SearchResult", () => {
   it("should not display placeholder when loading", () => {
     render(<SearchResult result="" query="" loading={true} />);
 
-    expect(screen.queryByText("検索結果がここに表示されます")).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("検索結果がここに表示されます"),
+    ).not.toBeInTheDocument();
   });
 
   it("should not display placeholder when result exists", () => {
     render(<SearchResult result="# Result" query="test" loading={false} />);
 
-    expect(screen.queryByText("検索結果がここに表示されます")).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("検索結果がここに表示されます"),
+    ).not.toBeInTheDocument();
   });
 });

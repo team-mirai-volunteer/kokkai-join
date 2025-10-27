@@ -84,7 +84,9 @@ describe("App - Routing Structure", () => {
 
       await waitFor(() => {
         // SearchPage should be rendered - check for search input placeholder
-        expect(screen.getByPlaceholderText(/検索キーワードを入力/)).toBeInTheDocument();
+        expect(
+          screen.getByPlaceholderText(/検索キーワードを入力/),
+        ).toBeInTheDocument();
       });
     });
 
@@ -102,7 +104,9 @@ describe("App - Routing Structure", () => {
       await waitFor(() => {
         const authHeader = container.querySelector(".auth-header");
         const tabButtons = authHeader?.querySelectorAll("button");
-        const buttonTexts = Array.from(tabButtons || []).map((btn) => btn.textContent);
+        const buttonTexts = Array.from(tabButtons || []).map(
+          (btn) => btn.textContent,
+        );
 
         expect(buttonTexts).toContain("検索");
         expect(buttonTexts).toContain("履歴");
@@ -121,7 +125,9 @@ describe("App - Routing Structure", () => {
       render(<App />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: "ログアウト" })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: "ログアウト" }),
+        ).toBeInTheDocument();
       });
     });
 
@@ -129,7 +135,9 @@ describe("App - Routing Structure", () => {
       render(<App />);
 
       await waitFor(() => {
-        expect(screen.getByText("検索結果がここに表示されます")).toBeInTheDocument();
+        expect(
+          screen.getByText("検索結果がここに表示されます"),
+        ).toBeInTheDocument();
       });
     });
   });

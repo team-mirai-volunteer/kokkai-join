@@ -68,7 +68,7 @@ describe("HistoryListPage", () => {
     render(
       <MemoryRouter>
         <HistoryListPage />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     await waitFor(() => {
@@ -79,7 +79,7 @@ describe("HistoryListPage", () => {
           headers: expect.objectContaining({
             Authorization: "Bearer test-token",
           }),
-        })
+        }),
       );
     });
 
@@ -109,7 +109,7 @@ describe("HistoryListPage", () => {
     render(
       <MemoryRouter>
         <HistoryListPage />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     await waitFor(() => {
@@ -147,7 +147,7 @@ describe("HistoryListPage", () => {
     render(
       <MemoryRouter>
         <HistoryListPage />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     await waitFor(() => {
@@ -174,7 +174,7 @@ describe("HistoryListPage", () => {
         expect.stringContaining("/api/v1/history/test-id"),
         expect.objectContaining({
           method: "DELETE",
-        })
+        }),
       );
     });
   });
@@ -203,7 +203,7 @@ describe("HistoryListPage", () => {
     render(
       <MemoryRouter>
         <HistoryListPage />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     await waitFor(() => {
@@ -228,7 +228,7 @@ describe("HistoryListPage", () => {
     render(
       <MemoryRouter>
         <HistoryListPage />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     await waitFor(() => {
@@ -245,7 +245,7 @@ describe("HistoryListPage", () => {
     render(
       <MemoryRouter>
         <HistoryListPage />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     await waitFor(() => {

@@ -39,14 +39,18 @@ export default function SearchPage() {
         // Error is already handled by useDeepSearch
       }
     },
-    [search, refetchHistories]
+    [search, refetchHistories],
   );
 
   return (
     <div className="app-container">
       <SearchForm onSubmit={handleSearch} loading={loading} error={error} />
       <div className="output-section">
-        <SearchResult result={searchResult} query={lastQuery} loading={loading} />
+        <SearchResult
+          result={searchResult}
+          query={lastQuery}
+          loading={loading}
+        />
       </div>
     </div>
   );

@@ -23,13 +23,13 @@ export function AppHeader() {
 
   const isSearchPage = location.pathname === "/";
   const isHistoryPage = location.pathname === "/histories";
-  const isDetailPage = location.pathname.startsWith("/histories/") && location.pathname !== "/histories";
+  const isDetailPage =
+    location.pathname.startsWith("/histories/") &&
+    location.pathname !== "/histories";
 
   return (
     <div className="auth-header">
-      <h1 style={{ margin: 0, fontSize: "1.5rem" }}>
-        みらい議会 DeepResearch
-      </h1>
+      <h1 style={{ margin: 0, fontSize: "1.5rem" }}>みらい議会 DeepResearch</h1>
       <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
         {isDetailPage ? (
           <button
@@ -61,11 +61,7 @@ export function AppHeader() {
           </div>
         )}
         <span className="user-email">{user?.email}</span>
-        <button
-          type="button"
-          onClick={signOut}
-          className="logout-button"
-        >
+        <button type="button" onClick={signOut} className="logout-button">
           ログアウト
         </button>
       </div>

@@ -39,9 +39,7 @@ export function SearchResult({ result, query, loading }: SearchResultProps) {
   return (
     <div className="markdown-output">
       <h2>{query}</h2>
-      <ReactMarkdown remarkPlugins={[remarkGfm]}>
-        {result}
-      </ReactMarkdown>
+      <ReactMarkdown remarkPlugins={[remarkGfm]}>{result}</ReactMarkdown>
     </div>
   );
 }

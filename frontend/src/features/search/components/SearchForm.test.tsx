@@ -35,7 +35,9 @@ describe("SearchForm", () => {
     const onSubmit = vi.fn();
     render(<SearchForm onSubmit={onSubmit} loading={false} />);
 
-    expect(screen.getByPlaceholderText(/検索キーワードを入力/)).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText(/検索キーワードを入力/),
+    ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "検索" })).toBeInTheDocument();
   });
 
@@ -78,7 +80,7 @@ describe("SearchForm", () => {
         expect.objectContaining({
           query: "防衛費",
           providers: expect.any(Array),
-        })
+        }),
       );
     });
   });
@@ -87,7 +89,9 @@ describe("SearchForm", () => {
     const onSubmit = vi.fn();
     render(<SearchForm onSubmit={onSubmit} loading={true} />);
 
-    expect(screen.getByRole("button", { name: "検索中..." })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "検索中..." }),
+    ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "検索中..." })).toBeDisabled();
   });
 
@@ -102,7 +106,9 @@ describe("SearchForm", () => {
   it("should display error message when error prop is provided", () => {
     const onSubmit = vi.fn();
     const errorMessage = "検索に失敗しました";
-    render(<SearchForm onSubmit={onSubmit} loading={false} error={errorMessage} />);
+    render(
+      <SearchForm onSubmit={onSubmit} loading={false} error={errorMessage} />,
+    );
 
     expect(screen.getByText(errorMessage)).toBeInTheDocument();
   });

@@ -46,7 +46,9 @@ export function useSearchHistory(): UseSearchHistoryReturn {
    * 認証トークンを取得する
    */
   const getAuthToken = async (): Promise<string> => {
-    const { data: { session } } = await supabase.auth.getSession();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
     if (!session?.access_token) {
       throw new Error("Not authenticated");
     }
@@ -67,23 +69,29 @@ export function useSearchHistory(): UseSearchHistoryReturn {
       const token = await getAuthToken();
       const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
-      const response = await fetch(`${apiUrl}/api/v1/history?limit=100&offset=0`, {
-        method: "GET",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json",
+      const response = await fetch(
+        `${apiUrl}/api/v1/history?limit=100&offset=0`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         },
-      });
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+        throw new Error(
+          errorData.message || `HTTP error! status: ${response.status}`,
+        );
       }
 
       const data = await response.json();
       setHistories(data || []);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Unknown error occurred";
+      const errorMessage =
+        err instanceof Error ? err.message : "Unknown error occurred";
       setError(errorMessage);
       setHistories([]);
     } finally {
@@ -108,20 +116,22 @@ export function useSearchHistory(): UseSearchHistoryReturn {
       const response = await fetch(`${apiUrl}/api/v1/history/${id}`, {
         method: "DELETE",
         headers: {
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || `Failed to delete history: ${response.status}`);
+        throw new Error(
+          errorData.message || `Failed to delete history: ${response.status}`,
+        );
       }
 
       // 削除後、履歴を再取得
       await fetchHistories();
     },
-    [fetchHistories]
+    [fetchHistories],
   );
 
   /**

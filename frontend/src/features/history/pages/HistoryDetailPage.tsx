@@ -32,7 +32,9 @@ export default function HistoryDetailPage() {
         setLoading(true);
         setError(null);
 
-        const { data: { session } } = await supabase.auth.getSession();
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
         if (!session?.access_token) {
           throw new Error("認証されていません");
         }
@@ -41,20 +43,23 @@ export default function HistoryDetailPage() {
         const response = await fetch(`${apiUrl}/api/v1/history/${id}`, {
           method: "GET",
           headers: {
-            "Authorization": `Bearer ${session.access_token}`,
+            Authorization: `Bearer ${session.access_token}`,
             "Content-Type": "application/json",
           },
         });
 
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+          throw new Error(
+            errorData.message || `HTTP error! status: ${response.status}`,
+          );
         }
 
         const data = await response.json();
         setHistory(data);
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : "不明なエラーが発生しました";
+        const errorMessage =
+          err instanceof Error ? err.message : "不明なエラーが発生しました";
         setError(errorMessage);
       } finally {
         setLoading(false);
@@ -108,10 +113,24 @@ export default function HistoryDetailPage() {
     <div className="app-container">
       <div className="output-section">
         <div className="markdown-output">
-          <div className="history-detail-header" style={{ marginBottom: "2rem", borderBottom: "1px solid #e9ecef", paddingBottom: "1rem" }}>
-            <h2 style={{ margin: 0, marginBottom: "0.5rem" }}>{history.query}</h2>
-            <div className="history-detail-meta" style={{ fontSize: "0.9rem", color: "#6c757d" }}>
-              <span>検索日時: {new Date(history.created_at).toLocaleString("ja-JP")}</span>
+          <div
+            className="history-detail-header"
+            style={{
+              marginBottom: "2rem",
+              borderBottom: "1px solid #e9ecef",
+              paddingBottom: "1rem",
+            }}
+          >
+            <h2 style={{ margin: 0, marginBottom: "0.5rem" }}>
+              {history.query}
+            </h2>
+            <div
+              className="history-detail-meta"
+              style={{ fontSize: "0.9rem", color: "#6c757d" }}
+            >
+              <span>
+                検索日時: {new Date(history.created_at).toLocaleString("ja-JP")}
+              </span>
               {history.providers.length > 0 && (
                 <span style={{ marginLeft: "1rem" }}>
                   プロバイダー: {history.providers.join(", ")}

@@ -31,7 +31,7 @@ describe("AppHeader", () => {
     render(
       <MemoryRouter initialEntries={["/"]}>
         <AppHeader />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     expect(screen.getByText("みらい議会 DeepResearch")).toBeInTheDocument();
@@ -41,7 +41,7 @@ describe("AppHeader", () => {
     render(
       <MemoryRouter initialEntries={["/"]}>
         <AppHeader />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     expect(screen.getByText("test@example.com")).toBeInTheDocument();
@@ -51,7 +51,7 @@ describe("AppHeader", () => {
     const { container } = render(
       <MemoryRouter initialEntries={["/"]}>
         <AppHeader />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     const authHeader = container.querySelector(".auth-header");
@@ -67,13 +67,13 @@ describe("AppHeader", () => {
     const { container } = render(
       <MemoryRouter initialEntries={["/"]}>
         <AppHeader />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     const authHeader = container.querySelector(".auth-header");
     const buttons = authHeader?.querySelectorAll("button");
     const searchButton = Array.from(buttons || []).find(
-      (btn) => btn.textContent === "検索"
+      (btn) => btn.textContent === "検索",
     );
 
     expect(searchButton).toHaveClass("submit-button");
@@ -83,13 +83,13 @@ describe("AppHeader", () => {
     const { container } = render(
       <MemoryRouter initialEntries={["/histories"]}>
         <AppHeader />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     const authHeader = container.querySelector(".auth-header");
     const buttons = authHeader?.querySelectorAll("button");
     const historyButton = Array.from(buttons || []).find(
-      (btn) => btn.textContent === "履歴"
+      (btn) => btn.textContent === "履歴",
     );
 
     expect(historyButton).toHaveClass("submit-button");
@@ -100,13 +100,13 @@ describe("AppHeader", () => {
     const { container } = render(
       <MemoryRouter initialEntries={["/histories"]}>
         <AppHeader />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     const authHeader = container.querySelector(".auth-header");
     const buttons = authHeader?.querySelectorAll("button");
     const searchButton = Array.from(buttons || []).find(
-      (btn) => btn.textContent === "検索"
+      (btn) => btn.textContent === "検索",
     ) as HTMLButtonElement;
 
     await user.click(searchButton);
@@ -119,13 +119,13 @@ describe("AppHeader", () => {
     const { container } = render(
       <MemoryRouter initialEntries={["/"]}>
         <AppHeader />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     const authHeader = container.querySelector(".auth-header");
     const buttons = authHeader?.querySelectorAll("button");
     const historyButton = Array.from(buttons || []).find(
-      (btn) => btn.textContent === "履歴"
+      (btn) => btn.textContent === "履歴",
     ) as HTMLButtonElement;
 
     await user.click(historyButton);
@@ -138,7 +138,7 @@ describe("AppHeader", () => {
     render(
       <MemoryRouter initialEntries={["/"]}>
         <AppHeader />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     const logoutButton = screen.getByRole("button", { name: "ログアウト" });
@@ -151,7 +151,7 @@ describe("AppHeader", () => {
     const { container } = render(
       <MemoryRouter initialEntries={["/histories/test-id"]}>
         <AppHeader />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     const backButton = screen.getByRole("button", { name: /履歴一覧に戻る/ });
@@ -163,7 +163,7 @@ describe("AppHeader", () => {
     render(
       <MemoryRouter initialEntries={["/histories/test-id"]}>
         <AppHeader />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     const backButton = screen.getByRole("button", { name: /履歴一覧に戻る/ });
@@ -176,16 +176,16 @@ describe("AppHeader", () => {
     const { container } = render(
       <MemoryRouter initialEntries={["/histories/test-id"]}>
         <AppHeader />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     const authHeader = container.querySelector(".auth-header");
     const buttons = authHeader?.querySelectorAll("button");
     const searchButton = Array.from(buttons || []).find(
-      (btn) => btn.textContent === "検索"
+      (btn) => btn.textContent === "検索",
     );
     const historyButton = Array.from(buttons || []).find(
-      (btn) => btn.textContent === "履歴"
+      (btn) => btn.textContent === "履歴",
     );
 
     expect(searchButton).toBeUndefined();

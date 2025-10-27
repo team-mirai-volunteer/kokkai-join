@@ -76,10 +76,12 @@ describe("SearchPage", () => {
     render(
       <MemoryRouter>
         <SearchPage />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
-    expect(screen.getByPlaceholderText(/検索キーワードを入力/)).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText(/検索キーワードを入力/),
+    ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "検索" })).toBeInTheDocument();
   });
 
@@ -87,10 +89,12 @@ describe("SearchPage", () => {
     render(
       <MemoryRouter>
         <SearchPage />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
-    expect(screen.getByText("検索結果がここに表示されます")).toBeInTheDocument();
+    expect(
+      screen.getByText("検索結果がここに表示されます"),
+    ).toBeInTheDocument();
   });
 
   it("should display search results after search", async () => {
@@ -106,7 +110,7 @@ describe("SearchPage", () => {
     render(
       <MemoryRouter>
         <SearchPage />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     const input = screen.getByPlaceholderText(/検索キーワードを入力/);
@@ -116,7 +120,9 @@ describe("SearchPage", () => {
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(screen.getByRole("heading", { name: "防衛費" })).toBeInTheDocument();
+      expect(
+        screen.getByRole("heading", { name: "防衛費" }),
+      ).toBeInTheDocument();
       expect(screen.getByText("防衛費に関する情報です。")).toBeInTheDocument();
     });
   });
@@ -134,15 +140,15 @@ describe("SearchPage", () => {
                 ok: true,
                 text: async () => "# Result",
               }),
-            100
-          )
-        )
+            100,
+          ),
+        ),
     );
 
     render(
       <MemoryRouter>
         <SearchPage />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     const input = screen.getByPlaceholderText(/検索キーワードを入力/);
@@ -168,7 +174,7 @@ describe("SearchPage", () => {
     render(
       <MemoryRouter>
         <SearchPage />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     const input = screen.getByPlaceholderText(/検索キーワードを入力/);
@@ -199,7 +205,7 @@ describe("SearchPage", () => {
     render(
       <MemoryRouter>
         <SearchPage />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     const input = screen.getByPlaceholderText(/検索キーワードを入力/);
@@ -212,7 +218,7 @@ describe("SearchPage", () => {
       // Search API should be called with deepresearch endpoint
       expect(mockFetch).toHaveBeenCalledWith(
         expect.stringContaining("/v1/deepresearch"),
-        expect.any(Object)
+        expect.any(Object),
       );
     });
   });

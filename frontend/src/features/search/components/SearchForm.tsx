@@ -37,7 +37,8 @@ export function SearchForm({ onSubmit, loading, error }: SearchFormProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const { files, addFiles, removeFile, error: fileError } = useFileUpload();
-  const { selectedProviders, handleProviderToggle } = useProviderSelection(storage);
+  const { selectedProviders, handleProviderToggle } =
+    useProviderSelection(storage);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
