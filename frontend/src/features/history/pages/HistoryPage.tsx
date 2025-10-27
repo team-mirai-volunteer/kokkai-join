@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useAuth } from "../../auth/contexts/AuthContext";
@@ -28,9 +28,12 @@ type Tab = "search" | "history";
 export default function HistoryPage() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<Tab>("search");
+  const location = useLocation();
   const [searchResult, setSearchResult] = useState<string>("");
   const [lastQuery, setLastQuery] = useState<string>("");
+
+  // URLに基づいてアクティブタブを決定
+  const activeTab: Tab = location.pathname === "/histories" ? "history" : "search";
 
   const { histories, loading: historyLoading, error: historyError, deleteHistory, refetchHistories } = useSearchHistory();
   const { search, loading: searchLoading, error: searchError } = useDeepSearch();
@@ -54,7 +57,7 @@ export default function HistoryPage() {
 
   const handleHistoryClick = useCallback(
     (id: string) => {
-      navigate(`/history/${id}`);
+      navigate(`/histories/${id}`);
     },
     [navigate]
   );
@@ -89,7 +92,7 @@ export default function HistoryPage() {
             <div style={{ display: "flex", gap: "0.5rem" }}>
               <button
                 type="button"
-                onClick={() => setActiveTab("search")}
+                onClick={() => navigate("/")}
                 className={activeTab === "search" ? "submit-button" : "logout-button"}
                 style={{ padding: "0.5rem 1rem" }}
               >
@@ -97,7 +100,7 @@ export default function HistoryPage() {
               </button>
               <button
                 type="button"
-                onClick={() => setActiveTab("history")}
+                onClick={() => navigate("/histories")}
                 className={activeTab === "history" ? "submit-button" : "logout-button"}
                 style={{ padding: "0.5rem 1rem" }}
               >

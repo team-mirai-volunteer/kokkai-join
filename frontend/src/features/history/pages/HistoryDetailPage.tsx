@@ -78,7 +78,7 @@ export default function HistoryDetailPage() {
         <div className="error-message">{error}</div>
         <button
           type="button"
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/histories")}
           className="submit-button"
           style={{ marginTop: "1rem" }}
         >
@@ -94,7 +94,7 @@ export default function HistoryDetailPage() {
         <div className="error-message">履歴が見つかりませんでした</div>
         <button
           type="button"
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/histories")}
           className="submit-button"
           style={{ marginTop: "1rem" }}
         >
@@ -110,7 +110,7 @@ export default function HistoryDetailPage() {
         <div className="history-detail-header">
           <button
             type="button"
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/histories")}
             className="submit-button"
             style={{ marginBottom: "1rem" }}
           >

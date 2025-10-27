@@ -32,7 +32,8 @@ function App() {
           {/* 認証済みルート */}
           <Route element={<AuthLayout />}>
             <Route path="/" element={<HistoryPage />} />
-            <Route path="/history/:id" element={<HistoryDetailPage />} />
+            <Route path="/histories" element={<HistoryPage />} />
+            <Route path="/histories/:id" element={<HistoryDetailPage />} />
           </Route>
 
           {/* 404 */}
