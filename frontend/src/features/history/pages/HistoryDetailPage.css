@@ -1,0 +1,18 @@
+.history-detail-header {
+  margin-bottom: 2rem;
+  border-bottom: 1px solid #e9ecef;
+  padding-bottom: 1rem;
+}
+
+.history-detail-meta {
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+.history-detail-meta span + span {
+  margin-left: 1rem;
+}
+
+.back-button {
+  margin-top: 1rem;
+}
