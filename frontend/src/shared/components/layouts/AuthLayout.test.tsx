@@ -8,6 +8,13 @@ vi.mock("react-router-dom", () => ({
   Navigate: ({ to }: { to: string }) => (
     <div data-testid="navigate">Redirect to {to}</div>
   ),
+  useNavigate: () => vi.fn(),
+  useLocation: () => ({ pathname: "/" }),
+}));
+
+// Mock AppHeader
+vi.mock("../AppHeader", () => ({
+  AppHeader: () => <div data-testid="app-header">App Header</div>,
 }));
 
 /**

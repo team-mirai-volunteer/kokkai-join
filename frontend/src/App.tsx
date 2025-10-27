@@ -2,22 +2,29 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import AuthLayout from "./shared/components/layouts/AuthLayout";
 import GuestLayout from "./shared/components/layouts/GuestLayout";
 import LoginPage from "./features/auth/pages/LoginPage";
-import HistoryPage from "./features/history/pages/HistoryPage";
+import SearchPage from "./features/search/pages/SearchPage";
+import HistoryListPage from "./features/history/pages/HistoryListPage";
 import HistoryDetailPage from "./features/history/pages/HistoryDetailPage";
 import { AuthProvider } from "./features/auth/contexts/AuthContext";
 
 /**
- * App - ルートコンポーネント（Phase 1: ルーティング構造導入）
+ * App - ルートコンポーネント
  *
  * 責務:
  * - アプリケーション全体のルーティング構造を定義
  * - 認証状態に基づいたルート保護（AuthLayout, GuestLayout）
  * - AuthProviderでアプリケーション全体に認証状態を提供
  *
+ * ルーティング構造:
+ * - / : 検索ページ (SearchPage)
+ * - /histories : 履歴一覧ページ (HistoryListPage)
+ * - /histories/:id : 履歴詳細ページ (HistoryDetailPage)
+ * - /login : ログインページ (LoginPage)
+ *
  * 設計原則:
- * - 高凝集: ルーティング定義のみに集中
+ * - 単一責任: 各ページが明確な役割を持つ
+ * - RESTful: URLとリソースが対応
  * - 低結合: 各ページコンポーネントは独立して動作
- * - 責務の分離: 認証ロジックはAuthLayout/GuestLayoutに委譲
  */
 function App() {
   return (
@@ -31,8 +38,8 @@ function App() {
 
           {/* 認証済みルート */}
           <Route element={<AuthLayout />}>
-            <Route path="/" element={<HistoryPage />} />
-            <Route path="/histories" element={<HistoryPage />} />
+            <Route path="/" element={<SearchPage />} />
+            <Route path="/histories" element={<HistoryListPage />} />
             <Route path="/histories/:id" element={<HistoryDetailPage />} />
           </Route>
 

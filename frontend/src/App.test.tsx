@@ -79,16 +79,16 @@ describe("App - Routing Structure", () => {
   });
 
   describe("when user is authenticated", () => {
-    it("should render HistoryPage at root path", async () => {
-      const { container } = render(<App />);
+    it("should render SearchPage at root path", async () => {
+      render(<App />);
 
       await waitFor(() => {
-        // HistoryPage should be rendered - check for search input placeholder
+        // SearchPage should be rendered - check for search input placeholder
         expect(screen.getByPlaceholderText(/検索キーワードを入力/)).toBeInTheDocument();
       });
     });
 
-    it("should render application title", async () => {
+    it("should render application title in header", async () => {
       render(<App />);
 
       await waitFor(() => {
@@ -96,7 +96,7 @@ describe("App - Routing Structure", () => {
       });
     });
 
-    it("should render tab navigation buttons", async () => {
+    it("should render tab navigation buttons in header", async () => {
       const { container } = render(<App />);
 
       await waitFor(() => {
@@ -122,6 +122,14 @@ describe("App - Routing Structure", () => {
 
       await waitFor(() => {
         expect(screen.getByRole("button", { name: "ログアウト" })).toBeInTheDocument();
+      });
+    });
+
+    it("should render search result placeholder on search page", async () => {
+      render(<App />);
+
+      await waitFor(() => {
+        expect(screen.getByText("検索結果がここに表示されます")).toBeInTheDocument();
       });
     });
   });
