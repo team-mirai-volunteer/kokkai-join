@@ -195,7 +195,7 @@ export interface SearchHistory {
 
 export type SearchHistoryListItem = Pick<
   SearchHistory,
-  'id' | 'query' | 'providers' | 'result_summary' | 'file_names' | 'created_at'
+  "id" | "query" | "providers" | "result_summary" | "file_names" | "created_at"
 >;
 
 export interface SearchHistoryInsert {
