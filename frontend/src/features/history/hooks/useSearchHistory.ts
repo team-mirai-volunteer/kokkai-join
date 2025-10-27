@@ -45,7 +45,7 @@ export function useSearchHistory(): UseSearchHistoryReturn {
   /**
    * 認証トークンを取得する
    */
-  const getAuthToken = async (): Promise<string> => {
+  const getAuthToken = useCallback(async (): Promise<string> => {
     const {
       data: { session },
     } = await supabase.auth.getSession();
@@ -53,7 +53,7 @@ export function useSearchHistory(): UseSearchHistoryReturn {
       throw new Error("Not authenticated");
     }
     return session.access_token;
-  };
+  }, []);
 
   /**
    * 検索履歴を取得する関数
@@ -97,7 +97,7 @@ export function useSearchHistory(): UseSearchHistoryReturn {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [getAuthToken]);
 
   /**
    * 検索履歴を削除する関数
@@ -131,7 +131,7 @@ export function useSearchHistory(): UseSearchHistoryReturn {
       // 削除後、履歴を再取得
       await fetchHistories();
     },
-    [fetchHistories],
+    [fetchHistories, getAuthToken],
   );
 
   /**
