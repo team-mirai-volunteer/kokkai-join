@@ -80,17 +80,11 @@ describe("App - Routing Structure", () => {
 
   describe("when user is authenticated", () => {
     it("should render HistoryPage at root path", async () => {
-      // Override window.location to set initial path
-      Object.defineProperty(window, "location", {
-        value: { pathname: "/", search: "", hash: "" },
-        writable: true,
-      });
-
-      render(<App />);
+      const { container } = render(<App />);
 
       await waitFor(() => {
-        // HistoryPage should be rendered with search tab
-        expect(screen.getByRole("button", { name: "検索" })).toBeInTheDocument();
+        // HistoryPage should be rendered - check for search input placeholder
+        expect(screen.getByPlaceholderText(/検索キーワードを入力/)).toBeInTheDocument();
       });
     });
 
@@ -103,11 +97,15 @@ describe("App - Routing Structure", () => {
     });
 
     it("should render tab navigation buttons", async () => {
-      render(<App />);
+      const { container } = render(<App />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: "検索" })).toBeInTheDocument();
-        expect(screen.getByRole("button", { name: "履歴" })).toBeInTheDocument();
+        const authHeader = container.querySelector(".auth-header");
+        const tabButtons = authHeader?.querySelectorAll("button");
+        const buttonTexts = Array.from(tabButtons || []).map((btn) => btn.textContent);
+
+        expect(buttonTexts).toContain("検索");
+        expect(buttonTexts).toContain("履歴");
       });
     });
 
