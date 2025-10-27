@@ -34,28 +34,21 @@ vi.mock("../contexts/AuthContext", () => ({
 }));
 
 describe("LoginPage", () => {
-  it("should render LoginForm component", () => {
+  it("should render LoginForm component with email and password fields", () => {
     const { container } = render(<LoginPage />);
 
-    // LoginFormの存在を確認（メールアドレスフィールドで判定）
+    // LoginFormの存在を確認（メールアドレスとパスワードフィールドで判定）
     const emailInput = container.querySelector('input[type="email"]');
+    const passwordInput = container.querySelector('input[type="password"]');
+
     expect(emailInput).toBeInTheDocument();
+    expect(passwordInput).toBeInTheDocument();
   });
 
-  it("should have login-page class for styling", () => {
-    const { container } = render(<LoginPage />);
+  it("should render login button", () => {
+    const { getByRole } = render(<LoginPage />);
 
-    const loginPageDiv = container.querySelector(".login-page");
-    expect(loginPageDiv).toBeInTheDocument();
-  });
-
-  it("should center the login form on the page", () => {
-    const { container } = render(<LoginPage />);
-
-    const loginPageDiv = container.querySelector(".login-page");
-    expect(loginPageDiv).toBeInTheDocument();
-
-    // CSSクラスが適用されていることを確認
-    expect(loginPageDiv?.className).toContain("login-page");
+    const loginButton = getByRole("button", { name: /ログイン/ });
+    expect(loginButton).toBeInTheDocument();
   });
 });
