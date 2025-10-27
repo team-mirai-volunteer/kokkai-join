@@ -106,30 +106,19 @@ export default function HistoryDetailPage() {
 
   return (
     <div className="app-container">
-      <div className="input-section">
-        <div className="history-detail-header">
-          <button
-            type="button"
-            onClick={() => navigate("/histories")}
-            className="submit-button"
-            style={{ marginBottom: "1rem" }}
-          >
-            ← 履歴一覧に戻る
-          </button>
-          <h2>{history.query}</h2>
-          <div className="history-detail-meta">
-            <span>検索日時: {new Date(history.created_at).toLocaleString("ja-JP")}</span>
-            {history.providers.length > 0 && (
-              <span style={{ marginLeft: "1rem" }}>
-                プロバイダー: {history.providers.join(", ")}
-              </span>
-            )}
-          </div>
-        </div>
-      </div>
-
       <div className="output-section">
         <div className="markdown-output">
+          <div className="history-detail-header" style={{ marginBottom: "2rem", borderBottom: "1px solid #e9ecef", paddingBottom: "1rem" }}>
+            <h2 style={{ margin: 0, marginBottom: "0.5rem" }}>{history.query}</h2>
+            <div className="history-detail-meta" style={{ fontSize: "0.9rem", color: "#6c757d" }}>
+              <span>検索日時: {new Date(history.created_at).toLocaleString("ja-JP")}</span>
+              {history.providers.length > 0 && (
+                <span style={{ marginLeft: "1rem" }}>
+                  プロバイダー: {history.providers.join(", ")}
+                </span>
+              )}
+            </div>
+          </div>
           {history.result_markdown ? (
             <ReactMarkdown remarkPlugins={[remarkGfm]}>
               {history.result_markdown}

@@ -146,4 +146,49 @@ describe("AppHeader", () => {
 
     expect(mockSignOut).toHaveBeenCalled();
   });
+
+  it("should display back button on history detail page", () => {
+    const { container } = render(
+      <MemoryRouter initialEntries={["/histories/test-id"]}>
+        <AppHeader />
+      </MemoryRouter>
+    );
+
+    const backButton = screen.getByRole("button", { name: /履歴一覧に戻る/ });
+    expect(backButton).toBeInTheDocument();
+  });
+
+  it("should navigate to /histories when back button clicked", async () => {
+    const user = userEvent.setup();
+    render(
+      <MemoryRouter initialEntries={["/histories/test-id"]}>
+        <AppHeader />
+      </MemoryRouter>
+    );
+
+    const backButton = screen.getByRole("button", { name: /履歴一覧に戻る/ });
+    await user.click(backButton);
+
+    expect(mockNavigate).toHaveBeenCalledWith("/histories");
+  });
+
+  it("should not display navigation buttons on detail page", () => {
+    const { container } = render(
+      <MemoryRouter initialEntries={["/histories/test-id"]}>
+        <AppHeader />
+      </MemoryRouter>
+    );
+
+    const authHeader = container.querySelector(".auth-header");
+    const buttons = authHeader?.querySelectorAll("button");
+    const searchButton = Array.from(buttons || []).find(
+      (btn) => btn.textContent === "検索"
+    );
+    const historyButton = Array.from(buttons || []).find(
+      (btn) => btn.textContent === "履歴"
+    );
+
+    expect(searchButton).toBeUndefined();
+    expect(historyButton).toBeUndefined();
+  });
 });
