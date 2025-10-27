@@ -1,6 +1,5 @@
 // Standard library imports
 
-import { createClient } from "@supabase/supabase-js";
 import { vValidator } from "@hono/valibot-validator";
 import { config } from "dotenv";
 // Third-party library imports
@@ -29,6 +28,11 @@ import type {
 import { toEvidenceRecord } from "../types/deepresearch.js";
 import type { QueryPlan } from "../types/kokkai.js";
 import { convertDeepResearchToMarkdown } from "../utils/markdown-converter.js";
+import {
+  createSupabaseClient,
+  extractToken,
+  getAuthenticatedSupabaseClient,
+} from "./auth-helpers.js";
 // Local imports
 import { authMiddleware } from "./authMiddleware.js";
 import {
@@ -37,7 +41,6 @@ import {
   getSearchHistories,
   getSearchHistoryById,
 } from "./search-history-api.js";
-import type { Database } from "../types/supabase.types.js";
 
 /**
  * Kokkai Deep Research API Server using Hono
@@ -100,21 +103,14 @@ class KokkaiDeepResearchAPI {
 
           // Save search history to Supabase
           try {
-            const authHeader = c.req.header("Authorization");
-            const token = authHeader?.replace(/^Bearer\s+/i, "");
+            const token = extractToken(c);
 
-            if (token && process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY) {
-              const supabase = createClient<Database>(
-                process.env.SUPABASE_URL,
-                process.env.SUPABASE_ANON_KEY,
-                {
-                  global: {
-                    headers: {
-                      Authorization: `Bearer ${token}`,
-                    },
-                  },
-                },
-              );
+            if (
+              token &&
+              process.env.SUPABASE_URL &&
+              process.env.SUPABASE_ANON_KEY
+            ) {
+              const supabase = createSupabaseClient(token);
 
               const fileNames = req.files?.map((f) => ({ name: f.name })) || [];
               await executeSearchAndSaveHistory(supabase, {
@@ -144,38 +140,10 @@ class KokkaiDeepResearchAPI {
     // Search history endpoints (protected by auth)
     this.app.get("/api/v1/history", authMiddleware, async (c) => {
       try {
-        const authHeader = c.req.header("Authorization");
-        const token = authHeader?.replace(/^Bearer\s+/i, "");
+        const { supabase } = getAuthenticatedSupabaseClient(c);
 
-        if (!token) {
-          console.error("Missing authorization token");
-          return c.json({ error: "Missing authorization token" }, 401);
-        }
-
-        if (!process.env.SUPABASE_URL) {
-          console.error("Missing SUPABASE_URL environment variable");
-          return c.json({ error: "Configuration error: Missing SUPABASE_URL" }, 500);
-        }
-
-        if (!process.env.SUPABASE_ANON_KEY) {
-          console.error("Missing SUPABASE_ANON_KEY environment variable");
-          return c.json({ error: "Configuration error: Missing SUPABASE_ANON_KEY" }, 500);
-        }
-
-        const supabase = createClient<Database>(
-          process.env.SUPABASE_URL,
-          process.env.SUPABASE_ANON_KEY,
-          {
-            global: {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            },
-          },
-        );
-
-        const limit = Number.parseInt(c.req.query("limit") || "100");
-        const offset = Number.parseInt(c.req.query("offset") || "0");
+        const limit = Number.parseInt(c.req.query("limit") || "100", 10);
+        const offset = Number.parseInt(c.req.query("offset") || "0", 10);
 
         const histories = await getSearchHistories(supabase, { limit, offset });
         return c.json(histories);
@@ -188,36 +156,8 @@ class KokkaiDeepResearchAPI {
 
     this.app.get("/api/v1/history/:id", authMiddleware, async (c) => {
       try {
-        const authHeader = c.req.header("Authorization");
-        const token = authHeader?.replace(/^Bearer\s+/i, "");
+        const { supabase } = getAuthenticatedSupabaseClient(c);
         const id = c.req.param("id");
-
-        if (!token) {
-          console.error("Missing authorization token");
-          return c.json({ error: "Missing authorization token" }, 401);
-        }
-
-        if (!process.env.SUPABASE_URL) {
-          console.error("Missing SUPABASE_URL environment variable");
-          return c.json({ error: "Configuration error: Missing SUPABASE_URL" }, 500);
-        }
-
-        if (!process.env.SUPABASE_ANON_KEY) {
-          console.error("Missing SUPABASE_ANON_KEY environment variable");
-          return c.json({ error: "Configuration error: Missing SUPABASE_ANON_KEY" }, 500);
-        }
-
-        const supabase = createClient<Database>(
-          process.env.SUPABASE_URL,
-          process.env.SUPABASE_ANON_KEY,
-          {
-            global: {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            },
-          },
-        );
 
         const history = await getSearchHistoryById(supabase, id);
 
@@ -235,36 +175,8 @@ class KokkaiDeepResearchAPI {
 
     this.app.delete("/api/v1/history/:id", authMiddleware, async (c) => {
       try {
-        const authHeader = c.req.header("Authorization");
-        const token = authHeader?.replace(/^Bearer\s+/i, "");
+        const { supabase } = getAuthenticatedSupabaseClient(c);
         const id = c.req.param("id");
-
-        if (!token) {
-          console.error("Missing authorization token");
-          return c.json({ error: "Missing authorization token" }, 401);
-        }
-
-        if (!process.env.SUPABASE_URL) {
-          console.error("Missing SUPABASE_URL environment variable");
-          return c.json({ error: "Configuration error: Missing SUPABASE_URL" }, 500);
-        }
-
-        if (!process.env.SUPABASE_ANON_KEY) {
-          console.error("Missing SUPABASE_ANON_KEY environment variable");
-          return c.json({ error: "Configuration error: Missing SUPABASE_ANON_KEY" }, 500);
-        }
-
-        const supabase = createClient<Database>(
-          process.env.SUPABASE_URL,
-          process.env.SUPABASE_ANON_KEY,
-          {
-            global: {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            },
-          },
-        );
 
         await deleteSearchHistory(supabase, id);
         return c.json({ success: true });
@@ -286,8 +198,7 @@ class KokkaiDeepResearchAPI {
           "/": "This endpoint",
           "/api/v1/deepresearch":
             "POST - Deep research pipeline returning sections and citations",
-          "/api/v1/history":
-            "GET - Get search history list",
+          "/api/v1/history": "GET - Get search history list",
           "/api/v1/history/:id":
             "GET - Get search history detail, DELETE - Delete search history",
         },

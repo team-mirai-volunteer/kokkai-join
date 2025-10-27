@@ -1,15 +1,15 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type {
-	SearchHistory,
-	SearchHistoryInsert,
-	SearchHistoryListItem,
+  SearchHistory,
+  SearchHistoryInsert,
+  SearchHistoryListItem,
 } from "../types/supabase.types.js";
 
 interface ExecuteSearchParams {
-	query: string;
-	providers: string[];
-	markdown: string;
-	files?: { name: string }[];
+  query: string;
+  providers: string[];
+  markdown: string;
+  files?: { name: string }[];
 }
 
 /**
@@ -24,50 +24,50 @@ interface ExecuteSearchParams {
  * @throws 認証エラーまたはデータベースエラー
  */
 export async function executeSearchAndSaveHistory(
-	supabase: SupabaseClient,
-	params: ExecuteSearchParams,
+  supabase: SupabaseClient,
+  params: ExecuteSearchParams,
 ): Promise<{ historyId: string }> {
-	// 1. 検索結果のサマリーを生成（最初の200文字）
-	const summary =
-		params.markdown.substring(0, 200) +
-		(params.markdown.length > 200 ? "..." : "");
+  // 1. 検索結果のサマリーを生成（最初の200文字）
+  const summary =
+    params.markdown.substring(0, 200) +
+    (params.markdown.length > 200 ? "..." : "");
 
-	// 2. ファイル名の抽出
-	const fileNames = params.files?.map((f) => f.name) || [];
+  // 2. ファイル名の抽出
+  const fileNames = params.files?.map((f) => f.name) || [];
 
-	// 3. 認証ユーザーIDを取得
-	const {
-		data: { user },
-		error: authError,
-	} = await supabase.auth.getUser();
-	if (authError || !user) {
-		throw new Error("Authentication required");
-	}
+  // 3. 認証ユーザーIDを取得
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+  if (authError || !user) {
+    throw new Error("Authentication required");
+  }
 
-	// 4. 履歴をSupabaseに保存
-	const insertData: SearchHistoryInsert = {
-		user_id: user.id,
-		query: params.query,
-		providers: params.providers,
-		result_summary: summary,
-		result_markdown: params.markdown,
-		file_names: fileNames,
-	};
+  // 4. 履歴をSupabaseに保存
+  const insertData: SearchHistoryInsert = {
+    user_id: user.id,
+    query: params.query,
+    providers: params.providers,
+    result_summary: summary,
+    result_markdown: params.markdown,
+    file_names: fileNames,
+  };
 
-	const { data, error } = await supabase
-		.from("search_histories")
-		.insert(insertData)
-		.select("id")
-		.single();
+  const { data, error } = await supabase
+    .from("search_histories")
+    .insert(insertData)
+    .select("id")
+    .single();
 
-	if (error) {
-		console.error("Failed to save search history:", error);
-		throw new Error(`Failed to save search history: ${error.message}`);
-	}
+  if (error) {
+    console.error("Failed to save search history:", error);
+    throw new Error(`Failed to save search history: ${error.message}`);
+  }
 
-	return {
-		historyId: data?.id || "",
-	};
+  return {
+    historyId: data?.id || "",
+  };
 }
 
 /**
@@ -82,26 +82,26 @@ export async function executeSearchAndSaveHistory(
  * @throws データベースエラー
  */
 export async function getSearchHistories(
-	supabase: SupabaseClient,
-	options?: {
-		limit?: number;
-		offset?: number;
-	},
+  supabase: SupabaseClient,
+  options?: {
+    limit?: number;
+    offset?: number;
+  },
 ): Promise<SearchHistoryListItem[]> {
-	const limit = options?.limit || 100;
-	const offset = options?.offset || 0;
+  const limit = options?.limit || 100;
+  const offset = options?.offset || 0;
 
-	const { data, error } = await supabase
-		.from("search_histories")
-		.select("id, query, providers, result_summary, file_names, created_at")
-		.order("created_at", { ascending: false })
-		.range(offset, offset + limit - 1);
+  const { data, error } = await supabase
+    .from("search_histories")
+    .select("id, query, providers, result_summary, file_names, created_at")
+    .order("created_at", { ascending: false })
+    .range(offset, offset + limit - 1);
 
-	if (error) {
-		throw new Error(`Failed to fetch search histories: ${error.message}`);
-	}
+  if (error) {
+    throw new Error(`Failed to fetch search histories: ${error.message}`);
+  }
 
-	return (data as SearchHistoryListItem[]) || [];
+  return (data as SearchHistoryListItem[]) || [];
 }
 
 /**
@@ -116,20 +116,20 @@ export async function getSearchHistories(
  * @throws データベースエラー
  */
 export async function getSearchHistoryById(
-	supabase: SupabaseClient,
-	id: string,
+  supabase: SupabaseClient,
+  id: string,
 ): Promise<SearchHistory | null> {
-	const { data, error } = await supabase
-		.from("search_histories")
-		.select("*")
-		.eq("id", id)
-		.single();
+  const { data, error } = await supabase
+    .from("search_histories")
+    .select("*")
+    .eq("id", id)
+    .single();
 
-	if (error) {
-		throw new Error(`Failed to fetch search history: ${error.message}`);
-	}
+  if (error) {
+    throw new Error(`Failed to fetch search history: ${error.message}`);
+  }
 
-	return data as SearchHistory;
+  return data as SearchHistory;
 }
 
 /**
@@ -143,15 +143,15 @@ export async function getSearchHistoryById(
  * @throws データベースエラー
  */
 export async function deleteSearchHistory(
-	supabase: SupabaseClient,
-	id: string,
+  supabase: SupabaseClient,
+  id: string,
 ): Promise<void> {
-	const { error } = await supabase
-		.from("search_histories")
-		.delete()
-		.eq("id", id);
+  const { error } = await supabase
+    .from("search_histories")
+    .delete()
+    .eq("id", id);
 
-	if (error) {
-		throw new Error(`Failed to delete search history: ${error.message}`);
-	}
+  if (error) {
+    throw new Error(`Failed to delete search history: ${error.message}`);
+  }
 }
