@@ -2,17 +2,18 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import type { SearchHistoryListItem } from "../../../../../types/supabase.types";
 
-// Mock Supabase client - must be defined before vi.mock
-const mockFrom = vi.fn();
-const mockSelect = vi.fn();
-const mockOrder = vi.fn();
-const mockRange = vi.fn();
-const mockEq = vi.fn();
-const mockDelete = vi.fn();
+// Mock fetch
+const mockFetch = vi.fn();
+global.fetch = mockFetch;
+
+// Mock Supabase auth
+const mockGetSession = vi.fn();
 
 vi.mock("../../../lib/supabaseClient", () => ({
   supabase: {
-    from: mockFrom,
+    auth: {
+      getSession: mockGetSession,
+    },
   },
 }));
 
@@ -22,6 +23,17 @@ const { useSearchHistory } = await import("./useSearchHistory");
 describe("useSearchHistory", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+
+    // Setup default auth mock
+    mockGetSession.mockResolvedValue({
+      data: {
+        session: {
+          access_token: "test-token",
+          user: { id: "test-user-id" },
+        },
+      },
+      error: null,
+    });
   });
 
   describe("fetchHistories", () => {
@@ -45,13 +57,10 @@ describe("useSearchHistory", () => {
         },
       ];
 
-      mockRange.mockResolvedValue({
-        data: mockHistories,
-        error: null,
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: async () => mockHistories,
       });
-      mockOrder.mockReturnValue({ range: mockRange });
-      mockSelect.mockReturnValue({ order: mockOrder });
-      mockFrom.mockReturnValue({ select: mockSelect });
 
       const { result } = renderHook(() => useSearchHistory());
 
@@ -61,25 +70,25 @@ describe("useSearchHistory", () => {
 
       expect(result.current.histories).toEqual(mockHistories);
       expect(result.current.error).toBeNull();
-      expect(mockFrom).toHaveBeenCalledWith("search_histories");
-      expect(mockSelect).toHaveBeenCalledWith(
-        "id, query, providers, result_summary, file_names, created_at"
+      expect(mockFetch).toHaveBeenCalledWith(
+        "http://localhost:8000/api/v1/history?limit=100&offset=0",
+        expect.objectContaining({
+          method: "GET",
+          headers: expect.objectContaining({
+            Authorization: "Bearer test-token",
+            "Content-Type": "application/json",
+          }),
+        })
       );
-      expect(mockOrder).toHaveBeenCalledWith("created_at", {
-        ascending: false,
-      });
-      expect(mockRange).toHaveBeenCalledWith(0, 99);
     });
 
     it("should handle fetch error", async () => {
       const errorMessage = "Failed to fetch histories";
-      mockRange.mockResolvedValue({
-        data: null,
-        error: { message: errorMessage },
+      mockFetch.mockResolvedValue({
+        ok: false,
+        status: 500,
+        json: async () => ({ message: errorMessage }),
       });
-      mockOrder.mockReturnValue({ range: mockRange });
-      mockSelect.mockReturnValue({ order: mockOrder });
-      mockFrom.mockReturnValue({ select: mockSelect });
 
       const { result } = renderHook(() => useSearchHistory());
 
@@ -88,19 +97,14 @@ describe("useSearchHistory", () => {
       });
 
       expect(result.current.histories).toEqual([]);
-      expect(result.current.error).toBe(
-        `Failed to fetch search histories: ${errorMessage}`
-      );
+      expect(result.current.error).toBe(errorMessage);
     });
 
     it("should handle empty histories", async () => {
-      mockRange.mockResolvedValue({
-        data: [],
-        error: null,
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: async () => [],
       });
-      mockOrder.mockReturnValue({ range: mockRange });
-      mockSelect.mockReturnValue({ order: mockOrder });
-      mockFrom.mockReturnValue({ select: mockSelect });
 
       const { result } = renderHook(() => useSearchHistory());
 
@@ -127,13 +131,10 @@ describe("useSearchHistory", () => {
       ];
 
       // Initial fetch
-      mockRange.mockResolvedValue({
-        data: mockHistories,
-        error: null,
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockHistories,
       });
-      mockOrder.mockReturnValue({ range: mockRange });
-      mockSelect.mockReturnValue({ order: mockOrder });
-      mockFrom.mockReturnValue({ select: mockSelect });
 
       const { result } = renderHook(() => useSearchHistory());
 
@@ -142,24 +143,28 @@ describe("useSearchHistory", () => {
       });
 
       // Delete operation
-      mockEq.mockResolvedValue({
-        data: null,
-        error: null,
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({}),
       });
-      mockDelete.mockReturnValue({ eq: mockEq });
-      mockFrom.mockReturnValue({ delete: mockDelete });
 
       // After deletion, fetch returns empty array
-      mockRange.mockResolvedValue({
-        data: [],
-        error: null,
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => [],
       });
 
       await result.current.deleteHistory("1");
 
-      expect(mockFrom).toHaveBeenCalledWith("search_histories");
-      expect(mockDelete).toHaveBeenCalled();
-      expect(mockEq).toHaveBeenCalledWith("id", "1");
+      expect(mockFetch).toHaveBeenCalledWith(
+        "http://localhost:8000/api/v1/history/1",
+        expect.objectContaining({
+          method: "DELETE",
+          headers: expect.objectContaining({
+            Authorization: "Bearer test-token",
+          }),
+        })
+      );
 
       await waitFor(() => {
         expect(result.current.histories).toEqual([]);
@@ -178,13 +183,11 @@ describe("useSearchHistory", () => {
         },
       ];
 
-      mockRange.mockResolvedValue({
-        data: mockHistories,
-        error: null,
+      // Initial fetch
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockHistories,
       });
-      mockOrder.mockReturnValue({ range: mockRange });
-      mockSelect.mockReturnValue({ order: mockOrder });
-      mockFrom.mockReturnValue({ select: mockSelect });
 
       const { result } = renderHook(() => useSearchHistory());
 
@@ -193,15 +196,15 @@ describe("useSearchHistory", () => {
       });
 
       const errorMessage = "Delete failed";
-      mockEq.mockResolvedValue({
-        data: null,
-        error: { message: errorMessage },
+      // Delete operation fails
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 500,
+        json: async () => ({ message: errorMessage }),
       });
-      mockDelete.mockReturnValue({ eq: mockEq });
-      mockFrom.mockReturnValue({ delete: mockDelete });
 
       await expect(result.current.deleteHistory("1")).rejects.toThrow(
-        `Failed to delete search history: ${errorMessage}`
+        errorMessage
       );
     });
   });
@@ -239,13 +242,10 @@ describe("useSearchHistory", () => {
       ];
 
       // Initial fetch
-      mockRange.mockResolvedValueOnce({
-        data: initialHistories,
-        error: null,
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => initialHistories,
       });
-      mockOrder.mockReturnValue({ range: mockRange });
-      mockSelect.mockReturnValue({ order: mockOrder });
-      mockFrom.mockReturnValue({ select: mockSelect });
 
       const { result } = renderHook(() => useSearchHistory());
 
@@ -256,9 +256,9 @@ describe("useSearchHistory", () => {
       expect(result.current.histories).toEqual(initialHistories);
 
       // Refetch with updated data
-      mockRange.mockResolvedValueOnce({
-        data: updatedHistories,
-        error: null,
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => updatedHistories,
       });
 
       await result.current.refetchHistories();
