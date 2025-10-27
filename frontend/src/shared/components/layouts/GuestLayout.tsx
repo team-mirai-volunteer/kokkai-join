@@ -1,5 +1,5 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { useAuth } from "../../../features/auth/contexts/AuthContext";
+import { useAuth } from "@/features/auth/contexts/AuthContext";
 
 /**
  * GuestLayout - 未認証ユーザー用のレイアウトコンポーネント

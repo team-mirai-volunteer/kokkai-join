@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "../../features/auth/contexts/AuthContext";
+import { useAuth } from "@/features/auth/contexts/AuthContext";
 
 /**
  * AppHeader - アプリケーション共通ヘッダー

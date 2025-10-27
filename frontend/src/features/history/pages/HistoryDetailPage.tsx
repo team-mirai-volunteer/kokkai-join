@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { supabase } from "../../../lib/supabaseClient";
-import type { SearchHistory } from "../../../../../types/supabase.types";
-import "../../../App.css";
+import { supabase } from "@/lib/supabaseClient";
+import type { SearchHistory } from "@/types/supabase.types";
+import "./HistoryDetailPage.css";
 
 /**
  * HistoryDetailPage - 検索履歴詳細ページ
@@ -84,8 +84,7 @@ export default function HistoryDetailPage() {
         <button
           type="button"
           onClick={() => navigate("/histories")}
-          className="submit-button"
-          style={{ marginTop: "1rem" }}
+          className="submit-button back-button"
         >
           履歴一覧に戻る
         </button>
@@ -100,8 +99,7 @@ export default function HistoryDetailPage() {
         <button
           type="button"
           onClick={() => navigate("/histories")}
-          className="submit-button"
-          style={{ marginTop: "1rem" }}
+          className="submit-button back-button"
         >
           履歴一覧に戻る
         </button>
@@ -113,25 +111,13 @@ export default function HistoryDetailPage() {
     <div className="app-container">
       <div className="output-section">
         <div className="markdown-output">
-          <div
-            className="history-detail-header"
-            style={{
-              marginBottom: "2rem",
-              borderBottom: "1px solid #e9ecef",
-              paddingBottom: "1rem",
-            }}
-          >
-            <div
-              className="history-detail-meta"
-              style={{ fontSize: "0.9rem", color: "#6c757d" }}
-            >
+          <div className="history-detail-header">
+            <div className="history-detail-meta">
               <span>
                 検索日時: {new Date(history.created_at).toLocaleString("ja-JP")}
               </span>
               {history.providers.length > 0 && (
-                <span style={{ marginLeft: "1rem" }}>
-                  プロバイダー: {history.providers.join(", ")}
-                </span>
+                <span>プロバイダー: {history.providers.join(", ")}</span>
               )}
             </div>
           </div>

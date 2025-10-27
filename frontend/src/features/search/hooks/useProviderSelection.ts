@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 import { type ProviderType, SELECTABLE_PROVIDERS } from "../types/provider";
-import type { StorageType } from "../../../shared/utils/storage";
+import type { StorageType } from "@/shared/utils/storage";
 
 const storageKey = "selected-providers";
 

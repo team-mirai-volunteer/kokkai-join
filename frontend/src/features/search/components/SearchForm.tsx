@@ -3,9 +3,9 @@ import { FileUploadArea } from "./FileUploadArea";
 import { ProviderSelector } from "./ProviderSelector";
 import { useFileUpload } from "../hooks/useFileUpload";
 import { useProviderSelection } from "../hooks/useProviderSelection";
-import { storage } from "../../../shared/utils/storage";
+import { storage } from "@/shared/utils/storage";
 import type { ProviderType } from "../types/provider";
-import "../../../App.css";
+import "@/shared/styles/global.css";
 
 export interface SearchParams {
   query: string;

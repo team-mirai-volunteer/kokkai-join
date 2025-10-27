@@ -1,4 +1,4 @@
-import type { SearchHistoryListItem } from "../../../../../types/supabase.types";
+import type { SearchHistoryListItem } from "@/types/supabase.types";
 import "./HistoryList.css";
 
 interface HistoryListProps {

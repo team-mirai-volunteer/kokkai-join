@@ -1,7 +1,7 @@
 import { act, renderHook } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { ProviderID, SELECTABLE_PROVIDERS } from "../types/provider";
-import { createStorage } from "../../../shared/utils/storage";
+import { createStorage } from "@/shared/utils/storage";
 import { useProviderSelection } from "./useProviderSelection";
 
 describe("useProviderSelection", () => {

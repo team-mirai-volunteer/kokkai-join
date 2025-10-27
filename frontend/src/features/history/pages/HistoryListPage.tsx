@@ -2,7 +2,7 @@ import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSearchHistory } from "../hooks/useSearchHistory";
 import { HistoryList } from "../components/HistoryList";
-import "../../../App.css";
+import "@/shared/styles/global.css";
 
 /**
  * HistoryListPage - 検索履歴一覧ページ

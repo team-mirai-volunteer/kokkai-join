@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 import type { UploadedFile } from "../types/file";
-import { validateFiles } from "../../../shared/utils/fileValidation";
+import { validateFiles } from "@/shared/utils/fileValidation";
 
 export interface UseFileUploadReturn {
   files: UploadedFile[];

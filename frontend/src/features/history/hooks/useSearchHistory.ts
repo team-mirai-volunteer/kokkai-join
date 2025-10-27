@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import { supabase } from "../../../lib/supabaseClient";
-import type { SearchHistoryListItem } from "../../../../../types/supabase.types";
+import { supabase } from "@/lib/supabaseClient";
+import type { SearchHistoryListItem } from "@/types/supabase.types";
 
 interface UseSearchHistoryReturn {
   histories: SearchHistoryListItem[];

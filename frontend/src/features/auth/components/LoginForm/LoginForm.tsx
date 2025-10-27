@@ -1,5 +1,5 @@
 import { useCallback, useId, useState } from "react";
-import { useAuth } from "../../contexts/AuthContext";
+import { useAuth } from "@/features/auth/contexts/AuthContext";
 import "./LoginForm.css";
 
 interface LoginFormProps {

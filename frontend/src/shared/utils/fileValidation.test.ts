@@ -1,8 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  MAX_FILE_COUNT,
-  MAX_FILE_SIZE,
-} from "../../features/search/types/file";
+import { MAX_FILE_COUNT, MAX_FILE_SIZE } from "@/features/search/types/file";
 import { validateFile, validateFiles } from "./fileValidation";
 
 describe("validateFile", () => {

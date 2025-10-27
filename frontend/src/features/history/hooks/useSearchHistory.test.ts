@@ -1,6 +1,6 @@
 import { renderHook, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import type { SearchHistoryListItem } from "../../../../../types/supabase.types";
+import type { SearchHistoryListItem } from "@/types/supabase.types";
 
 // Mock fetch
 const mockFetch = vi.fn();

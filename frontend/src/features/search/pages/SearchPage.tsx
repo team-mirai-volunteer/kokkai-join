@@ -2,8 +2,8 @@ import { useCallback, useState } from "react";
 import { SearchForm, type SearchParams } from "../components/SearchForm";
 import { SearchResult } from "../components/SearchResult";
 import { useDeepSearch } from "../hooks/useDeepSearch";
-import { useSearchHistory } from "../../history/hooks/useSearchHistory";
-import "../../../App.css";
+import { useSearchHistory } from "@/features/history/hooks/useSearchHistory";
+import "@/shared/styles/global.css";
 
 /**
  * SearchPage - 検索専用ページ
