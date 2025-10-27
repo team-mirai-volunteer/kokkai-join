@@ -83,8 +83,22 @@ function HistoryListItem({ history, onClick, onDelete }: HistoryListItemProps) {
     minute: "2-digit",
   });
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      onClick();
+    }
+  };
+
   return (
-    <div className="history-list-item" onClick={onClick}>
+    // biome-ignore lint/a11y/useSemanticElements: This is a complex card component with nested interactive elements, not a simple button
+    <div
+      className="history-list-item"
+      onClick={onClick}
+      onKeyDown={handleKeyDown}
+      role="button"
+      tabIndex={0}
+    >
       <div className="history-item-header">
         <h3 className="history-item-query">{history.query}</h3>
         <button
