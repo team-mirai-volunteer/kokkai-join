@@ -148,7 +148,7 @@ describe("AppHeader", () => {
   });
 
   it("should display back button on history detail page", () => {
-    const { container } = render(
+    render(
       <MemoryRouter initialEntries={["/histories/test-id"]}>
         <AppHeader />
       </MemoryRouter>,
