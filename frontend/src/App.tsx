@@ -3,6 +3,7 @@ import AuthLayout from "./shared/components/layouts/AuthLayout";
 import GuestLayout from "./shared/components/layouts/GuestLayout";
 import LoginPage from "./features/auth/pages/LoginPage";
 import HistoryPage from "./features/history/pages/HistoryPage";
+import HistoryDetailPage from "./features/history/pages/HistoryDetailPage";
 import { AuthProvider } from "./features/auth/contexts/AuthContext";
 
 /**
@@ -31,6 +32,7 @@ function App() {
           {/* 認証済みルート */}
           <Route element={<AuthLayout />}>
             <Route path="/" element={<HistoryPage />} />
+            <Route path="/history/:id" element={<HistoryDetailPage />} />
           </Route>
 
           {/* 404 */}

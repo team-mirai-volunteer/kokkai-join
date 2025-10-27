@@ -179,3 +179,30 @@ export const Constants = {
     Enums: {},
   },
 } as const;
+
+// Search History types
+export interface SearchHistory {
+  id: string;
+  user_id: string;
+  query: string;
+  providers: string[];
+  result_summary: string | null;
+  result_markdown: string | null;
+  file_names: string[];
+  created_at: string;
+  updated_at: string;
+}
+
+export type SearchHistoryListItem = Pick<
+  SearchHistory,
+  'id' | 'query' | 'providers' | 'result_summary' | 'file_names' | 'created_at'
+>;
+
+export interface SearchHistoryInsert {
+  user_id: string;
+  query: string;
+  providers: string[];
+  result_summary?: string | null;
+  result_markdown?: string | null;
+  file_names?: string[];
+}

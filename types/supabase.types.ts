@@ -6,6 +6,33 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
+// Search History types (defined before Database to allow reference)
+export interface SearchHistory {
+  id: string;
+  user_id: string;
+  query: string;
+  providers: string[];
+  result_summary: string | null;
+  result_markdown: string | null;
+  file_names: string[];
+  created_at: string;
+  updated_at: string;
+}
+
+export type SearchHistoryListItem = Pick<
+  SearchHistory,
+  'id' | 'query' | 'providers' | 'result_summary' | 'file_names' | 'created_at'
+>;
+
+export interface SearchHistoryInsert {
+  user_id: string;
+  query: string;
+  providers: string[];
+  result_summary?: string | null;
+  result_markdown?: string | null;
+  file_names?: string[];
+}
+
 export type Database = {
   graphql_public: {
     Tables: {
@@ -34,7 +61,11 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      search_histories: {
+        Row: SearchHistory
+        Insert: SearchHistoryInsert
+        Update: Partial<SearchHistoryInsert>
+      }
     }
     Views: {
       [_ in never]: never
@@ -176,4 +207,3 @@ export const Constants = {
     Enums: {},
   },
 } as const
-

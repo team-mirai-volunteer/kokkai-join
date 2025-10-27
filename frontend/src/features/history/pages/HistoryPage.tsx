@@ -1,90 +1,79 @@
-import { useCallback, useEffect, useReducer, useState } from "react";
+import { useCallback, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { FileUploadArea } from "../../search/components/FileUploadArea";
-import { ProviderSelector } from "../../search/components/ProviderSelector";
 import { useAuth } from "../../auth/contexts/AuthContext";
+import { useSearchHistory } from "../hooks/useSearchHistory";
+import { HistoryList } from "../components/HistoryList";
+import { SearchForm, type SearchParams } from "../../search/components/SearchForm";
 import { useDeepSearch } from "../../search/hooks/useDeepSearch";
-import { useFileUpload } from "../../search/hooks/useFileUpload";
-import { useProviderSelection } from "../../search/hooks/useProviderSelection";
-import { useStorageCache } from "../../../shared/hooks/useStorageCache";
-import { initialUIState, uiStateReducer } from "../../../reducers/uiStateReducer";
-import type { SearchResult } from "../../search/types/searchResult";
-import { storage } from "../../../shared/utils/storage";
-import "../../../App.css"; // Use existing App.css styles
+import "../../../App.css";
+
+type Tab = "search" | "history";
 
 /**
- * HistoryPage - 検索画面（Phase 1: 既存機能を移行）
+ * HistoryPage - 検索・履歴統合ページ
  *
  * 責務:
- * - Phase 1では既存のApp.tsxの検索機能をここに移動
- * - Phase 3で履歴機能の本格実装に置き換える予定
+ * - 検索機能の提供
+ * - 検索結果の表示
+ * - 検索履歴の一覧表示
+ * - 履歴項目クリックで詳細ページに遷移
+ * - 履歴削除機能
  *
  * 設計原則:
- * - 高凝集: 検索機能に関する状態とロジックをこのページ内に集約
- * - 低結合: カスタムフックを通じて外部機能を利用（useDeepSearch, useFileUpload等）
+ * - 高凝集: 検索と履歴管理に関する状態とロジックをこのページ内に集約
+ * - 低結合: useSearchHistory, useDeepSearchフックを通じてデータを取得
  */
 export default function HistoryPage() {
   const { user, signOut } = useAuth();
-  const [query, setQuery] = useState("");
-  const [uiState, dispatch] = useReducer(uiStateReducer, initialUIState);
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState<Tab>("search");
+  const [searchResult, setSearchResult] = useState<string>("");
+  const [lastQuery, setLastQuery] = useState<string>("");
 
-  const { data: cachedData, setData: setCachedData } =
-    useStorageCache<SearchResult>({
-      key: "deepresearch-cache",
-      storage: storage,
-    });
+  const { histories, loading: historyLoading, error: historyError, deleteHistory, refetchHistories } = useSearchHistory();
+  const { search, loading: searchLoading, error: searchError } = useDeepSearch();
 
-  const { files, addFiles, removeFile, error: fileError } = useFileUpload();
-
-  const { selectedProviders, handleProviderToggle } =
-    useProviderSelection(storage);
-
-  const { search } = useDeepSearch();
-
-  const result = cachedData?.result || "";
-
-  const cachedQuery = cachedData?.query || "";
-  useEffect(() => {
-    if (cachedQuery) setQuery(cachedQuery);
-  }, [cachedQuery]);
-
-  const handleSubmit = useCallback(
-    async (e: React.FormEvent) => {
-      e.preventDefault();
-
-      dispatch({ type: "SEARCH_START" });
-
+  const handleSearch = useCallback(
+    async (params: SearchParams) => {
       try {
-        const encodedFiles =
-          files.length > 0
-            ? files.map((file) => ({
-                name: file.name,
-                content: file.content,
-                mimeType: file.type,
-              }))
-            : undefined;
+        setLastQuery(params.query);
+        const markdown = await search(params);
+        setSearchResult(markdown);
 
-        const markdown = await search({
-          query: query.trim(),
-          providers: selectedProviders,
-          files: encodedFiles,
-        });
-
-        setCachedData({
-          query: query.trim(),
-          result: markdown,
-        });
-
-        dispatch({ type: "SEARCH_SUCCESS" });
+        // Backend automatically saves to history, just refresh the list
+        await refetchHistories();
       } catch (err) {
-        const errorMessage = `エラーが発生しました: ${
-          err instanceof Error ? err.message : "不明なエラー"
-        }`;
-        dispatch({ type: "SEARCH_ERROR", payload: errorMessage });
+        console.error("Search failed:", err);
+        // Error is already handled by useDeepSearch
       }
     },
-    [files, query, selectedProviders, search, setCachedData],
+    [search, refetchHistories]
+  );
+
+  const handleHistoryClick = useCallback(
+    (id: string) => {
+      navigate(`/history/${id}`);
+    },
+    [navigate]
+  );
+
+  const handleHistoryDelete = useCallback(
+    async (id: string) => {
+      if (window.confirm("この検索履歴を削除してもよろしいですか？")) {
+        try {
+          await deleteHistory(id);
+        } catch (err) {
+          alert(
+            `削除に失敗しました: ${
+              err instanceof Error ? err.message : "不明なエラー"
+            }`
+          );
+        }
+      }
+    },
+    [deleteHistory]
   );
 
   const handleSignOut = useCallback(async () => {
@@ -95,69 +84,76 @@ export default function HistoryPage() {
     <div className="app-container">
       <div className="input-section">
         <div className="auth-header">
-          <span className="user-email">{user?.email}</span>
-          <button
-            type="button"
-            onClick={handleSignOut}
-            className="logout-button"
-          >
-            ログアウト
-          </button>
-        </div>
-
-        <form onSubmit={handleSubmit} className="search-form">
-          <div className="search-bar">
-            <input
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="検索キーワードを入力してください..."
-              disabled={uiState.loading}
-              className="query-input"
-            />
-            <ProviderSelector
-              selectedProviders={selectedProviders}
-              onToggle={handleProviderToggle}
-              isOpen={uiState.isDropdownOpen}
-              onOpenChange={(open) =>
-                dispatch({ type: "TOGGLE_DROPDOWN", payload: open })
-              }
-              disabled={uiState.loading}
-            />
+          <h1 style={{ margin: 0, fontSize: "1.5rem" }}>みらい議会 DeepResearch</h1>
+          <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+            <div style={{ display: "flex", gap: "0.5rem" }}>
+              <button
+                type="button"
+                onClick={() => setActiveTab("search")}
+                className={activeTab === "search" ? "submit-button" : "logout-button"}
+                style={{ padding: "0.5rem 1rem" }}
+              >
+                検索
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("history")}
+                className={activeTab === "history" ? "submit-button" : "logout-button"}
+                style={{ padding: "0.5rem 1rem" }}
+              >
+                履歴
+              </button>
+            </div>
+            <span className="user-email">{user?.email}</span>
             <button
-              type="submit"
-              disabled={
-                uiState.loading ||
-                !query.trim() ||
-                selectedProviders.length === 0
-              }
-              className="submit-button"
+              type="button"
+              onClick={handleSignOut}
+              className="logout-button"
             >
-              {uiState.loading ? "検索中..." : "検索"}
+              ログアウト
             </button>
           </div>
-        </form>
+        </div>
 
-        <FileUploadArea
-          files={files}
-          onFilesAdd={addFiles}
-          onFileRemove={removeFile}
-          error={fileError}
-        />
+        {activeTab === "search" && (
+          <SearchForm
+            onSubmit={handleSearch}
+            loading={searchLoading}
+            error={searchError}
+          />
+        )}
 
-        {uiState.error && <div className="error-message">{uiState.error}</div>}
+        {activeTab === "history" && historyError && (
+          <div className="error-message">{historyError}</div>
+        )}
       </div>
 
       <div className="output-section">
-        <div className="markdown-output">
-          {uiState.loading ? (
-            <div className="loading">処理中...</div>
-          ) : result ? (
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>{result}</ReactMarkdown>
-          ) : (
-            <div className="placeholder">検索結果がここに表示されます</div>
-          )}
-        </div>
+        {activeTab === "search" && (
+          <div className="markdown-output">
+            {searchLoading ? (
+              <div className="loading">処理中...</div>
+            ) : searchResult ? (
+              <>
+                <h2>{lastQuery}</h2>
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {searchResult}
+                </ReactMarkdown>
+              </>
+            ) : (
+              <div className="placeholder">検索結果がここに表示されます</div>
+            )}
+          </div>
+        )}
+
+        {activeTab === "history" && (
+          <HistoryList
+            histories={histories}
+            loading={historyLoading}
+            onHistoryClick={handleHistoryClick}
+            onHistoryDelete={handleHistoryDelete}
+          />
+        )}
       </div>
     </div>
   );
