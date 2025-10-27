@@ -98,52 +98,93 @@ describe("HistoryPage", () => {
   });
 
   describe("Tab Navigation", () => {
-    it("should show search tab by default when at root path", () => {
-      render(
+    it("should show search tab by default when at root path", async () => {
+      const { container } = render(
         <MemoryRouter initialEntries={["/"]}>
           <HistoryPage />
         </MemoryRouter>
       );
 
-      const searchButton = screen.getByRole("button", { name: "検索" });
-      expect(searchButton).toHaveClass("submit-button");
+      await waitFor(() => {
+        // Find tab buttons in auth-header
+        const authHeader = container.querySelector(".auth-header");
+        const tabButtons = authHeader?.querySelectorAll("button");
+        const searchTabButton = Array.from(tabButtons || []).find(
+          (btn) => btn.textContent === "検索"
+        );
+        expect(searchTabButton).toHaveClass("submit-button");
+      });
     });
 
-    it("should show history tab when at /histories path", () => {
-      render(
+    it("should show history tab when at /histories path", async () => {
+      const { container } = render(
         <MemoryRouter initialEntries={["/histories"]}>
           <HistoryPage />
         </MemoryRouter>
       );
 
-      const historyButton = screen.getByRole("button", { name: "履歴" });
-      expect(historyButton).toHaveClass("submit-button");
+      await waitFor(() => {
+        const authHeader = container.querySelector(".auth-header");
+        const tabButtons = authHeader?.querySelectorAll("button");
+        const historyTabButton = Array.from(tabButtons || []).find(
+          (btn) => btn.textContent === "履歴"
+        );
+        expect(historyTabButton).toHaveClass("submit-button");
+      });
     });
 
     it("should navigate to root when search tab is clicked", async () => {
       const user = userEvent.setup();
-      render(
+      const { container } = render(
         <MemoryRouter initialEntries={["/histories"]}>
           <HistoryPage />
         </MemoryRouter>
       );
 
-      const searchButton = screen.getByRole("button", { name: "検索" });
-      await user.click(searchButton);
+      await waitFor(() => {
+        const authHeader = container.querySelector(".auth-header");
+        const tabButtons = authHeader?.querySelectorAll("button");
+        const searchTabButton = Array.from(tabButtons || []).find(
+          (btn) => btn.textContent === "検索"
+        ) as HTMLButtonElement;
+        expect(searchTabButton).toBeTruthy();
+      });
+
+      const authHeader = container.querySelector(".auth-header");
+      const tabButtons = authHeader?.querySelectorAll("button");
+      const searchTabButton = Array.from(tabButtons || []).find(
+        (btn) => btn.textContent === "検索"
+      ) as HTMLButtonElement;
+
+      await user.click(searchTabButton);
 
       expect(mockNavigate).toHaveBeenCalledWith("/");
     });
 
     it("should navigate to /histories when history tab is clicked", async () => {
       const user = userEvent.setup();
-      render(
+      const { container } = render(
         <MemoryRouter initialEntries={["/"]}>
           <HistoryPage />
         </MemoryRouter>
       );
 
-      const historyButton = screen.getByRole("button", { name: "履歴" });
-      await user.click(historyButton);
+      await waitFor(() => {
+        const authHeader = container.querySelector(".auth-header");
+        const tabButtons = authHeader?.querySelectorAll("button");
+        const historyTabButton = Array.from(tabButtons || []).find(
+          (btn) => btn.textContent === "履歴"
+        ) as HTMLButtonElement;
+        expect(historyTabButton).toBeTruthy();
+      });
+
+      const authHeader = container.querySelector(".auth-header");
+      const tabButtons = authHeader?.querySelectorAll("button");
+      const historyTabButton = Array.from(tabButtons || []).find(
+        (btn) => btn.textContent === "履歴"
+      ) as HTMLButtonElement;
+
+      await user.click(historyTabButton);
 
       expect(mockNavigate).toHaveBeenCalledWith("/histories");
     });
