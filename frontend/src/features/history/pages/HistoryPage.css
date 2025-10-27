@@ -1,0 +1,13 @@
+.history-page {
+  padding: 24px;
+}
+
+.history-page h1 {
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.history-page .placeholder {
+  margin-top: 16px;
+  color: #666;
+}

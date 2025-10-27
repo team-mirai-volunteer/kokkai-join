@@ -1,0 +1,19 @@
+.auth-layout {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.auth-layout .main-content {
+  flex: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.auth-layout .loading {
+  padding: 24px;
+}
