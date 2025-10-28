@@ -2,9 +2,21 @@ import { describe, expect, it, vi } from "vitest";
 import type { DeepResearchRequestValidated } from "../schemas/deepresearch-validation.js";
 import type { ProgressEvent } from "../types/progress.js";
 import {
-	createMockEmit,
+	type EmitFn,
 	executeDeepResearchStreaming,
 } from "./deepresearch-streaming.js";
+
+/**
+ * テスト用のemit関数を生成
+ * 発生したイベントを配列に記録
+ */
+function createMockEmit(): { emit: EmitFn; events: ProgressEvent[] } {
+	const events: ProgressEvent[] = [];
+	const emit: EmitFn = async (event) => {
+		events.push(event);
+	};
+	return { emit, events };
+}
 
 describe("createMockEmit", () => {
 	it("should record emitted events", () => {

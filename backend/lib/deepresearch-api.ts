@@ -37,6 +37,7 @@ import {
   createSupabaseClient,
   extractToken,
   getAuthenticatedSupabaseClient,
+  validateSupabaseEnv,
 } from "./auth-helpers.js";
 // Local imports
 import { authMiddleware } from "./authMiddleware.js";
@@ -277,6 +278,15 @@ class KokkaiDeepResearchAPI {
   async initialize(): Promise<void> {
     config();
     console.log("🚀 Initializing Kokkai Deep Research API (provider-based)...");
+
+    // Validate Supabase environment variables early
+    try {
+      validateSupabaseEnv();
+      console.log("✅ Supabase environment validated");
+    } catch (error) {
+      console.error("❌ Supabase environment validation failed:", (error as Error).message);
+      throw error;
+    }
 
     // Initialize services
     this.queryPlanningService = new QueryPlanningService();

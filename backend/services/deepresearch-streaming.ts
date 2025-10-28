@@ -4,7 +4,6 @@ import {
 	SECTION_TARGET_COUNTS,
 } from "../config/deepresearch-constants.js";
 import type { SearchProvider } from "../providers/base.js";
-import type { ProviderRegistry } from "../providers/registry.js";
 import type { DeepResearchRequestValidated } from "../schemas/deepresearch-validation.js";
 import type {
 	DeepResearchResponse,
@@ -15,16 +14,12 @@ import { toEvidenceRecord } from "../types/deepresearch.js";
 import type { DocumentResult } from "../types/knowledge.js";
 import type { ProgressEvent } from "../types/progress.js";
 import { convertDeepResearchToMarkdown } from "../utils/markdown-converter.js";
-import type { DeepResearchOrchestrator } from "./deepresearch-orchestrator.js";
-import type { PDFSectionExtractionService } from "./pdf-section-extraction.js";
-import type { QueryPlanningService } from "./query-planning.js";
-import type { SectionSynthesisService } from "./section-synthesis.js";
 
 /**
  * IO関数の型定義
  * 進捗イベントを送信する関数
  */
-export type EmitFn = (event: ProgressEvent) => void;
+export type EmitFn = (event: ProgressEvent) => Promise<void>;
 
 /**
  * Hono用のemit関数を生成
@@ -33,23 +28,11 @@ export type EmitFn = (event: ProgressEvent) => void;
 export function createHonoEmit(stream: {
 	writeSSE: (message: { data: string; event?: string }) => Promise<void>;
 }): EmitFn {
-	return (event: ProgressEvent) => {
+	return async (event: ProgressEvent) => {
 		const data = JSON.stringify(event);
 		// SSEイベント名を'progress'に統一
-		stream.writeSSE({ data, event: "progress" });
+		await stream.writeSSE({ data, event: "progress" });
 	};
-}
-
-/**
- * テスト用のemit関数を生成
- * 発生したイベントを配列に記録
- */
-export function createMockEmit(): { emit: EmitFn; events: ProgressEvent[] } {
-	const events: ProgressEvent[] = [];
-	const emit: EmitFn = (event) => {
-		events.push(event);
-	};
-	return { emit, events };
 }
 
 /**
@@ -137,7 +120,7 @@ export async function executeDeepResearchStreaming(
 	try {
 		// ステップ1: クエリプランニング
 		currentStep = 1;
-		emit({
+		await emit({
 			type: "progress",
 			step: currentStep,
 			totalSteps,
@@ -156,7 +139,7 @@ export async function executeDeepResearchStreaming(
 		const sectionTotal = 9;
 		let sectionCompleted = 0;
 
-		emit({
+		await emit({
 			type: "progress",
 			step: currentStep,
 			totalSteps,
@@ -172,6 +155,8 @@ export async function executeDeepResearchStreaming(
 		// 進捗コールバック
 		const onSectionComplete = () => {
 			sectionCompleted++;
+			// Note: この関数は同期的に呼ばれるため、awaitできない
+			// emitは非同期だが、ここでは結果を待たずに次に進む
 			emit({
 				type: "progress",
 				step: currentStep,
@@ -190,12 +175,12 @@ export async function executeDeepResearchStreaming(
 			onSectionComplete,
 		});
 
-		let { finalDocs, sectionHitMap, iterations } = orchestratorResult;
+		const { finalDocs, sectionHitMap, iterations } = orchestratorResult;
 
 		// ステップ3: PDF抽出（ファイルがある場合）
 		if (request.files && request.files.length > 0) {
 			currentStep = 3;
-			emit({
+			await emit({
 				type: "progress",
 				step: currentStep,
 				totalSteps,
@@ -239,7 +224,7 @@ export async function executeDeepResearchStreaming(
 		// ステップ4: 証拠レコード構築（重複除去を含む）
 		// ファイルがない場合は、このステップが実質的にステップ3になる
 		currentStep = hasFiles ? 4 : 3;
-		emit({
+		await emit({
 			type: "progress",
 			step: currentStep,
 			totalSteps,
@@ -252,13 +237,25 @@ export async function executeDeepResearchStreaming(
 		// ステップ5: セクション統合
 		// ファイルがない場合は、このステップが実質的にステップ4になる
 		currentStep = hasFiles ? 5 : 4;
-		emit({
+		await emit({
 			type: "progress",
 			step: currentStep,
 			totalSteps,
 			stepName: STEP_NAMES[5],
 			message: "AIが回答を生成しています...",
 		});
+
+		// 0件の場合は早期リターン（LLMを呼ばない）
+		if (evidences.length === 0) {
+			console.log("[Streaming] No evidences found, sending empty result");
+			const emptyMarkdown = `# ${request.query}\n\n## 検索結果\n\n検索条件に一致する情報が見つかりませんでした。\n\n以下の点をお試しください：\n- 検索キーワードを変更する\n- より一般的な用語を使用する\n- 検索対象を増やす`;
+
+			await emit({
+				type: "complete",
+				data: emptyMarkdown,
+			});
+			return;
+		}
 
 		const sections = await services.sectionSynthesis.synthesize(
 			request.query,
@@ -285,14 +282,18 @@ export async function executeDeepResearchStreaming(
 
 		const markdown = convertDeepResearchToMarkdown(response);
 
+		console.log(
+			`[Streaming] Sending complete event (markdown length: ${markdown.length}, evidences: ${evidences.length})`,
+		);
+
 		// 完了
-		emit({
+		await emit({
 			type: "complete",
 			data: markdown,
 		});
 	} catch (error) {
 		// エラー時は発生したステップ情報を含める
-		emit({
+		await emit({
 			type: "error",
 			step: currentStep,
 			stepName:

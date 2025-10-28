@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import type { ProviderType } from "../types/provider";
 import type { ProgressEvent, ProgressState } from "../types/progress";
+import type { ProviderType } from "../types/provider";
 
 export interface SearchParams {
 	query: string;
@@ -133,6 +133,7 @@ export function useStreamingSearch(
 							});
 						} else if (event.type === "complete") {
 							// Save final result
+							console.log("[SSE] Received complete event, data length:", event.data.length);
 							finalResult = event.data;
 						} else if (event.type === "error") {
 							// Handle error event
@@ -141,7 +142,7 @@ export function useStreamingSearch(
 					}
 				}
 
-				if (!finalResult) {
+				if (finalResult === undefined || finalResult === null || finalResult === "") {
 					throw new Error("No result received from server");
 				}
 
