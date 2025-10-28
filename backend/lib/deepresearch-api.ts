@@ -12,8 +12,8 @@ import { ProviderRegistry } from "../providers/registry.js";
 import { DeepResearchRequestSchema } from "../schemas/deepresearch-validation.js";
 import { DeepResearchOrchestrator } from "../services/deepresearch-orchestrator.js";
 import {
-	createHonoEmit,
-	executeDeepResearchStreaming,
+  createHonoEmit,
+  executeDeepResearchStreaming,
 } from "../services/deepresearch-streaming.js";
 import { PDFSectionExtractionService } from "../services/pdf-section-extraction.js";
 import { QueryPlanningService } from "../services/query-planning.js";
@@ -103,7 +103,8 @@ class KokkaiDeepResearchAPI {
             // Save search history after streaming completes
             try {
               const { supabase } = getAuthenticatedSupabaseClient(c);
-              const fileNames = request.files?.map((f) => ({ name: f.name })) || [];
+              const fileNames =
+                request.files?.map((f) => ({ name: f.name })) || [];
 
               await executeSearchAndSaveHistory(supabase, {
                 query: request.query,
@@ -234,7 +235,10 @@ class KokkaiDeepResearchAPI {
       validateSupabaseEnv();
       console.log("✅ Supabase environment validated");
     } catch (error) {
-      console.error("❌ Supabase environment validation failed:", (error as Error).message);
+      console.error(
+        "❌ Supabase environment validation failed:",
+        (error as Error).message,
+      );
       throw error;
     }
 

@@ -61,6 +61,27 @@ Specialized agent for implementing meaningful tests in the React frontend follow
 
 ### 4. Specific Rules for This Project
 
+#### General Rules
+**❌ NEVER USE DYNAMIC IMPORTS IN TESTS**:
+```typescript
+// BAD: Dynamic imports are prohibited
+const fs = await import("node:fs")
+const path = await import("node:path")
+
+// GOOD: Use static imports at the top of the file
+import { readFileSync } from "node:fs"
+import { join } from "node:path"
+```
+
+**✅ FIXTURE FILES**:
+- Place test data files in `frontend/fixtures/` directory
+- Use static imports to read fixture files
+- Example: `readFileSync(join(process.cwd(), "fixtures", "chunks.txt"), "utf-8")`
+
+**✅ TEST EXECUTION**:
+- Always use `npm test` to run frontend tests
+- Do NOT use `bun test` - it will not work correctly
+
 #### When Testing Components with Routing
 **✅ DO THIS**:
 ```typescript

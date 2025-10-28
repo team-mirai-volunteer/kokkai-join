@@ -1,0 +1,5270 @@
+event: progress
+data: {"type":"progress","step":1,"totalSteps":4,"stepName":"クエリプランニング","message":"クエリを分析しています..."}
+
+event: progress
+data: {"type":"progress","step":2,"totalSteps":4,"stepName":"セクション別検索","sectionProgress":{"completed":0,"total":9}}
+
+event: progress
+data: {"type":"progress","step":2,"totalSteps":4,"stepName":"セクション別検索","sectionProgress":{"completed":1,"total":9}}
+
+event: progress
+data: {"type":"progress","step":2,"totalSteps":4,"stepName":"セクション別検索","sectionProgress":{"completed":2,"total":9}}
+
+event: progress
+data: {"type":"progress","step":2,"totalSteps":4,"stepName":"セクション別検索","sectionProgress":{"completed":3,"total":9}}
+
+event: progress
+data: {"type":"progress","step":2,"totalSteps":4,"stepName":"セクション別検索","sectionProgress":{"completed":4,"total":9}}
+
+event: progress
+data: {"type":"progress","step":2,"totalSteps":4,"stepName":"セクション別検索","sectionProgress":{"completed":5,"total":9}}
+
+event: progress
+data: {"type":"progress","step":2,"totalSteps":4,"stepName":"セクション別検索","sectionProgress":{"completed":6,"total":9}}
+
+event: progress
+data: {"type":"progress","step":2,"totalSteps":4,"stepName":"セクション別検索","sectionProgress":{"completed":7,"total":9}}
+
+event: progress
+data: {"type":"progress","step":3,"totalSteps":4,"stepName":"証拠レコード構築","message":"ドキュメントを整理しています..."}
+
+event: progress
+data: {"type":"progress","step":4,"totalSteps":4,"stepName":"セクション統合","message":"AIが回答を生成しています..."}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"#"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":" 政"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"治"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"資"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"金"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"パ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ーティ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ー"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"について"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"\n\n"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"*"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"202"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"5"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"-"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"10"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"-"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"28"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"時"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"点"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"情報"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"*\n\n"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"##"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":" 法"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"案"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"目的"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"や"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"概要"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"\n\n"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"政治"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"資"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"金"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"パ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ーティ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ー"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"は"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"、"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"参加"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"者"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"から"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"対"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"価"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"を"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"徴"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"収"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"して"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"行"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"う"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"催"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"物"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"で"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"あり"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"、その"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"対"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"価"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"収"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"入"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"から"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"経"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"費"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"を"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"差"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"し"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"引"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"いた"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"残"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"額"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"を"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"政治"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"活動"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"に"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"支"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"出"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"する"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"もの"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"と"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"定"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"義"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"され"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"て"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"いる"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"[^"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"1"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"]"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"。\n\n"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"##"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":" 現"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"在"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"審"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"議"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"状"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"況"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"（"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"検索"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ベ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ース"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"）\n\n"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"衆"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"議"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"院"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"特"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"別"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"委"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"員"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"会"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"では"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"、"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"外国"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"人"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"によ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"る"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"政治"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"資"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"金"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"パ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ーティ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ー"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"券"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"購入"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"を"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"禁止"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"する"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"方向"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"で"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"与"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"野"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"党"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"が"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"一致"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"する"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"など"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"、"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"政治"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"資"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"金"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"規"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"正"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"法"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"再"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"改"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"正"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"に"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"向"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"け"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"た"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"議"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"論"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"が"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"進"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ん"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"で"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"いる"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"[^"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"2"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"]"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"。\n\n"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"##"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":" 審"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"議"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"プロ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"セ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ス"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"タイ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ム"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ライン"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"\n\n"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"-"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":" **"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"202"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"4"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"-"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"02"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"-"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"28"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"**"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":":"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":" 衆"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"議"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"院"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"財"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"務"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"金融"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"委"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"員"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"会"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"で"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"政治"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"資"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"金"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"規"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"正"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"法"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"第"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"8"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"条"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"2"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"（"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"政治"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"資"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"金"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"パ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ーティ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ー"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"定"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"義"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"等"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"）"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"に"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"関"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"する"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"説明"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"が"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"行"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"われ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"た"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"[^"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"3"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"]."}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"  \n"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"-"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":" **"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"202"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"4"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"-"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"04"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"-"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"26"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"**"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":":"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":" 自"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"民"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"・"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"公"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"明"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"が"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"収"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"支"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"報"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"告"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"書"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"オンライン"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"提出"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"と"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"公"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"表"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"義"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"務"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"化"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"で"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"一致"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"し"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"、"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"規"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"正"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"法"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"改"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"正"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"に"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"向"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"け"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"た"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"協"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"議"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"が"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"進"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"展"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"した"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"[^"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"4"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"].\n\n"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"##"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":" 法"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"改"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"正"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"重要"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ポイント"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"\n\n"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"-"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":" 外"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"国"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"人"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"によ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"る"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"パ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ーティ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ー"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"券"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"購入"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"禁止"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"や"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"、"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"違"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"反"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"時"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"第三"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"者"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"機"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"関"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"設"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"置"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"など"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"を"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"盛"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"り"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"込"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ん"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"だ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"改"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"正"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"案"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"提出"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"[^"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"5"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"]."}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"  \n"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"-"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":" "}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"収"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"支"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"報"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"告"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"電子"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"化"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"・"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"公"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"表"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"義"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"務"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"化"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"など"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"、"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"デ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ジ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"タ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ル"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"化"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"と"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"透明"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"化"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"を"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"進"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"め"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"る"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"改"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"正"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"解"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"説"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"・"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"整"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"備"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"[^"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"6"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"].\n\n"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"##"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":" 法"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"案"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"提出"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"まで"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"経"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"緯"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"（"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"背景"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"）\n\n"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"政治"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"資"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"金"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"パ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ーティ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ー"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"は"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"法"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"的"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"に"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"認"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"め"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ら"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"れ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"た"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"資"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"金"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"調"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"達"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"手"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"段"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"で"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"あり"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"、"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"パ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ーティ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ー"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"券"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"収"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"入"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"から"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"会"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"場"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"費"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"や"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"提供"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"物"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"など"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"経"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"費"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"を"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"差"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"し"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"引"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"いた"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"「"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"利益"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"」を"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"政治"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"活動"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"資"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"金"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"と"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"する"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"制度"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"で"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ある"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"こと"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"から"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"、"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"寄"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"附"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"に"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"比"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"べ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"公"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"表"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"基"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"準"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"が"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"緩"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"い"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"と"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"指"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"摘"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"され"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"て"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"き"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"た"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"こと"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"が"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"改"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"正"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"議"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"論"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"背景"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"とな"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"って"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"いる"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"[^"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"7"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"]"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"。\n\n"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"##"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":" "}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"主要"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"な"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"論"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"点"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"（"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"審"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"議"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"・"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"実"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"務"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"で"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"指"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"摘"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"された"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"主"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"な"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ポイント"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"）\n\n"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"-"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":" "}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"参加"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"費"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"と"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"経"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"費"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"との差"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"額"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"が"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"高"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"い"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"場合"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"に"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"「"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"実"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"質"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"的"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"な"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"寄"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"附"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"」"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"や"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"透明"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"性"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"欠"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"如"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"が"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"問題"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"とな"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"る"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"点"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"[^"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"8"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"]."}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"  \n"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"-"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":" 政"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"治"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"資"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"金"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"パ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ーティ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ー"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"全面"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"禁止"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"や"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"制"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"限"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"が"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"、"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"憲"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"法"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"上"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"政治"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"活動"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"自由"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"など"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"に"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"抵"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"触"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"する"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"か"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"どう"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"か"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"という"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"論"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"点"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"[^"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"9"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"].\n\n"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"##"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":" 法"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"改"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"正"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"理由"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"\n\n"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"-"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":" パ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ーティ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ー"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"開催"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"で"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"高"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"い"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"利益"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"率"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"（"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"報"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"道"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"例"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"では"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"9"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"割"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"超"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"）"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"とな"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"る"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"事"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"例"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"が"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"あり"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"、「"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"実"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"質"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"献"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"金"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"」と"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"批"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"判"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"が"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ある"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ため"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"[^"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"10"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"]."}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"  \n"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"-"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":" 一"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"部"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"で"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"パ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ーティ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ー"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"券"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"売"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"上"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"キ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ック"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"バック"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"や"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"収"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"支"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"報"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"告"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"不"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"備"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"・"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"裏"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"金"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"化"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"と"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"い"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"った"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"問題"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"が"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"指"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"摘"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"され"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"、"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"制度"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"上"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"抜"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"本"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"的"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"検"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"討"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"が"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"求"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"め"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ら"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"れて"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"いる"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ため"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"[^"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"11"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"].\n\n"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"##"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":" 改"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"正"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"で"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"影"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"響"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"を"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"受"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"け"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"る"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"もの"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"\n\n"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"###"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":" 政"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"党"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"・"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"派"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"閥"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"資"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"金"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"収"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"入"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"\n\n"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"概要"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":":"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":" 政"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"治"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"資"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"金"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"パ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ーティ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ー"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"収"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"入"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"は"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"政"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"党"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"や"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"党"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"内"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"派"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"閥"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"重要"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"な"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"収"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"入"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"源"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"とな"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"って"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"いる"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"。"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"  \n"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"理由"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":":"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":" 総"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"務"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"省"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"公"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"表"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"報"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"告"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"等"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"では"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"パ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ーティ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ー"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"収"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"入"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"が"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"増"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"加"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"して"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"お"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"り"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"、"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"全"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"体"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"収"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"入"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"に"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"占"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"め"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"る"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"金"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"額"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"（"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"例"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":":"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":" 年"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"間"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"数"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"十"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"億"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"円"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"規"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"模"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"）の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"増"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"加"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"が"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"確認"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"され"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"て"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"いる"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"[^"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"12"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"].\n\n"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"###"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":" 政"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"治"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"資"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"金"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"報"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"告"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"・"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"監"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"査"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"体"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"制"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"\n\n"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"概要"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":":"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":" "}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"収"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"支"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"報"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"告"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"様"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"式"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"、"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"提出"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"方法"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"、"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"監"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"査"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"・"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"監"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"視"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"体"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"制"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"強"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"化"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"が"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"必要"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"とな"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"る"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"。"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"  \n"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"理由"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":":"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":" 派"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"閥"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"収"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"入"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"多"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"く"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"が"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"パ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ーティ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ー"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"収"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"入"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"に"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"依"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"存"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"して"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"いる"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"実"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"態"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"（"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"例"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":":"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":" 一"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"部"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"派"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"閥"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"では"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"収"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"入"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"約"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"92"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"%"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"が"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"パ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ーティ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ー"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"収"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"入"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"）"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"を"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"踏"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ま"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"え"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"、"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"報"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"告"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"義"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"務"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"・"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"監"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"査"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"見"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"直"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"し"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"が"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"議"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"論"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"され"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"て"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"いる"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"[^"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"13"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"].\n\n"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"##"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":" 過"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"去"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"議"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"論"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"要"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"約"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"\n\n"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"政治"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"資"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"金"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"に"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"関"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"する"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"制度"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"改"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"正"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"は"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"、"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"戦"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"後"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"大"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"疑"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"獄"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"事件"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"や"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"不"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"正"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"発"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"覚"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"を"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"契"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"機"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"に"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"段"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"階"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"的"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"に"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"行"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"われ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"て"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"き"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"た"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"。"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"年"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"表"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"解"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"説"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"によ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"れば"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"、"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"194"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"8"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"年"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"大"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"事件"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"以"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"降"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"、"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"重要"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"な"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"事件"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"を"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"契"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"機"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"に"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"政治"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"資"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"金"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"規"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"正"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"法"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"成立"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"や"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"改"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"正"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"が"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"続"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"き"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"、"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"202"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"4"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"年"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"頃"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"派"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"閥"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"パ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ーティ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ー"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"を"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"め"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ぐ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"る"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"問題"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"も"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"その"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"流"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"れ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"一"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"部"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"として"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"位置"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"付"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"け"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ら"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"れて"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"いる"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"[^"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"14"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"]"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"。\n\n"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"---\n\n"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"[^"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"1"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"]:"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":" ["}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"政治"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"資"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"金"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"規"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"正"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"法"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"に"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"お"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"け"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"る"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"寄"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"附"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"制"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"限"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"等"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"／"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"長"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"野"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"県"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"]("}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"https"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"://"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"www"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":".pref"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":".n"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ag"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ano"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":".l"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"g"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":".jp"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"/s"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"en"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"kan"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"/k"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ense"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"i"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"/s"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"osh"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"iki"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"/s"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"osh"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"iki"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"/"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ken"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"cho"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"/s"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"enk"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"yo"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"/s"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"enk"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"yo"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"/sh"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ik"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"umi"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"/k"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ifu"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"/k"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"if"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"uk"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"inshi"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"-se"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ij"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ish"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ikin"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":".html"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":")"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"  \n"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"[^"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"2"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"]:"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":" ["}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"「"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"外国"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"人"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"によ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"る"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"政治"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"資"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"金"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"パ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ーティ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ー"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"券"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"購入"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"禁止"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"」で"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"与"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"野"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"党"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"一致"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"]("}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"https"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"://"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"news"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":".tv"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"-as"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ahi"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":".co"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":".jp"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"/news"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"_p"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"olit"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ics"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"/articles"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"/"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"000"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"391"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"349"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":".html"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":")"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"  \n"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"[^"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"3"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"]:"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":" ["}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"第"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"213"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"回"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"国"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"会"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"　"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"衆"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"議"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"院"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"　"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"財"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"務"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"金融"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"委"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"員"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"会"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"　第"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"5"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"号"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"　"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"令"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"和"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"6"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"年"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"2"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"月"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"28"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"日"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"]("}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"https"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"://"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"kok"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"kai"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":".nd"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"l"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":".go"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":".jp"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"/simple"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"/t"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"xt"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"/"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"121"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"304"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"376"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"X"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"005"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"202"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"402"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"28"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":")"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"  \n"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"[^"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"4"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"]:"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":" ["}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"収"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"支"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"報"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"告"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"書"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"オンライン"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"提出"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"を"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"義"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"務"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"化"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"　"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"自"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"公"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"で"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"一致"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"　"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"規"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"正"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"法"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"改"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"正"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"に"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"向"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"け"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"]("}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"https"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"://"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"news"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":".tv"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"-as"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ahi"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":".co"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":".jp"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"/news"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"_p"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"olit"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ics"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"/articles"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"/"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"000"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"347"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"073"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":".html"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":")"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"  \n"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"[^"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"5"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"]:"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":" ["}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"国"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"民"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"民主"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"、"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"規"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"正"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"法"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"改"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"正"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"案"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"を"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"提出"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"　"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"パ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ーティ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ー"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"規"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"制"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"・"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"第三"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"者"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"機"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"関"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"設"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"置"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"]("}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"https"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"://"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"www"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":".as"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ahi"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":".com"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"/articles"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"/"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ASS"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"653"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"PQ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"PS"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"65"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"UTF"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"K"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"00"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ZM"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":".html"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":")"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"  \n"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"[^"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"6"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"]:"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":" ["}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"政治"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"資"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"金"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"・"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"政"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"党"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"助"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"成"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"しく"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"み"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"|"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"政治"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"団"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"体"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"/"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"政治"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"資"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"金"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"|"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"東京都"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"選"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"挙"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"管理"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"委"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"員"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"会"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"]("}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"https"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"://"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"www"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":".s"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"enk"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"yo"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":".metro"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":".t"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ok"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"yo"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":".l"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"g"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":".jp"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"/"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"organization"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"/sh"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ik"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"umi"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"/)"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"  \n"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"[^"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"7"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"]:"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":" ["}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"〖"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"そ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"も"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"そ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"も"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"解"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"説"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"〗"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"政治"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"資"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"金"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"パ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ーティ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ー"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"、"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"寄"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"付"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"より"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"甘"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"い"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"公"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"表"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ル"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ール"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"]("}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"https"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"://"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"www"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":".as"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ahi"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":".com"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"/articles"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"/"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"AS"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"R"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"CS"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"6"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"H"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"2"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"BR"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"CS"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"UTIL"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"01"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"R"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":".html"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":")"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"  \n"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"[^"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"8"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"]:"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":" ["}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"政治"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"資"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"金"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"パ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ーティ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ー"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"は"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"必要"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"？"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"「"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"リ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ター"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ン"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"は"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"コ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"スト"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"倍"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"以上"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"か"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"」"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"市"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"民"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"感"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"覚"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"と"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"離"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"れ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"た"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"政"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"界"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"常"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"識"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"　"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"安"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"倍"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"派"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"“"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"裏"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"金"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"疑"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"惑"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"”"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"で"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"注"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"目"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"]("}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"https"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"://"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"www"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":".at"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"-s"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":".com"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"/l"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ife"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"/article"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"/"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ats"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"/"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"137"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"797"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"1"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":".html"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":")"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"  \n"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"[^"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"9"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"]:"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":" ["}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"政治"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"資"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"金"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"パ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ーティ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ー"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"禁止"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"は"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"政治"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"活動"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"制"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"限"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"か"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"　"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"規"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"正"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"法"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"改"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"正"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"で"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"与"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"野"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"党"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"論"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"戦"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"]("}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"https"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"://"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"www"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":".as"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ahi"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":".com"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"/articles"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"/"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ASS"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"5"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"S"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"3"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"J"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"2"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"YS"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"5"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"S"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"UTF"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"K"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"00"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"CM"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":".html"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":")"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"  \n"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"[^"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"10"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"]:"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":" ["}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"政治"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"資"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"金"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"パ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ーティ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ー"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"利益"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"率"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"9"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"割"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"超"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"も"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"　"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"「"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"実"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"質"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"献"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"金"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"」"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"指"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"摘"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"も"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"低"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"い"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"透明"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"性"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"]("}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"https"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"://"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"www"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":".as"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ahi"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":".com"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"/articles"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"/"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ASS"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"225"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"TK"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"7"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"S"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"1"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"MO"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"X"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"IE"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"043"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":".html"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":")"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"  \n"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"[^"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"11"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"]:"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":" ["}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"自"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"民"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"党"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"派"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"閥"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"によ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"る"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"パ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ーティ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ー"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"収"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"入"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"裏"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"金"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"化"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"事件"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"、"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"捜"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"査"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"見"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"通"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"し"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"と"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"問題"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"点"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"を"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"元"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"検"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"事"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"が"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"解"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"説"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"]("}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"https"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"://"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"gl"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"obe"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":".as"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ahi"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":".com"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"/article"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"/"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"150"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"922"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"14"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":")"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"  \n"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"[^"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"12"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"]:"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":" ["}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"政治"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"資"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"金"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"パ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ーティ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ー"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"収"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"入"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":" "}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"2"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"年"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"連"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"続"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"増"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"加"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"87"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"億"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"円"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"]("}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"https"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"://"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"news"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":".tv"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"-as"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ahi"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":".co"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":".jp"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"/news"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"_p"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"olit"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ics"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"/articles"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"/"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"000"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"388"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"112"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":".html"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":")"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"  \n"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"[^"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"13"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"]:"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":" ["}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"派"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"閥"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"収"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"入"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"約"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"12"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"億"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"円"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":" パ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ーティ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ー"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"が"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"8"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"割"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"]("}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"https"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"://"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"news"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":".tv"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"-as"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ahi"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":".co"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":".jp"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"/news"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"_p"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"olit"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ics"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"/articles"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"/"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"000"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"325"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"643"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":".html"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":")"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"  \n"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"[^"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"14"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"]:"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":" ["}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"〖"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"年"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"表"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"解"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"説"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"〗"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"政治"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"と"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"カ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ネ"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"の"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"戦"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"後"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"史"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"]("}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"https"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"://"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"im"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"idas"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":".jp"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"/j"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ij"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ik"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ait"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"ai"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"/c"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"-"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"40"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"-"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"158"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"-"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"24"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"-"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"02"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"-g"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":"241"}
+
+event: progress
+data: {"type":"synthesis_chunk","chunk":")"}
+
+event: progress
+data: {"type":"complete","data":"# 政治資金パーティーについて\n\n*2025-10-28時点の情報*\n\n## 法案の目的や概要\n\n政治資金パーティーは、参加者から対価を徴収して行う催物であり、その対価収入から経費を差し引いた残額を政治活動に支出するものと定義されている[^1]。\n\n## 現在の審議状況（検索ベース）\n\n衆議院の特別委員会では、外国人による政治資金パーティー券の購入を禁止する方向で与野党が一致するなど、政治資金規正法の再改正に向けた議論が進んでいる[^2]。\n\n## 審議プロセスのタイムライン\n\n- **2024-02-28**: 衆議院財務金融委員会で政治資金規正法第8条の2（政治資金パーティーの定義等）に関する説明が行われた[^3].  \n- **2024-04-26**: 自民・公明が収支報告書のオンライン提出と公表義務化で一致し、規正法改正に向けた協議が進展した[^4].\n\n## 法改正の重要ポイント\n\n- 外国人によるパーティー券購入の禁止や、違反時の第三者機関設置などを盛り込んだ改正案の提出[^5].  \n- 収支報告の電子化・公表義務化など、デジタル化と透明化を進める改正の解説・整備[^6].\n\n## 法案提出までの経緯（背景）\n\n政治資金パーティーは法的に認められた資金調達手段であり、パーティー券収入から会場費や提供物などの経費を差し引いた「利益」を政治活動資金とする制度であることから、寄附に比べ公表基準が緩いと指摘されてきたことが改正議論の背景となっている[^7]。\n\n## 主要な論点（審議・実務で指摘された主なポイント）\n\n- 参加費と経費との差額が高い場合に「実質的な寄附」や透明性の欠如が問題となる点[^8].  \n- 政治資金パーティーの全面禁止や制限が、憲法上の政治活動の自由などに抵触するかどうかという論点[^9].\n\n## 法改正の理由\n\n- パーティー開催で高い利益率（報道例では9割超）となる事例があり、「実質献金」との批判があるため[^10].  \n- 一部でパーティー券売上のキックバックや収支報告の不備・裏金化といった問題が指摘され、制度上の抜本的検討が求められているため[^11].\n\n## 改正で影響を受けるもの\n\n### 政党・派閥の資金収入\n\n概要: 政治資金パーティー収入は政党や党内派閥の重要な収入源となっている。  \n理由: 総務省公表の報告等ではパーティー収入が増加しており、全体の収入に占める金額（例: 年間数十億円規模）の増加が確認されている[^12].\n\n### 政治資金の報告・監査体制\n\n概要: 収支報告の様式、提出方法、監査・監視体制の強化が必要となる。  \n理由: 派閥収入の多くがパーティー収入に依存している実態（例: 一部派閥では収入の約92%がパーティー収入）を踏まえ、報告義務・監査の見直しが議論されている[^13].\n\n## 過去の議論の要約\n\n政治資金に関する制度改正は、戦後の大疑獄事件や不正発覚を契機に段階的に行われてきた。年表解説によれば、1948年の大事件以降、重要な事件を契機に政治資金規正法の成立や改正が続き、2024年頃の派閥パーティーをめぐる問題もその流れの一部として位置付けられている[^14]。\n\n---\n\n[^1]: [政治資金規正法における寄附の制限等／長野県](https://www.pref.nagano.lg.jp/senkan/kensei/soshiki/soshiki/kencho/senkyo/senkyo/shikumi/kifu/kifukinshi-seijishikin.html)  \n[^2]: [「外国人による政治資金パーティー券の購入禁止」で与野党一致](https://news.tv-asahi.co.jp/news_politics/articles/000391349.html)  \n[^3]: [第213回国会　衆議院　財務金融委員会　第5号　令和6年2月28日](https://kokkai.ndl.go.jp/simple/txt/121304376X00520240228)  \n[^4]: [収支報告書のオンライン提出を義務化　自公で一致　規正法改正に向け](https://news.tv-asahi.co.jp/news_politics/articles/000347073.html)  \n[^5]: [国民民主、規正法改正案を提出　パーティー規制・第三者機関設置](https://www.asahi.com/articles/ASS653PQPS65UTFK00ZM.html)  \n[^6]: [政治資金・政党助成のしくみ|政治団体/政治資金|東京都選挙管理委員会](https://www.senkyo.metro.tokyo.lg.jp/organization/shikumi/)  \n[^7]: [〖そもそも解説〗政治資金パーティー、寄付より甘い公表のルール](https://www.asahi.com/articles/ASRCS6H2BRCSUTIL01R.html)  \n[^8]: [政治資金パーティーは必要？「リターンはコストの倍以上か」市民感覚と離れた政界の常識　安倍派の“裏金疑惑”で注目](https://www.at-s.com/life/article/ats/1377971.html)  \n[^9]: [政治資金パーティー禁止は政治活動の制限か　規正法改正で与野党論戦](https://www.asahi.com/articles/ASS5S3J2YS5SUTFK00CM.html)  \n[^10]: [政治資金パーティー利益率9割超も　「実質献金」指摘も低い透明性](https://www.asahi.com/articles/ASS225TK7S1MOXIE043.html)  \n[^11]: [自民党の派閥によるパーティー収入の裏金化事件、捜査の見通しと問題点を元検事が解説](https://globe.asahi.com/article/15092214)  \n[^12]: [政治資金パーティー収入 2年連続増加の87億円](https://news.tv-asahi.co.jp/news_politics/articles/000388112.html)  \n[^13]: [派閥収入約12億円 パーティーが8割](https://news.tv-asahi.co.jp/news_politics/articles/000325643.html)  \n[^14]: [〖年表解説〗政治とカネの戦後史](https://imidas.jp/jijikaitai/c-40-158-24-02-g241)"}

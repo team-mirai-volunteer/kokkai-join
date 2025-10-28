@@ -11,9 +11,10 @@ describe("SearchResult", () => {
     ).toBeInTheDocument();
   });
 
-  it("should display nothing when loading", () => {
+  it("should display nothing when loading without result", () => {
     const { container } = render(<SearchResult result="" loading={true} />);
 
+    // Loading without content should show nothing
     expect(container.firstChild).toBeNull();
   });
 
@@ -40,5 +41,17 @@ describe("SearchResult", () => {
     expect(
       screen.queryByText("検索結果がここに表示されます"),
     ).not.toBeInTheDocument();
+  });
+
+  it("should display streaming content even when loading is true", () => {
+    const streamingResult = "# 政治資金\n\n政治資金に関する情報";
+
+    render(<SearchResult result={streamingResult} loading={true} />);
+
+    // During streaming (loading=true but result exists), should show content
+    expect(
+      screen.getByRole("heading", { name: "政治資金" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("政治資金に関する情報")).toBeInTheDocument();
   });
 });

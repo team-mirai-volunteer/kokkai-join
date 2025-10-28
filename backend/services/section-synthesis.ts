@@ -1,27 +1,27 @@
 import { getOpenAIClient } from "../config/openai.js";
-import type {
-  DeepResearchSections,
-  EvidenceRecord,
-} from "../types/deepresearch.js";
+import type { EvidenceRecord } from "../types/deepresearch.js";
 import {
-  createSectionSynthesisPrompt,
-  getSectionSynthesisSystemPrompt,
+  createMarkdownSynthesisPrompt,
+  getMarkdownSynthesisSystemPrompt,
 } from "../utils/prompt.js";
+import type { EmitFn } from "./deepresearch-streaming.js";
 
 /**
  * セクション統合サービス。
  *
- * - 役割: 収集した Evidence を根拠として、固定スキーマのセクションJSONをLLM（OpenAI経由）で生成する。
- * - 失敗時: JSONパースに失敗した場合はエラーにする（フォールバックは行わない方針）。
+ * - 役割: 収集した Evidence を根拠として、Markdown形式のレポートをLLM（OpenAI経由）で生成する。
+ * - ストリーミング: emit関数が提供された場合、LLMのMarkdownストリームチャンクを逐次送信する。
+ * - 出力: 完成したMarkdown文字列を返す。
  */
 export class SectionSynthesisService {
   async synthesize(
     userQuery: string,
     asOfDate: string | undefined,
     evidences: EvidenceRecord[],
-  ): Promise<DeepResearchSections> {
-    const user = createSectionSynthesisPrompt(userQuery, asOfDate, evidences);
-    const systemPrompt = getSectionSynthesisSystemPrompt();
+    emit?: EmitFn,
+  ): Promise<string> {
+    const user = createMarkdownSynthesisPrompt(userQuery, asOfDate, evidences);
+    const systemPrompt = getMarkdownSynthesisSystemPrompt();
 
     const client = getOpenAIClient();
     const completion = await client.chat.completions.create({
@@ -31,20 +31,41 @@ export class SectionSynthesisService {
       ],
       model: "openai/gpt-5-mini",
       max_completion_tokens: 160000,
-      stream: false,
+      stream: true,
     });
 
-    const jsonText = completion.choices[0]?.message?.content?.trim();
-    if (!jsonText) throw new Error("[SYN][llm] Empty synthesis response");
+    // Markdownストリームチャンクを蓄積
+    let markdownText = "";
 
     try {
-      const sections = JSON.parse(jsonText) as DeepResearchSections;
-      return sections;
-    } catch (e) {
-      const snippet = jsonText.slice(0, 400).replace(/\n/g, " ");
+      for await (const chunk of completion) {
+        const content = chunk.choices[0]?.delta?.content;
+        if (content) {
+          markdownText += content;
+
+          // emitが提供されている場合、Markdownチャンクを送信
+          if (emit) {
+            try {
+              await emit({
+                type: "synthesis_chunk",
+                chunk: content,
+              });
+            } catch (emitError) {
+              // emit エラーはログに記録するが、処理は継続
+              console.error("[SYN] Emit error (continuing):", emitError);
+            }
+          }
+        }
+      }
+    } catch (streamError) {
       throw new Error(
-        `[SYN][llm-parse] Failed to parse JSON: ${(e as Error).message}; snippet="${snippet}..."`,
+        `[SYN][stream] Stream processing failed: ${(streamError as Error).message}`,
       );
     }
+
+    if (!markdownText.trim())
+      throw new Error("[SYN][llm] Empty synthesis response");
+
+    return markdownText;
   }
 }

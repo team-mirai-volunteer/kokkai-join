@@ -147,8 +147,19 @@ export class PDFSectionExtractionService {
             if (parsedError.error?.message) {
               errorDetails = parsedError.error.message;
             }
-          } catch {
+          } catch (parseError) {
             // JSON parseに失敗した場合はrawをそのまま使用
+            console.error(
+              "[PDF] Failed to parse error metadata as JSON:",
+              parseError instanceof Error
+                ? parseError.message
+                : String(parseError),
+            );
+            console.error(
+              "[PDF] Raw error string (length: %d):",
+              apiError.error.metadata.raw.length,
+              apiError.error.metadata.raw,
+            );
             errorDetails = apiError.error.metadata.raw;
           }
         }

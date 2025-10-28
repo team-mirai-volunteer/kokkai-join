@@ -1,9 +1,9 @@
 import { useCallback, useState } from "react";
+import { useSearchHistory } from "@/features/history/hooks/useSearchHistory";
+import { ProgressDisplay } from "../components/ProgressDisplay";
 import { SearchForm, type SearchParams } from "../components/SearchForm";
 import { SearchResult } from "../components/SearchResult";
-import { ProgressDisplay } from "../components/ProgressDisplay";
 import { useStreamingSearch } from "../hooks/useStreamingSearch";
-import { useSearchHistory } from "@/features/history/hooks/useSearchHistory";
 import "@/shared/styles/global.css";
 
 /**
@@ -22,34 +22,40 @@ import "@/shared/styles/global.css";
  * - フック活用: useStreamingSearch, useSearchHistoryで外部ロジックを分離
  */
 export default function SearchPage() {
-	const [searchResult, setSearchResult] = useState<string>("");
-	const { search, loading, error, progress } = useStreamingSearch();
-	const { refetchHistories } = useSearchHistory();
+  const [searchResult, setSearchResult] = useState<string>("");
+  const { search, loading, error, progress } = useStreamingSearch();
+  const { refetchHistories } = useSearchHistory();
 
-	const handleSearch = useCallback(
-		async (params: SearchParams) => {
-			try {
-				const markdown = await search(params);
-				setSearchResult(markdown);
+  const handleSearch = useCallback(
+    async (params: SearchParams) => {
+      try {
+        const markdown = await search(params);
+        setSearchResult(markdown);
 
-				// Backend automatically saves to history, just refresh the list
-				await refetchHistories();
-			} catch (err) {
-				console.error("Search failed:", err);
-				// Error is already handled by useStreamingSearch
-			}
-		},
-		[search, refetchHistories],
-	);
+        // Backend automatically saves to history, just refresh the list
+        await refetchHistories();
+      } catch (err) {
+        console.error("Search failed:", err);
+        // Error is already handled by useStreamingSearch
+      }
+    },
+    [search, refetchHistories],
+  );
 
-	return (
-		<div className="app-container">
-			<SearchForm onSubmit={handleSearch} loading={loading} error={error} />
-			<div className="output-section">
-				{/* Show progress during loading */}
-				{loading && progress && <ProgressDisplay progress={progress} />}
-				<SearchResult result={searchResult} loading={loading} />
-			</div>
-		</div>
-	);
+  // セクション統合中で synthesisText がある場合は、それを表示用の結果とする
+  const displayResult = progress?.synthesisText || searchResult;
+
+  // セクション統合中で synthesisText がある場合は、進捗表示を隠す
+  const shouldShowProgress = loading && progress && !progress.synthesisText;
+
+  return (
+    <div className="app-container">
+      <SearchForm onSubmit={handleSearch} loading={loading} error={error} />
+      <div className="output-section">
+        {/* Show progress during loading (except when showing synthesis preview) */}
+        {shouldShowProgress && <ProgressDisplay progress={progress} />}
+        <SearchResult result={displayResult} loading={loading} />
+      </div>
+    </div>
+  );
 }
