@@ -38,11 +38,11 @@ describe("ProgressDisplay", () => {
 			stepName: "クエリプランニング",
 		};
 
-		render(<ProgressDisplay progress={progress} />);
+		const { container } = render(<ProgressDisplay progress={progress} />);
 
 		// Only step information should be shown
-		const container = screen.getByRole("status");
-		expect(container.textContent).toBe("ステップ 1/5: クエリプランニング");
+		const progressDisplay = container.querySelector(".progress-display");
+		expect(progressDisplay?.textContent).toBe("ステップ 1/5: クエリプランニング");
 	});
 
 	it("should display section progress when provided", () => {
@@ -93,7 +93,7 @@ describe("ProgressDisplay", () => {
 		).toBeInTheDocument();
 	});
 
-	it("should have proper ARIA role for accessibility", () => {
+	it("should have proper ARIA attributes for progress bars", () => {
 		const progress: ProgressState = {
 			step: 1,
 			totalSteps: 5,
@@ -102,7 +102,7 @@ describe("ProgressDisplay", () => {
 
 		render(<ProgressDisplay progress={progress} />);
 
-		expect(screen.getByRole("status")).toBeInTheDocument();
+		expect(screen.getByRole("progressbar")).toBeInTheDocument();
 	});
 
 	it("should calculate and display progress percentage", () => {

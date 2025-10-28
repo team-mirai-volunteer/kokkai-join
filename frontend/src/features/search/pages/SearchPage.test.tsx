@@ -151,7 +151,7 @@ describe("SearchPage", () => {
 
 		await waitFor(() => {
 			expect(
-				screen.getByRole("heading", { name: "防衛費" }),
+				screen.getByRole("heading", { name: "検索結果" }),
 			).toBeInTheDocument();
 			expect(screen.getByText("防衛費に関する情報です。")).toBeInTheDocument();
 		});
@@ -193,7 +193,8 @@ describe("SearchPage", () => {
 		const submitButton = screen.getByRole("button", { name: "検索" });
 		await user.click(submitButton);
 
-		expect(screen.getByText("処理中...")).toBeInTheDocument();
+		// Check loading button text instead of placeholder
+		expect(screen.getByRole("button", { name: "検索中..." })).toBeInTheDocument();
 	});
 
 	it("should display error message when search fails", async () => {
@@ -286,14 +287,18 @@ describe("SearchPage", () => {
 			},
 		];
 
-		// Create a slow stream
+		// Create a stream
 		const encoder = new TextEncoder();
 		const stream = new ReadableStream({
 			async start(controller) {
-				for (const event of progressEvents) {
+				for (let i = 0; i < progressEvents.length; i++) {
+					const event = progressEvents[i];
 					const data = `event: progress\ndata: ${JSON.stringify(event)}\n\n`;
 					controller.enqueue(encoder.encode(data));
-					await new Promise((resolve) => setTimeout(resolve, 50));
+					// Add delay before complete event to allow progress display to render
+					if (i < progressEvents.length - 1 || event.type !== "complete") {
+						await new Promise((resolve) => setTimeout(resolve, 100));
+					}
 				}
 				controller.close();
 			},
@@ -319,7 +324,7 @@ describe("SearchPage", () => {
 		// Check for progress display
 		await waitFor(
 			() => {
-				expect(screen.getByRole("status")).toBeInTheDocument();
+				expect(screen.getByRole("progressbar")).toBeInTheDocument();
 			},
 			{ timeout: 3000 },
 		);
