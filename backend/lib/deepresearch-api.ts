@@ -8,16 +8,8 @@ import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { prettyJSON } from "hono/pretty-json";
 import { streamSSE } from "hono/streaming";
-import { DEFAULT_TOP_K_RESULTS, ProviderID } from "../config/constants.js";
-import {
-  SECTION_ALLOWED_PROVIDERS,
-  SECTION_TARGET_COUNTS,
-} from "../config/deepresearch-constants.js";
 import { ProviderRegistry } from "../providers/registry.js";
-import {
-  DeepResearchRequestSchema,
-  type DeepResearchRequestValidated,
-} from "../schemas/deepresearch-validation.js";
+import { DeepResearchRequestSchema } from "../schemas/deepresearch-validation.js";
 import { DeepResearchOrchestrator } from "../services/deepresearch-orchestrator.js";
 import {
 	createHonoEmit,
@@ -26,16 +18,7 @@ import {
 import { PDFSectionExtractionService } from "../services/pdf-section-extraction.js";
 import { QueryPlanningService } from "../services/query-planning.js";
 import { SectionSynthesisService } from "../services/section-synthesis.js";
-import type {
-  DeepResearchResponse,
-  EvidenceRecord,
-} from "../types/deepresearch.js";
-import { toEvidenceRecord } from "../types/deepresearch.js";
-import type { QueryPlan } from "../types/kokkai.js";
-import { convertDeepResearchToMarkdown } from "../utils/markdown-converter.js";
 import {
-  createSupabaseClient,
-  extractToken,
   getAuthenticatedSupabaseClient,
   validateSupabaseEnv,
 } from "./auth-helpers.js";
@@ -92,57 +75,6 @@ class KokkaiDeepResearchAPI {
    * Setup API routes
    */
   private setupRoutes(): void {
-    // Deep Research v1 endpoint (protected by auth)
-    this.app.post(
-      "/api/v1/deepresearch",
-      authMiddleware,
-      vValidator("json", DeepResearchRequestSchema),
-      async (c) => {
-        const start = Date.now();
-        try {
-          const req = c.req.valid("json");
-          const resp = await this.executeDeepResearchV1(req);
-          console.log(
-            `✅ /v1/deepresearch completed in ${Date.now() - start}ms`,
-          );
-          const markdown = convertDeepResearchToMarkdown(resp);
-
-          // Save search history to Supabase
-          try {
-            const token = extractToken(c);
-
-            if (
-              token &&
-              process.env.SUPABASE_URL &&
-              process.env.SUPABASE_ANON_KEY
-            ) {
-              const supabase = createSupabaseClient(token);
-
-              const fileNames = req.files?.map((f) => ({ name: f.name })) || [];
-              await executeSearchAndSaveHistory(supabase, {
-                query: req.query,
-                providers: req.providers || [],
-                markdown,
-                files: fileNames,
-              });
-              console.log("✅ Search history saved");
-            }
-          } catch (historyError) {
-            // Log but don't fail the request if history save fails
-            console.error("Failed to save search history:", historyError);
-          }
-
-          return c.text(markdown, 200, {
-            "Content-Type": "text/markdown; charset=utf-8",
-          });
-        } catch (e) {
-          const msg = (e as Error).message;
-          console.error("/v1/deepresearch error:", msg);
-          return c.json({ error: "internal", message: msg }, 500);
-        }
-      },
-    );
-
     // Deep Research v1 streaming endpoint (protected by auth)
     this.app.post(
       "/api/v1/deepresearch/stream",
@@ -156,7 +88,7 @@ class KokkaiDeepResearchAPI {
           const emit = createHonoEmit(stream);
 
           try {
-            await executeDeepResearchStreaming(request, emit, {
+            const result = await executeDeepResearchStreaming(request, emit, {
               queryPlanning: this.queryPlanningService,
               orchestrator: this.orchestrator,
               pdfExtraction: this.pdfSectionExtraction,
@@ -167,6 +99,24 @@ class KokkaiDeepResearchAPI {
             console.log(
               `✅ /v1/deepresearch/stream completed in ${Date.now() - start}ms`,
             );
+
+            // Save search history after streaming completes
+            try {
+              const { supabase } = getAuthenticatedSupabaseClient(c);
+              const fileNames = request.files?.map((f) => ({ name: f.name })) || [];
+
+              await executeSearchAndSaveHistory(supabase, {
+                query: request.query,
+                providers: result.providers,
+                markdown: result.markdown,
+                files: fileNames,
+              });
+
+              console.log("✅ Search history saved");
+            } catch (historyError) {
+              // Log but don't fail the stream if history save fails
+              console.error("Failed to save search history:", historyError);
+            }
           } catch (error) {
             // エラーは既にemit経由で送信済み
             console.error(
@@ -326,132 +276,6 @@ class KokkaiDeepResearchAPI {
    * @param body バリデーション済みのリクエストボディ
    * @returns 構造化されたDeepResearchResponse（セクション、証拠、メタデータを含む）
    */
-  private async executeDeepResearchV1(
-    body: DeepResearchRequestValidated,
-  ): Promise<DeepResearchResponse> {
-    const fileContexts =
-      body.files?.map((file) => ({
-        name: file.name,
-        buffer: Buffer.from(file.content, "base64"),
-        mimeType: file.mimeType,
-      })) ?? [];
-
-    const start = Date.now();
-    const limit = body.limit ?? DEFAULT_TOP_K_RESULTS;
-    console.log(
-      `[DRV1] ▶ Start deepresearch query="${body.query}" limit=${limit}`,
-    );
-    const providersRequested = body.providers ? body.providers : [];
-    const providers = this.providerRegistry.byIds(providersRequested);
-    const providerIds = providers.map((p) => p.id);
-    console.log(`[DRV1] Providers: ${providerIds.join(", ")}`);
-
-    // 1) プランニング（サブクエリ生成）
-    console.log("[DRV1] ▶ Planning subqueries...");
-    let plan: QueryPlan;
-    try {
-      plan = await this.queryPlanningService.createQueryPlan(body.query);
-      console.log(`📋 Query plan created:`);
-      console.log(`   Original Question: ${JSON.stringify(plan)}`);
-      console.log(`   Subqueries: ${plan.subqueries.length}`);
-      console.log(`   Speakers: ${plan.entities.speakers?.length || 0}`);
-      console.log(`   Topics: ${plan.entities.topics?.length || 0}`);
-      console.log(`   Strategies: ${plan.enabledStrategies.join(", ")}`);
-      console.log(`   Confidence: ${plan.confidence.toFixed(2)}`);
-    } catch (e) {
-      console.error("[DRV1][plan] error:", (e as Error).message);
-      throw new Error(`[DRV1][plan] ${(e as Error).message}`);
-    }
-
-    const subqueries =
-      plan.subqueries && plan.subqueries.length > 0
-        ? plan.subqueries
-        : [body.query];
-
-    // 2)+3) DeepResearchOrchestrator に委譲（重複除去も含む）
-    const [orchestratorResult, ...pdfSectionResultsArray] = await Promise.all([
-      this.orchestrator.run({
-        baseSubqueries: subqueries,
-        providers,
-        allowBySection: SECTION_ALLOWED_PROVIDERS,
-        targets: SECTION_TARGET_COUNTS,
-        limit,
-      }),
-      ...fileContexts.map((fileContext) =>
-        this.pdfSectionExtraction.extractBySections({
-          query: [body.query, ...subqueries].join(" "),
-          fileName: fileContext.name,
-          fileBuffer: fileContext.buffer,
-          mimeType: fileContext.mimeType,
-        }),
-      ),
-    ]);
-
-    // 複数ファイルの結果をフラット化
-    const pdfSectionResults = pdfSectionResultsArray.flat();
-
-    const { finalDocs, sectionHitMap, iterations } = orchestratorResult;
-    for (const { sectionKey, docs } of pdfSectionResults) {
-      for (const doc of docs) {
-        finalDocs.push(doc);
-        const key = doc.url ?? `${doc.source.providerId}:${doc.id}`;
-        let sectionsForDoc = sectionHitMap.get(key);
-        if (!sectionsForDoc) {
-          sectionsForDoc = new Set<string>();
-          sectionHitMap.set(key, sectionsForDoc);
-        }
-        sectionsForDoc.add(sectionKey);
-      }
-    }
-
-    // 4) e1.. の連番で EvidenceRecord を構築（セクションヒントを付与）
-    console.log("[DRV1] ▶ Building evidences...");
-    const evidenceMap = new Map<string, EvidenceRecord>();
-    const evidences: EvidenceRecord[] = [];
-    let ecount = 0;
-    for (const d of finalDocs) {
-      const key = d.url || `${d.source.providerId}:${d.id}`;
-      if (evidenceMap.has(key)) continue;
-      ecount += 1;
-      const eid = `e${ecount}`;
-      const rec = toEvidenceRecord(d, eid);
-      const hints = sectionHitMap.get(key);
-      if (hints?.size) rec.sectionHints = Array.from(hints);
-      evidenceMap.set(key, rec);
-      evidences.push(rec);
-    }
-    console.log(`[DRV1] ◀ Evidences built count=${evidences.length}`);
-
-    // 5) セクション統合
-    console.log("[DRV1] ▶ Section synthesize...");
-    const sections = await this.sectionSynthesis.synthesize(
-      body.query,
-      body.asOfDate,
-      evidences,
-    );
-
-    const usedProviderIds = [...providerIds];
-    if (
-      finalDocs.some((doc) => doc.source.providerId === ProviderID.PDFExtract)
-    ) {
-      usedProviderIds.push(ProviderID.PDFExtract);
-    }
-
-    const resp: DeepResearchResponse = {
-      query: body.query,
-      asOfDate: body.asOfDate,
-      sections,
-      evidences,
-      metadata: {
-        usedProviders: usedProviderIds,
-        iterations,
-        totalResults: finalDocs.length,
-        processingTime: Date.now() - start,
-        timestamp: new Date().toISOString(),
-      },
-    };
-    return resp;
-  }
 
   /**
    * Start the server

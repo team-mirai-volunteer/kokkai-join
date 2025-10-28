@@ -110,7 +110,7 @@ export async function executeDeepResearchStreaming(
 	request: DeepResearchRequestValidated,
 	emit: EmitFn,
 	services: StreamingServices,
-): Promise<void> {
+): Promise<{ markdown: string; providers: string[] }> {
 	// 総ステップ数を動的に計算（ファイルの有無で変動）
 	const hasFiles = request.files && request.files.length > 0;
 	const totalSteps = hasFiles ? 5 : 4;
@@ -254,7 +254,9 @@ export async function executeDeepResearchStreaming(
 				type: "complete",
 				data: emptyMarkdown,
 			});
-			return;
+
+			const usedProviderIds = providers.map((p) => p.id);
+			return { markdown: emptyMarkdown, providers: usedProviderIds };
 		}
 
 		const sections = await services.sectionSynthesis.synthesize(
@@ -291,6 +293,8 @@ export async function executeDeepResearchStreaming(
 			type: "complete",
 			data: markdown,
 		});
+
+		return { markdown, providers: usedProviderIds };
 	} catch (error) {
 		// エラー時は発生したステップ情報を含める
 		await emit({
