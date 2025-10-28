@@ -29,8 +29,8 @@ async function main() {
 
 		console.log(`🌐 Server running at http://localhost:${PORT}`);
 		console.log("📋 Available endpoints:");
-		console.log(`   GET  /                - API information`);
-		console.log(`   POST /api/v1/deepresearch - Deep research pipeline`);
+		console.log(`   GET  /                          - API information`);
+		console.log(`   POST /api/v1/deepresearch/stream - Deep research streaming pipeline`);
 	} catch (error) {
 		console.error("❌ Failed to start server:", error);
 		await api.close();

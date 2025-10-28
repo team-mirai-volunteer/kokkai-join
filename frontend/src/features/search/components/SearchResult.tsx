@@ -3,7 +3,6 @@ import remarkGfm from "remark-gfm";
 
 interface SearchResultProps {
   result: string;
-  query: string;
   loading: boolean;
 }
 
@@ -19,13 +18,9 @@ interface SearchResultProps {
  * - プレゼンテーション専用（状態管理なし）
  * - 親コンポーネントから結果とローディング状態を受け取る
  */
-export function SearchResult({ result, query, loading }: SearchResultProps) {
+export function SearchResult({ result, loading }: SearchResultProps) {
   if (loading) {
-    return (
-      <div className="markdown-output">
-        <div className="loading">処理中...</div>
-      </div>
-    );
+    return null;
   }
 
   if (!result) {
@@ -38,7 +33,6 @@ export function SearchResult({ result, query, loading }: SearchResultProps) {
 
   return (
     <div className="markdown-output">
-      <h2>{query}</h2>
       <ReactMarkdown remarkPlugins={[remarkGfm]}>{result}</ReactMarkdown>
     </div>
   );

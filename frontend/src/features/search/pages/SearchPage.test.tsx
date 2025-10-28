@@ -3,29 +3,49 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import SearchPage from "./SearchPage";
+import type { ProgressEvent } from "../types/progress";
 
 // Mock localStorage
 const localStorageMock = (() => {
-  let store: Record<string, string> = {};
-  return {
-    getItem: (key: string) => store[key] || null,
-    setItem: (key: string, value: string) => {
-      store[key] = value;
-    },
-    removeItem: (key: string) => {
-      delete store[key];
-    },
-    clear: () => {
-      store = {};
-    },
-  };
+	let store: Record<string, string> = {};
+	return {
+		getItem: (key: string) => store[key] || null,
+		setItem: (key: string, value: string) => {
+			store[key] = value;
+		},
+		removeItem: (key: string) => {
+			delete store[key];
+		},
+		clear: () => {
+			store = {};
+		},
+	};
 })();
 
 Object.defineProperty(globalThis, "localStorage", {
-  value: localStorageMock,
-  writable: true,
-  configurable: true,
+	value: localStorageMock,
+	writable: true,
+	configurable: true,
 });
+
+// Helper function to create a mock SSE response
+function createMockSSEResponse(events: ProgressEvent[]) {
+	const encoder = new TextEncoder();
+	const stream = new ReadableStream({
+		async start(controller) {
+			for (const event of events) {
+				const data = `event: progress\ndata: ${JSON.stringify(event)}\n\n`;
+				controller.enqueue(encoder.encode(data));
+			}
+			controller.close();
+		},
+	});
+
+	return {
+		ok: true,
+		body: stream,
+	} as Response;
+}
 
 // Mock fetch
 const mockFetch = vi.fn();
@@ -97,129 +117,216 @@ describe("SearchPage", () => {
     ).toBeInTheDocument();
   });
 
-  it("should display search results after search", async () => {
-    const user = userEvent.setup();
-    const mockResult = "# 検索結果\n\n防衛費に関する情報です。";
+	it("should display search results after search", async () => {
+		const user = userEvent.setup();
+		const mockResult = "# 検索結果\n\n防衛費に関する情報です。";
 
-    // Mock search API
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      text: async () => mockResult,
-    });
+		// Mock streaming search API
+		const progressEvents: ProgressEvent[] = [
+			{
+				type: "progress",
+				step: 1,
+				totalSteps: 4,
+				stepName: "クエリプランニング",
+			},
+			{
+				type: "complete",
+				data: mockResult,
+			},
+		];
 
-    render(
-      <MemoryRouter>
-        <SearchPage />
-      </MemoryRouter>,
-    );
+		mockFetch.mockResolvedValueOnce(createMockSSEResponse(progressEvents));
 
-    const input = screen.getByPlaceholderText(/検索キーワードを入力/);
-    await user.type(input, "防衛費");
+		render(
+			<MemoryRouter>
+				<SearchPage />
+			</MemoryRouter>,
+		);
 
-    const submitButton = screen.getByRole("button", { name: "検索" });
-    await user.click(submitButton);
+		const input = screen.getByPlaceholderText(/検索キーワードを入力/);
+		await user.type(input, "防衛費");
 
-    await waitFor(() => {
-      expect(
-        screen.getByRole("heading", { name: "防衛費" }),
-      ).toBeInTheDocument();
-      expect(screen.getByText("防衛費に関する情報です。")).toBeInTheDocument();
-    });
-  });
+		const submitButton = screen.getByRole("button", { name: "検索" });
+		await user.click(submitButton);
 
-  it("should display loading state during search", async () => {
-    const user = userEvent.setup();
+		await waitFor(() => {
+			expect(
+				screen.getByRole("heading", { name: "検索結果" }),
+			).toBeInTheDocument();
+			expect(screen.getByText("防衛費に関する情報です。")).toBeInTheDocument();
+		});
+	});
 
-    // Mock slow search API
-    mockFetch.mockImplementation(
-      () =>
-        new Promise((resolve) =>
-          setTimeout(
-            () =>
-              resolve({
-                ok: true,
-                text: async () => "# Result",
-              }),
-            100,
-          ),
-        ),
-    );
+	it("should display loading state during search", async () => {
+		const user = userEvent.setup();
 
-    render(
-      <MemoryRouter>
-        <SearchPage />
-      </MemoryRouter>,
-    );
+		// Mock slow streaming search API
+		const progressEvents: ProgressEvent[] = [
+			{
+				type: "progress",
+				step: 1,
+				totalSteps: 4,
+				stepName: "クエリプランニング",
+			},
+			{
+				type: "complete",
+				data: "# Result",
+			},
+		];
 
-    const input = screen.getByPlaceholderText(/検索キーワードを入力/);
-    await user.type(input, "test");
+		mockFetch.mockImplementation(
+			() =>
+				new Promise((resolve) =>
+					setTimeout(() => resolve(createMockSSEResponse(progressEvents)), 100),
+				),
+		);
 
-    const submitButton = screen.getByRole("button", { name: "検索" });
-    await user.click(submitButton);
+		render(
+			<MemoryRouter>
+				<SearchPage />
+			</MemoryRouter>,
+		);
 
-    expect(screen.getByText("処理中...")).toBeInTheDocument();
-  });
+		const input = screen.getByPlaceholderText(/検索キーワードを入力/);
+		await user.type(input, "test");
 
-  it("should display error message when search fails", async () => {
-    const user = userEvent.setup();
-    const errorMessage = "検索に失敗しました";
+		const submitButton = screen.getByRole("button", { name: "検索" });
+		await user.click(submitButton);
 
-    // Mock failed search API
-    mockFetch.mockResolvedValueOnce({
-      ok: false,
-      status: 500,
-      text: async () => errorMessage,
-    });
+		// Check loading button text instead of placeholder
+		expect(screen.getByRole("button", { name: "検索中..." })).toBeInTheDocument();
+	});
 
-    render(
-      <MemoryRouter>
-        <SearchPage />
-      </MemoryRouter>,
-    );
+	it("should display error message when search fails", async () => {
+		const user = userEvent.setup();
 
-    const input = screen.getByPlaceholderText(/検索キーワードを入力/);
-    await user.type(input, "test");
+		// Mock failed search API
+		mockFetch.mockResolvedValueOnce({
+			ok: false,
+			status: 500,
+		});
 
-    const submitButton = screen.getByRole("button", { name: "検索" });
-    await user.click(submitButton);
+		render(
+			<MemoryRouter>
+				<SearchPage />
+			</MemoryRouter>,
+		);
 
-    // Wait for loading to finish
-    await waitFor(() => {
-      expect(screen.queryByText("検索中...")).not.toBeInTheDocument();
-    });
+		const input = screen.getByPlaceholderText(/検索キーワードを入力/);
+		await user.type(input, "test");
 
-    await waitFor(() => {
-      expect(screen.getByText(/エラーが発生しました/)).toBeInTheDocument();
-    });
-  });
+		const submitButton = screen.getByRole("button", { name: "検索" });
+		await user.click(submitButton);
 
-  it("should call refetchHistories after successful search", async () => {
-    const user = userEvent.setup();
+		// Wait for loading to finish
+		await waitFor(() => {
+			expect(screen.queryByText("検索中...")).not.toBeInTheDocument();
+		});
 
-    // Mock search API
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      text: async () => "# Result",
-    });
+		await waitFor(() => {
+			expect(screen.getByText(/エラーが発生しました/)).toBeInTheDocument();
+		});
+	});
 
-    render(
-      <MemoryRouter>
-        <SearchPage />
-      </MemoryRouter>,
-    );
+	it("should call streaming endpoint after successful search", async () => {
+		const user = userEvent.setup();
 
-    const input = screen.getByPlaceholderText(/検索キーワードを入力/);
-    await user.type(input, "test");
+		// Mock streaming search API
+		const progressEvents: ProgressEvent[] = [
+			{
+				type: "complete",
+				data: "# Result",
+			},
+		];
 
-    const submitButton = screen.getByRole("button", { name: "検索" });
-    await user.click(submitButton);
+		mockFetch.mockResolvedValueOnce(createMockSSEResponse(progressEvents));
 
-    await waitFor(() => {
-      // Search API should be called with deepresearch endpoint
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining("/v1/deepresearch"),
-        expect.any(Object),
-      );
-    });
-  });
+		render(
+			<MemoryRouter>
+				<SearchPage />
+			</MemoryRouter>,
+		);
+
+		const input = screen.getByPlaceholderText(/検索キーワードを入力/);
+		await user.type(input, "test");
+
+		const submitButton = screen.getByRole("button", { name: "検索" });
+		await user.click(submitButton);
+
+		await waitFor(() => {
+			// Search API should be called with streaming endpoint
+			expect(mockFetch).toHaveBeenCalledWith(
+				expect.stringContaining("/v1/deepresearch/stream"),
+				expect.any(Object),
+			);
+		});
+	});
+
+	it("should display progress information during search", async () => {
+		const user = userEvent.setup();
+
+		// Mock streaming search with progress events
+		const progressEvents: ProgressEvent[] = [
+			{
+				type: "progress",
+				step: 1,
+				totalSteps: 4,
+				stepName: "クエリプランニング",
+				message: "クエリを分析しています...",
+			},
+			{
+				type: "progress",
+				step: 2,
+				totalSteps: 4,
+				stepName: "セクション別検索",
+				sectionProgress: { completed: 3, total: 9 },
+			},
+			{
+				type: "complete",
+				data: "# Result",
+			},
+		];
+
+		// Create a stream
+		const encoder = new TextEncoder();
+		const stream = new ReadableStream({
+			async start(controller) {
+				for (let i = 0; i < progressEvents.length; i++) {
+					const event = progressEvents[i];
+					const data = `event: progress\ndata: ${JSON.stringify(event)}\n\n`;
+					controller.enqueue(encoder.encode(data));
+					// Add delay before complete event to allow progress display to render
+					if (i < progressEvents.length - 1 || event.type !== "complete") {
+						await new Promise((resolve) => setTimeout(resolve, 100));
+					}
+				}
+				controller.close();
+			},
+		});
+
+		mockFetch.mockResolvedValueOnce({
+			ok: true,
+			body: stream,
+		} as Response);
+
+		render(
+			<MemoryRouter>
+				<SearchPage />
+			</MemoryRouter>,
+		);
+
+		const input = screen.getByPlaceholderText(/検索キーワードを入力/);
+		await user.type(input, "test");
+
+		const submitButton = screen.getByRole("button", { name: "検索" });
+		await user.click(submitButton);
+
+		// Check for progress display
+		await waitFor(
+			() => {
+				expect(screen.getByRole("progressbar")).toBeInTheDocument();
+			},
+			{ timeout: 3000 },
+		);
+	});
 });
