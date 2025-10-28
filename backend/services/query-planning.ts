@@ -44,7 +44,7 @@ export class QueryPlanningService {
           { role: "user", content: userPrompt },
         ],
         model: "openai/gpt-4o-mini",
-        max_tokens: 3000,
+        max_completion_tokens: 8000,
         temperature: 0.3, // 計画生成は確定的に
         stream: false,
       });
@@ -52,6 +52,14 @@ export class QueryPlanningService {
       planText = completion.choices[0]?.message?.content?.trim();
       if (!planText) {
         throw new Error("No text in completion response");
+      }
+
+      // コードフェンスがある場合は除去
+      if (planText.startsWith("```")) {
+        const match = planText.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+        if (match?.[1]) {
+          planText = match[1].trim();
+        }
       }
     } catch (error) {
       console.error("❌ Planning error:", error);
@@ -63,10 +71,17 @@ export class QueryPlanningService {
     try {
       planData = JSON.parse(planText) as RawPlanData;
     } catch (parseError) {
+      // JSONパース失敗時のログ出力
+      console.error("❌ Failed to parse query plan JSON");
+      console.error("Error:", (parseError as Error).message);
+      console.error("Response length:", planText.length);
+      console.error("Response (first 500 chars):", planText.slice(0, 500));
+      console.error("Response (last 500 chars):", planText.slice(-500));
+
       throw new Error(
         `Failed to parse LLM response as JSON: ${
           (parseError as Error).message
-        }\nResponse: ${planText}`,
+        }\nResponse: ${planText.slice(0, 500)}...`,
       );
     }
 

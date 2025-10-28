@@ -54,8 +54,14 @@ export class DeepResearchOrchestrator {
    * @param limit 各呼び出しあたりの上限目安
    */
   async run(params: OrchestratorRunParams): Promise<OrchestratorRunResult> {
-    const { baseSubqueries, providers, allowBySection, targets, limit, onSectionComplete } =
-      params;
+    const {
+      baseSubqueries,
+      providers,
+      allowBySection,
+      targets,
+      limit,
+      onSectionComplete,
+    } = params;
     const sectionKeys = Object.keys(allowBySection);
     const allDocs: DocumentResult[] = [];
     const sectionHitMap = new Map<string, Set<string>>();

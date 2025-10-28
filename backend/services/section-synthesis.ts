@@ -1,20 +1,17 @@
 import { getOpenAIClient } from "../config/openai.js";
-import type {
-  DeepResearchSections,
-  EvidenceRecord,
-} from "../types/deepresearch.js";
-import type { EmitFn } from "./deepresearch-streaming.js";
+import type { EvidenceRecord } from "../types/deepresearch.js";
 import {
-  createSectionSynthesisPrompt,
-  getSectionSynthesisSystemPrompt,
+  createMarkdownSynthesisPrompt,
+  getMarkdownSynthesisSystemPrompt,
 } from "../utils/prompt.js";
+import type { EmitFn } from "./deepresearch-streaming.js";
 
 /**
  * セクション統合サービス。
  *
- * - 役割: 収集した Evidence を根拠として、固定スキーマのセクションJSONをLLM（OpenAI経由）で生成する。
- * - 失敗時: JSONパースに失敗した場合はエラーにする（フォールバックは行わない方針）。
- * - ストリーミング: emit関数が提供された場合、LLMのストリームチャンクを逐次送信する。
+ * - 役割: 収集した Evidence を根拠として、Markdown形式のレポートをLLM（OpenAI経由）で生成する。
+ * - ストリーミング: emit関数が提供された場合、LLMのMarkdownストリームチャンクを逐次送信する。
+ * - 出力: 完成したMarkdown文字列を返す。
  */
 export class SectionSynthesisService {
   async synthesize(
@@ -22,9 +19,9 @@ export class SectionSynthesisService {
     asOfDate: string | undefined,
     evidences: EvidenceRecord[],
     emit?: EmitFn,
-  ): Promise<DeepResearchSections> {
-    const user = createSectionSynthesisPrompt(userQuery, asOfDate, evidences);
-    const systemPrompt = getSectionSynthesisSystemPrompt();
+  ): Promise<string> {
+    const user = createMarkdownSynthesisPrompt(userQuery, asOfDate, evidences);
+    const systemPrompt = getMarkdownSynthesisSystemPrompt();
 
     const client = getOpenAIClient();
     const completion = await client.chat.completions.create({
@@ -37,16 +34,16 @@ export class SectionSynthesisService {
       stream: true,
     });
 
-    // ストリームチャンクを蓄積
-    let jsonText = "";
+    // Markdownストリームチャンクを蓄積
+    let markdownText = "";
 
     try {
       for await (const chunk of completion) {
         const content = chunk.choices[0]?.delta?.content;
         if (content) {
-          jsonText += content;
+          markdownText += content;
 
-          // emitが提供されている場合、チャンクを送信
+          // emitが提供されている場合、Markdownチャンクを送信
           if (emit) {
             try {
               await emit({
@@ -66,16 +63,9 @@ export class SectionSynthesisService {
       );
     }
 
-    if (!jsonText.trim()) throw new Error("[SYN][llm] Empty synthesis response");
+    if (!markdownText.trim())
+      throw new Error("[SYN][llm] Empty synthesis response");
 
-    try {
-      const sections = JSON.parse(jsonText) as DeepResearchSections;
-      return sections;
-    } catch (e) {
-      const snippet = jsonText.slice(0, 400).replace(/\n/g, " ");
-      throw new Error(
-        `[SYN][llm-parse] Failed to parse JSON: ${(e as Error).message}; snippet="${snippet}..."`,
-      );
-    }
+    return markdownText;
   }
 }
