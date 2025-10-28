@@ -30,7 +30,7 @@ export function ProgressDisplay({ progress }: ProgressDisplayProps) {
 		: 0;
 
 	return (
-		<div role="status" className="progress-display">
+		<div className="progress-display">
 			{/* ステップ情報 */}
 			<div className="step-info">
 				ステップ {step}/{totalSteps}: {stepName}
