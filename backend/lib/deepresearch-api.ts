@@ -7,6 +7,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { prettyJSON } from "hono/pretty-json";
+import { streamSSE } from "hono/streaming";
 import { DEFAULT_TOP_K_RESULTS, ProviderID } from "../config/constants.js";
 import {
   SECTION_ALLOWED_PROVIDERS,
@@ -18,6 +19,10 @@ import {
   type DeepResearchRequestValidated,
 } from "../schemas/deepresearch-validation.js";
 import { DeepResearchOrchestrator } from "../services/deepresearch-orchestrator.js";
+import {
+	createHonoEmit,
+	executeDeepResearchStreaming,
+} from "../services/deepresearch-streaming.js";
 import { PDFSectionExtractionService } from "../services/pdf-section-extraction.js";
 import { QueryPlanningService } from "../services/query-planning.js";
 import { SectionSynthesisService } from "../services/section-synthesis.js";
@@ -134,6 +139,40 @@ class KokkaiDeepResearchAPI {
           console.error("/v1/deepresearch error:", msg);
           return c.json({ error: "internal", message: msg }, 500);
         }
+      },
+    );
+
+    // Deep Research v1 streaming endpoint (protected by auth)
+    this.app.post(
+      "/api/v1/deepresearch/stream",
+      authMiddleware,
+      vValidator("json", DeepResearchRequestSchema),
+      async (c) => {
+        const start = Date.now();
+        const request = c.req.valid("json");
+
+        return streamSSE(c, async (stream) => {
+          const emit = createHonoEmit(stream);
+
+          try {
+            await executeDeepResearchStreaming(request, emit, {
+              queryPlanning: this.queryPlanningService,
+              orchestrator: this.orchestrator,
+              pdfExtraction: this.pdfSectionExtraction,
+              sectionSynthesis: this.sectionSynthesis,
+              providerRegistry: this.providerRegistry,
+            });
+
+            console.log(
+              `✅ /v1/deepresearch/stream completed in ${Date.now() - start}ms`,
+            );
+          } catch (error) {
+            // エラーは既にemit経由で送信済み
+            console.error(
+              `❌ /v1/deepresearch/stream error: ${(error as Error).message}`,
+            );
+          }
+        });
       },
     );
 

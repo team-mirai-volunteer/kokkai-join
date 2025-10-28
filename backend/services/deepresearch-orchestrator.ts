@@ -32,6 +32,7 @@ export interface OrchestratorRunParams {
   allowBySection: Record<string, string[]>;
   targets: Record<string, number>;
   limit: number;
+  onSectionComplete?: () => void; // セクション検索完了時のコールバック（進捗報告用）
 }
 
 export interface OrchestratorRunResult {
@@ -53,7 +54,7 @@ export class DeepResearchOrchestrator {
    * @param limit 各呼び出しあたりの上限目安
    */
   async run(params: OrchestratorRunParams): Promise<OrchestratorRunResult> {
-    const { baseSubqueries, providers, allowBySection, targets, limit } =
+    const { baseSubqueries, providers, allowBySection, targets, limit, onSectionComplete } =
       params;
     const sectionKeys = Object.keys(allowBySection);
     const allDocs: DocumentResult[] = [];
@@ -88,12 +89,20 @@ export class DeepResearchOrchestrator {
             console.log(
               `[DRV1][${sectionKey}] +${docs.length} providers=${providerList} subqueries=${query}`,
             );
+            // セクション完了コールバックを呼び出す
+            if (onSectionComplete) {
+              onSectionComplete();
+            }
             return { sectionKey, docs, query };
           } catch (e) {
             console.error(
               `[DRV1][${sectionKey}] retrieval error:`,
               (e as Error).message,
             );
+            // エラー時もセクション完了としてカウント
+            if (onSectionComplete) {
+              onSectionComplete();
+            }
             return { sectionKey, docs: [], query };
           }
         };
