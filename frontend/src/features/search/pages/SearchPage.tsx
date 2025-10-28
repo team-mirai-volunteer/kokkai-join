@@ -23,14 +23,12 @@ import "@/shared/styles/global.css";
  */
 export default function SearchPage() {
 	const [searchResult, setSearchResult] = useState<string>("");
-	const [lastQuery, setLastQuery] = useState<string>("");
 	const { search, loading, error, progress } = useStreamingSearch();
 	const { refetchHistories } = useSearchHistory();
 
 	const handleSearch = useCallback(
 		async (params: SearchParams) => {
 			try {
-				setLastQuery(params.query);
 				const markdown = await search(params);
 				setSearchResult(markdown);
 
@@ -50,11 +48,7 @@ export default function SearchPage() {
 			<div className="output-section">
 				{/* Show progress during loading */}
 				{loading && progress && <ProgressDisplay progress={progress} />}
-				<SearchResult
-					result={searchResult}
-					query={lastQuery}
-					loading={loading}
-				/>
+				<SearchResult result={searchResult} loading={loading} />
 			</div>
 		</div>
 	);
