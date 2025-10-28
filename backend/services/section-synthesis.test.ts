@@ -50,9 +50,9 @@ describe("SectionSynthesisService - Streaming", () => {
       {
         id: "e1",
         title: "テスト証拠",
-        text: "テスト内容",
+        excerpt: "テスト内容",
         url: "https://example.com",
-        source: { providerId: "test" },
+        source: { providerId: "test", type: "test-provider" },
       },
     ];
 
@@ -123,8 +123,8 @@ describe("SectionSynthesisService - Streaming", () => {
     expect(emitCalls.length).toBeGreaterThan(0);
 
     // synthesis_chunk イベントが含まれていることを確認
-    const chunkEvents = emitCalls.filter(
-      (event: { type: string }) => event.type === "synthesis_chunk",
+    const chunkEvents = (emitCalls as Array<{ type: string }>).filter(
+      (event) => event.type === "synthesis_chunk",
     );
     expect(chunkEvents.length).toBeGreaterThan(0);
   });
@@ -137,9 +137,9 @@ describe("SectionSynthesisService - Streaming", () => {
       {
         id: "e1",
         title: "証拠1",
-        text: "証拠内容",
+        excerpt: "証拠内容",
         url: "https://example.com/1",
-        source: { providerId: "test" },
+        source: { providerId: "test", type: "test-provider" },
       },
     ];
 

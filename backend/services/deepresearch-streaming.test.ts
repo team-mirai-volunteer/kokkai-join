@@ -323,8 +323,9 @@ describe("executeDeepResearchStreaming", () => {
     // synthesize が emit パラメータ付きで呼ばれることを確認
     expect(synthesizeSpy).toHaveBeenCalled();
     const synthesizeCall = synthesizeSpy.mock.calls[0];
-    expect(synthesizeCall).toHaveLength(4); // query, asOfDate, evidences, emit
-    expect(typeof synthesizeCall[3]).toBe("function"); // 4番目の引数がemit関数
+    expect(synthesizeCall).toBeDefined();
+    expect(synthesizeCall?.length).toBe(4); // query, asOfDate, evidences, emit
+    expect(typeof synthesizeCall?.[3]).toBe("function"); // 4番目の引数がemit関数
   });
 
   it("should emit synthesis_chunk events during section synthesis", async () => {
