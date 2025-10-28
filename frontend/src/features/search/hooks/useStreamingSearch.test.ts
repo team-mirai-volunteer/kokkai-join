@@ -383,4 +383,112 @@ describe("useStreamingSearch", () => {
 
 		expect(result.current.loading).toBe(false);
 	});
+
+	it("should accumulate synthesis_chunk events into synthesisText", async () => {
+		const progressEvents: ProgressEvent[] = [
+			{
+				type: "progress",
+				step: 5,
+				totalSteps: 5,
+				stepName: "セクション統合",
+			},
+			{
+				type: "synthesis_chunk",
+				chunk: "この",
+			},
+			{
+				type: "synthesis_chunk",
+				chunk: "テキスト",
+			},
+			{
+				type: "synthesis_chunk",
+				chunk: "は",
+			},
+			{
+				type: "synthesis_chunk",
+				chunk: "蓄積されます",
+			},
+			{
+				type: "complete",
+				data: "# 最終結果",
+			},
+		];
+
+		mockFetcher.mockResolvedValueOnce(createMockSSEResponse(progressEvents));
+
+		const { result } = renderHook(() =>
+			useStreamingSearch({ fetcher: mockFetcher }),
+		);
+
+		await act(async () => {
+			await result.current.search({
+				query: "test query",
+				providers: ["kokkai-db"] as ProviderType[],
+			});
+		});
+
+		// synthesisText should contain accumulated chunks
+		await waitFor(() => {
+			expect(result.current.progress?.synthesisText).toBe(
+				"このテキストは蓄積されます",
+			);
+		});
+
+		expect(result.current.loading).toBe(false);
+	});
+
+	it("should clear synthesisText on new search", async () => {
+		const firstEvents: ProgressEvent[] = [
+			{
+				type: "synthesis_chunk",
+				chunk: "最初の検索",
+			},
+			{
+				type: "complete",
+				data: "result 1",
+			},
+		];
+
+		const secondEvents: ProgressEvent[] = [
+			{
+				type: "synthesis_chunk",
+				chunk: "2回目の検索",
+			},
+			{
+				type: "complete",
+				data: "result 2",
+			},
+		];
+
+		mockFetcher
+			.mockResolvedValueOnce(createMockSSEResponse(firstEvents))
+			.mockResolvedValueOnce(createMockSSEResponse(secondEvents));
+
+		const { result } = renderHook(() =>
+			useStreamingSearch({ fetcher: mockFetcher }),
+		);
+
+		// First search
+		await act(async () => {
+			await result.current.search({
+				query: "first",
+				providers: ["kokkai-db"] as ProviderType[],
+			});
+		});
+
+		const firstSynthesisText = result.current.progress?.synthesisText;
+
+		// Second search should clear previous synthesisText
+		await act(async () => {
+			await result.current.search({
+				query: "second",
+				providers: ["kokkai-db"] as ProviderType[],
+			});
+		});
+
+		expect(firstSynthesisText).toBe("最初の検索");
+		await waitFor(() => {
+			expect(result.current.progress?.synthesisText).toBe("2回目の検索");
+		});
+	});
 });

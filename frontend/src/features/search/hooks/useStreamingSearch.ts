@@ -3,6 +3,15 @@ import { supabase } from "@/lib/supabaseClient";
 import type { ProgressEvent, ProgressState } from "../types/progress";
 import type { ProviderType } from "../types/provider";
 
+/**
+ * セクション統合ステップのデフォルト情報
+ */
+const SYNTHESIS_STEP_INFO = {
+	step: 5,
+	totalSteps: 5,
+	stepName: "セクション統合",
+} as const;
+
 export interface SearchParams {
 	query: string;
 	providers: ProviderType[];
@@ -98,6 +107,7 @@ export function useStreamingSearch(
 				const decoder = new TextDecoder();
 				let buffer = "";
 				let finalResult = "";
+				let synthesisText = "";
 
 				while (true) {
 					const { done, value } = await reader.read();
@@ -124,13 +134,25 @@ export function useStreamingSearch(
 
 						if (event.type === "progress") {
 							// Update progress state
-							setProgress({
+							setProgress((prevProgress) => ({
 								step: event.step,
 								totalSteps: event.totalSteps,
 								stepName: event.stepName,
 								message: event.message,
 								sectionProgress: event.sectionProgress,
-							});
+								synthesisText: prevProgress?.synthesisText,
+							}));
+						} else if (event.type === "synthesis_chunk") {
+							// Accumulate synthesis chunks
+							synthesisText += event.chunk;
+							setProgress((prevProgress) => ({
+								step: prevProgress?.step ?? SYNTHESIS_STEP_INFO.step,
+								totalSteps: prevProgress?.totalSteps ?? SYNTHESIS_STEP_INFO.totalSteps,
+								stepName: prevProgress?.stepName ?? SYNTHESIS_STEP_INFO.stepName,
+								message: prevProgress?.message,
+								sectionProgress: prevProgress?.sectionProgress,
+								synthesisText,
+							}));
 						} else if (event.type === "complete") {
 							// Save final result
 							console.log("[SSE] Received complete event, data length:", event.data.length);

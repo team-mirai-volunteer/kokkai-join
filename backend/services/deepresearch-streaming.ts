@@ -88,6 +88,7 @@ export interface StreamingServices {
 			query: string,
 			asOfDate: string | undefined,
 			evidences: EvidenceRecord[],
+			emit?: EmitFn,
 		) => Promise<DeepResearchSections>;
 	};
 	providerRegistry: {
@@ -263,6 +264,7 @@ export async function executeDeepResearchStreaming(
 			request.query,
 			request.asOfDate,
 			evidences,
+			emit,
 		);
 
 		// 使用されたプロバイダーIDを収集

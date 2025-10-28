@@ -10,6 +10,7 @@ export interface SectionProgress {
  * 進捗イベント (Discriminated Union)
  *
  * type: 'progress' - 処理中の進捗報告
+ * type: 'synthesis_chunk' - セクション統合のストリームチャンク
  * type: 'complete' - 処理完了
  * type: 'error' - エラー発生
  */
@@ -23,6 +24,10 @@ export type ProgressEvent =
 			sectionProgress?: SectionProgress; // セクション検索時の進捗 (オプション)
 	  }
 	| {
+			type: "synthesis_chunk";
+			chunk: string; // LLMから生成されたテキストチャンク
+	  }
+	| {
 			type: "complete";
 			data: string; // 最終結果のmarkdown
 	  }
@@ -34,7 +39,7 @@ export type ProgressEvent =
 	  };
 
 /**
- * UI用の進捗状態（progress型のイベントのみ）
+ * UI用の進捗状態
  */
 export interface ProgressState {
 	step: number;
@@ -42,4 +47,5 @@ export interface ProgressState {
 	stepName: string;
 	message?: string;
 	sectionProgress?: SectionProgress;
+	synthesisText?: string; // セクション統合中に生成されたテキスト（チャンクの蓄積）
 }

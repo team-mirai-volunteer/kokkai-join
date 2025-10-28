@@ -280,4 +280,116 @@ describe("executeDeepResearchStreaming", () => {
 		expect(pdfStepEvents.length).toBeGreaterThan(0);
 		expect(pdfStepEvents[0]?.message).toContain("1個のファイル");
 	});
+
+	it("should pass emit function to section synthesis service", async () => {
+		const { emit, events } = createMockEmit();
+		const synthesizeSpy = vi.fn().mockResolvedValue({
+			purpose_overview: { summary: "概要", citations: [] },
+		});
+
+		const mockServices = {
+			queryPlanning: {
+				createQueryPlan: vi.fn().mockResolvedValue({
+					subqueries: [],
+					entities: { speakers: [], topics: [] },
+					enabledStrategies: [],
+					confidence: 0.9,
+				}),
+			},
+			orchestrator: {
+				run: vi.fn().mockResolvedValue({
+					finalDocs: [
+						{
+							id: "doc1",
+							text: "test content",
+							source: { providerId: "test" },
+						},
+					],
+					sectionHitMap: new Map(),
+					iterations: 1,
+				}),
+			},
+			pdfExtraction: {
+				extractBySections: vi.fn(),
+			},
+			sectionSynthesis: {
+				synthesize: synthesizeSpy,
+			},
+			providerRegistry: {
+				byIds: vi.fn().mockReturnValue([]),
+			},
+		};
+
+		await executeDeepResearchStreaming(mockRequest, emit, mockServices);
+
+		// synthesize が emit パラメータ付きで呼ばれることを確認
+		expect(synthesizeSpy).toHaveBeenCalled();
+		const synthesizeCall = synthesizeSpy.mock.calls[0];
+		expect(synthesizeCall).toHaveLength(4); // query, asOfDate, evidences, emit
+		expect(typeof synthesizeCall[3]).toBe("function"); // 4番目の引数がemit関数
+	});
+
+	it("should emit synthesis_chunk events during section synthesis", async () => {
+		const { emit, events } = createMockEmit();
+
+		// Mock synthesis that emits chunks
+		const synthesizeMock = vi
+			.fn()
+			.mockImplementation(async (_query, _date, _evidences, emitFn) => {
+				if (emitFn) {
+					await emitFn({ type: "synthesis_chunk", chunk: "chunk1" });
+					await emitFn({ type: "synthesis_chunk", chunk: "chunk2" });
+					await emitFn({ type: "synthesis_chunk", chunk: "chunk3" });
+				}
+				return {
+					purpose_overview: { summary: "概要", citations: [] },
+				};
+			});
+
+		const mockServices = {
+			queryPlanning: {
+				createQueryPlan: vi.fn().mockResolvedValue({
+					subqueries: [],
+					entities: { speakers: [], topics: [] },
+					enabledStrategies: [],
+					confidence: 0.9,
+				}),
+			},
+			orchestrator: {
+				run: vi.fn().mockResolvedValue({
+					finalDocs: [
+						{
+							id: "doc1",
+							text: "test content",
+							source: { providerId: "test" },
+						},
+					],
+					sectionHitMap: new Map(),
+					iterations: 1,
+				}),
+			},
+			pdfExtraction: {
+				extractBySections: vi.fn(),
+			},
+			sectionSynthesis: {
+				synthesize: synthesizeMock,
+			},
+			providerRegistry: {
+				byIds: vi.fn().mockReturnValue([]),
+			},
+		};
+
+		await executeDeepResearchStreaming(mockRequest, emit, mockServices);
+
+		// synthesis_chunk イベントが emit されることを確認
+		const chunkEvents = events.filter(
+			(e): e is Extract<ProgressEvent, { type: "synthesis_chunk" }> =>
+				e.type === "synthesis_chunk",
+		);
+
+		expect(chunkEvents).toHaveLength(3);
+		expect(chunkEvents[0]?.chunk).toBe("chunk1");
+		expect(chunkEvents[1]?.chunk).toBe("chunk2");
+		expect(chunkEvents[2]?.chunk).toBe("chunk3");
+	});
 });
