@@ -70,28 +70,10 @@ vi.mock("../../../lib/supabaseClient", () => ({
   },
 }));
 
-// Mock useSearchHistory hook - use a function that can be overridden
-const mockRefetchHistories = vi.fn();
-vi.mock("../../history/hooks/useSearchHistory", () => ({
-  useSearchHistory: () => ({
-    histories: [],
-    loading: false,
-    error: null,
-    deleteHistory: vi.fn(),
-    refetchHistories: mockRefetchHistories,
-  }),
-}));
-
 describe("SearchPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     localStorageMock.clear();
-
-    // Default mock for history API
-    mockFetch.mockResolvedValue({
-      ok: true,
-      json: async () => [],
-    });
   });
 
   it("should render search form", () => {
