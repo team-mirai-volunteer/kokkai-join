@@ -13,10 +13,10 @@ This is the **kokkai-join** project, a monorepo containing a Next.js frontend ap
 
 ### Frontend Technology Stack
 - **Framework**: Next.js 15.4.6 with App Router
-- **React**: Version 19.1.0 
+- **React**: Version 19.1.0
 - **TypeScript**: Full TypeScript support with strict configuration
 - **Styling**: Tailwind CSS v4 with PostCSS
-- **Package Manager**: Bun (evidenced by bun.lock file)
+- **Package Manager**: Bun for dependency installation only; npm for all other tasks
 - **Build Tool**: Turbopack (enabled in dev script)
 - **Fonts**: Geist Sans and Geist Mono from Google Fonts
 
@@ -27,26 +27,27 @@ All commands should be run from the `frontend/` directory:
 ### Development
 ```bash
 cd frontend
-bun dev              # Start development server with Turbopack
+npm run dev          # Start development server with Turbopack
 ```
 
 ### Build and Production
 ```bash
 cd frontend
-bun run build        # Build for production
-bun run start        # Start production server
+npm run build        # Build for production
+npm run start        # Start production server
 ```
 
 ### Code Quality
 ```bash
 cd frontend
-bun run lint         # Run ESLint via Next.js
+npm run lint         # Run ESLint via Next.js
+npm test             # Run tests with Vitest
 ```
 
 ### Package Management
 ```bash
 cd frontend
-bun install          # Install dependencies
+bun install          # Install dependencies (use bun for installation only)
 bun add <package>    # Add new dependency
 bun add -d <package> # Add development dependency
 ```

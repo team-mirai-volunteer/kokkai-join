@@ -19,7 +19,7 @@ kokkai-join/
 - **UI**: Tailwind CSS v4
 - **認証**: Supabase Auth
 - **状態管理**: React Context API
-- **パッケージマネージャー**: Bun
+- **パッケージマネージャー**: Bun (依存関係のインストールのみ) / npm (その他のタスク)
 
 ### バックエンド
 - **Framework**: Hono 4.9.9
@@ -101,15 +101,15 @@ VITE_API_ENDPOINT=http://localhost:8000/api
 ```bash
 # バックエンド（http://localhost:8000）
 cd backend
-bun run dev
+npm run dev
 # または ghost を使用する場合
-ghost run bun run dev
+ghost run -- npm run dev
 
 # フロントエンド（http://localhost:5173 または 5174）
 cd frontend
-bun dev
+npm run dev
 # または ghost を使用する場合
-ghost run bun dev
+ghost run -- npm run dev
 ```
 
 ### 6. テストユーザーの作成
@@ -118,10 +118,10 @@ ghost run bun dev
 
 ```bash
 # デフォルトユーザーを作成
-bun scripts/create-test-user.js
+node scripts/create-test-user.js
 
 # カスタムユーザーを作成
-bun scripts/create-test-user.js myuser@example.com mypassword
+node scripts/create-test-user.js myuser@example.com mypassword
 ```
 
 **デフォルトのテストユーザー認証情報**:
@@ -142,13 +142,13 @@ bun scripts/create-test-user.js myuser@example.com mypassword
 ```bash
 cd frontend
 
-bun dev          # 開発サーバー起動
-bun run build    # プロダクションビルド
-bun run preview  # ビルドのプレビュー
-bun run lint     # Lintチェック
-bun run fmt      # フォーマットチェック＆自動修正
-bun run type-check  # 型チェック
-bun test         # テスト実行
+npm run dev          # 開発サーバー起動
+npm run build        # プロダクションビルド
+npm run preview      # ビルドのプレビュー
+npm run lint         # Lintチェック
+npm run fmt          # フォーマットチェック＆自動修正
+npm run type-check   # 型チェック
+npm test             # テスト実行
 ```
 
 ### バックエンド
@@ -156,13 +156,13 @@ bun test         # テスト実行
 ```bash
 cd backend
 
-bun run dev      # 開発サーバー起動
-bun run build    # TypeScriptビルド
-bun run start    # プロダクションサーバー起動
-bun run lint     # Lintチェック
-bun run fmt      # フォーマットチェック＆自動修正
-bun run type-check  # 型チェック
-bun test         # テスト実行
+npm run dev          # 開発サーバー起動
+npm run build        # TypeScriptビルド
+npm run start        # プロダクションサーバー起動
+npm run lint         # Lintチェック
+npm run fmt          # フォーマットチェック＆自動修正
+npm run type-check   # 型チェック
+npm test             # テスト実行
 ```
 
 ### Supabase
