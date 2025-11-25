@@ -1,11 +1,11 @@
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { HashRouter, Navigate, Route, Routes } from "react-router-dom";
+import { AuthProvider } from "./features/auth/contexts/AuthContext";
+import LoginPage from "./features/auth/pages/LoginPage";
+import HistoryDetailPage from "./features/history/pages/HistoryDetailPage";
+import HistoryListPage from "./features/history/pages/HistoryListPage";
+import SearchPage from "./features/search/pages/SearchPage";
 import AuthLayout from "./shared/components/layouts/AuthLayout";
 import GuestLayout from "./shared/components/layouts/GuestLayout";
-import LoginPage from "./features/auth/pages/LoginPage";
-import SearchPage from "./features/search/pages/SearchPage";
-import HistoryListPage from "./features/history/pages/HistoryListPage";
-import HistoryDetailPage from "./features/history/pages/HistoryDetailPage";
-import { AuthProvider } from "./features/auth/contexts/AuthContext";
 
 /**
  * App - ルートコンポーネント
@@ -28,7 +28,7 @@ import { AuthProvider } from "./features/auth/contexts/AuthContext";
  */
 function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <AuthProvider>
         <Routes>
           {/* 未認証ルート */}
@@ -47,7 +47,7 @@ function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </AuthProvider>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
 
