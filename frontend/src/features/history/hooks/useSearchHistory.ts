@@ -67,18 +67,15 @@ export function useSearchHistory(): UseSearchHistoryReturn {
       setError(null);
 
       const token = await getAuthToken();
-      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:8000";
+      const apiUrl = import.meta.env.VITE_API_ENDPOINT;
 
-      const response = await fetch(
-        `${apiUrl}/api/v1/history?limit=100&offset=0`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
+      const response = await fetch(`${apiUrl}/v1/history?limit=100&offset=0`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
-      );
+      });
 
       if (!response.ok) {
         const errorData = await response.json();
